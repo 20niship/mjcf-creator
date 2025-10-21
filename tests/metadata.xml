@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<joint_metadata>
+  <joint name="imu">
+    <actuator_type>motor</actuator_type>
+    <nn_id>0</nn_id>
+    <id>0</id>
+    <kp>40.0</kp>
+    <kd>2.0</kd>
+    <soft_torque_limit>10.0</soft_torque_limit>
+    <min_angle_deg>0.0</min_angle_deg>
+    <max_angle_deg>0.0</max_angle_deg>
+  </joint>
+  <joint name="RLEG_HIP_R">
+    <actuator_type>motor</actuator_type>
+    <nn_id>1</nn_id>
+    <id>1</id>
+    <kp>40.0</kp>
+    <kd>2.0</kd>
+    <soft_torque_limit>10.0</soft_torque_limit>
+    <min_angle_deg>0.0</min_angle_deg>
+    <max_angle_deg>0.0</max_angle_deg>
+  </joint>
+  <joint name="RLEG_HIP_P">
+    <actuator_type>motor</actuator_type>
+    <nn_id>2</nn_id>
+    <id>2</id>
+    <kp>40.0</kp>
+    <kd>2.0</kd>
+    <soft_torque_limit>10.0</soft_torque_limit>
+    <min_angle_deg>0.0</min_angle_deg>
+    <max_angle_deg>0.0</max_angle_deg>
+  </joint>
+  <joint name="RLEG_HIP_Y">
+    <actuator_type>motor</actuator_type>
+    <nn_id>3</nn_id>
+    <id>3</id>
+    <kp>40.0</kp>
+    <kd>2.0</kd>
+    <soft_torque_limit>10.0</soft_torque_limit>
+    <min_angle_deg>0.0</min_angle_deg>
+    <max_angle_deg>0.0</max_angle_deg>
+  </joint>
+  <joint name="RLEG_KNEE">
+    <actuator_type>motor</actuator_type>
+    <nn_id>4</nn_id>
+    <id>4</id>
+    <kp>40.0</kp>
+    <kd>2.0</kd>
+    <soft_torque_limit>10.0</soft_torque_limit>
+    <min_angle_deg>0.0</min_angle_deg>
+    <max_angle_deg>0.0</max_angle_deg>
+  </joint>
+  <joint name="RLEG_ANKLE_P">
+    <actuator_type>motor</actuator_type>
+    <nn_id>5</nn_id>
+    <id>5</id>
+    <kp>40.0</kp>
+    <kd>2.0</kd>
+    <soft_torque_limit>10.0</soft_torque_limit>
+    <min_angle_deg>0.0</min_angle_deg>
+    <max_angle_deg>0.0</max_angle_deg>
+  </joint>
+  <joint name="RLEG_ANKLE_R">
+    <actuator_type>motor</actuator_type>
+    <nn_id>6</nn_id>
+    <id>6</id>
+    <kp>40.0</kp>
+    <kd>2.0</kd>
+    <soft_torque_limit>10.0</soft_torque_limit>
+    <min_angle_deg>0.0</min_angle_deg>
+    <max_angle_deg>0.0</max_angle_deg>
+  </joint>
+  <joint name="RARM_SHOULDER_P">
+    <actuator_type>motor</actuator_type>
+    <nn_id>7</nn_id>
+    <id>7</id>
+    <kp>40.0</kp>
+    <kd>2.0</kd>
+    <soft_torque_limit>10.0</soft_torque_limit>
+    <min_angle_deg>0.0</min_angle_deg>
+    <max_angle_deg>0.0</max_angle_deg>
+  </joint>
+  <joint name="RARM_SHOULDER_R">
+    <actuator_type>motor</actuator_type>
+    <nn_id>8</nn_id>
+    <id>8</id>
+    <kp>40.0</kp>
+    <kd>2.0</kd>
+    <soft_torque_limit>10.0</soft_torque_limit>
+    <min_angle_deg>0.0</min_angle_deg>
+    <max_angle_deg>0.0</max_angle_deg>
+  </joint>
+  <joint name="RARM_SHOULDER_Y">
+    <actuator_type>motor</actuator_type>
+    <nn_id>9</nn_id>
+    <id>9</id>
+    <kp>40.0</kp>
+    <kd>2.0</kd>
+    <soft_torque_limit>10.0</soft_torque_limit>
+    <min_angle_deg>0.0</min_angle_deg>
+    <max_angle_deg>0.0</max_angle_deg>
+  </joint>
+  <joint name="RARM_ELBOW">
+    <actuator_type>motor</actuator_type>
+    <nn_id>10</nn_id>
+    <id>10</id>
+    <kp>40.0</kp>
+    <kd>2.0</kd>
+    <soft_torque_limit>10.0</soft_torque_limit>
+    <min_angle_deg>0.0</min_angle_deg>
+    <max_angle_deg>0.0</max_angle_deg>
+  </joint>
+  <joint name="RARM_WRIST_Y">
+    <actuator_type>motor</actuator_type>
+    <nn_id>11</nn_id>
+    <id>11</id>
+    <kp>40.0</kp>
+    <kd>2.0</kd>
+    <soft_torque_limit>10.0</soft_torque_limit>
+    <min_angle_deg>0.0</min_angle_deg>
+    <max_angle_deg>0.0</max_angle_deg>
+  </joint>
+  <joint name="RARM_WRIST_P">
+    <actuator_type>motor</actuator_type>
+    <nn_id>12</nn_id>
+    <id>12</id>
+    <kp>40.0</kp>
+    <kd>2.0</kd>
+    <soft_torque_limit>10.0</soft_torque_limit>
+    <min_angle_deg>0.0</min_angle_deg>
+    <max_angle_deg>0.0</max_angle_deg>
+  </joint>
+  <joint name="RARM_WRIST_R">
+    <actuator_type>motor</actuator_type>
+    <nn_id>13</nn_id>
+    <id>13</id>
+    <kp>40.0</kp>
+    <kd>2.0</kd>
+    <soft_torque_limit>10.0</soft_torque_limit>
+    <min_angle_deg>0.0</min_angle_deg>
+    <max_angle_deg>0.0</max_angle_deg>
+  </joint>
+  <joint name="LLEG_HIP_R">
+    <actuator_type>motor</actuator_type>
+    <nn_id>14</nn_id>
+    <id>14</id>
+    <kp>40.0</kp>
+    <kd>2.0</kd>
+    <soft_torque_limit>10.0</soft_torque_limit>
+    <min_angle_deg>0.0</min_angle_deg>
+    <max_angle_deg>0.0</max_angle_deg>
+  </joint>
+  <joint name="LLEG_HIP_P">
+    <actuator_type>motor</actuator_type>
+    <nn_id>15</nn_id>
+    <id>15</id>
+    <kp>40.0</kp>
+    <kd>2.0</kd>
+    <soft_torque_limit>10.0</soft_torque_limit>
+    <min_angle_deg>0.0</min_angle_deg>
+    <max_angle_deg>0.0</max_angle_deg>
+  </joint>
+  <joint name="LLEG_HIP_Y">
+    <actuator_type>motor</actuator_type>
+    <nn_id>16</nn_id>
+    <id>16</id>
+    <kp>40.0</kp>
+    <kd>2.0</kd>
+    <soft_torque_limit>10.0</soft_torque_limit>
+    <min_angle_deg>0.0</min_angle_deg>
+    <max_angle_deg>0.0</max_angle_deg>
+  </joint>
+  <joint name="LLEG_KNEE">
+    <actuator_type>motor</actuator_type>
+    <nn_id>17</nn_id>
+    <id>17</id>
+    <kp>40.0</kp>
+    <kd>2.0</kd>
+    <soft_torque_limit>10.0</soft_torque_limit>
+    <min_angle_deg>0.0</min_angle_deg>
+    <max_angle_deg>0.0</max_angle_deg>
+  </joint>
+  <joint name="LLEG_ANKLE_P">
+    <actuator_type>motor</actuator_type>
+    <nn_id>18</nn_id>
+    <id>18</id>
+    <kp>40.0</kp>
+    <kd>2.0</kd>
+    <soft_torque_limit>10.0</soft_torque_limit>
+    <min_angle_deg>0.0</min_angle_deg>
+    <max_angle_deg>0.0</max_angle_deg>
+  </joint>
+  <joint name="LLEG_ANKLE_R">
+    <actuator_type>motor</actuator_type>
+    <nn_id>19</nn_id>
+    <id>19</id>
+    <kp>40.0</kp>
+    <kd>2.0</kd>
+    <soft_torque_limit>10.0</soft_torque_limit>
+    <min_angle_deg>0.0</min_angle_deg>
+    <max_angle_deg>0.0</max_angle_deg>
+  </joint>
+  <joint name="LARM_SHOULDER_P">
+    <actuator_type>motor</actuator_type>
+    <nn_id>20</nn_id>
+    <id>20</id>
+    <kp>40.0</kp>
+    <kd>2.0</kd>
+    <soft_torque_limit>10.0</soft_torque_limit>
+    <min_angle_deg>0.0</min_angle_deg>
+    <max_angle_deg>0.0</max_angle_deg>
+  </joint>
+  <joint name="LARM_SHOULDER_R">
+    <actuator_type>motor</actuator_type>
+    <nn_id>21</nn_id>
+    <id>21</id>
+    <kp>40.0</kp>
+    <kd>2.0</kd>
+    <soft_torque_limit>10.0</soft_torque_limit>
+    <min_angle_deg>0.0</min_angle_deg>
+    <max_angle_deg>0.0</max_angle_deg>
+  </joint>
+  <joint name="LARM_SHOULDER_Y">
+    <actuator_type>motor</actuator_type>
+    <nn_id>22</nn_id>
+    <id>22</id>
+    <kp>40.0</kp>
+    <kd>2.0</kd>
+    <soft_torque_limit>10.0</soft_torque_limit>
+    <min_angle_deg>0.0</min_angle_deg>
+    <max_angle_deg>0.0</max_angle_deg>
+  </joint>
+  <joint name="LARM_ELBOW">
+    <actuator_type>motor</actuator_type>
+    <nn_id>23</nn_id>
+    <id>23</id>
+    <kp>40.0</kp>
+    <kd>2.0</kd>
+    <soft_torque_limit>10.0</soft_torque_limit>
+    <min_angle_deg>0.0</min_angle_deg>
+    <max_angle_deg>0.0</max_angle_deg>
+  </joint>
+  <joint name="LARM_WRIST_Y">
+    <actuator_type>motor</actuator_type>
+    <nn_id>24</nn_id>
+    <id>24</id>
+    <kp>40.0</kp>
+    <kd>2.0</kd>
+    <soft_torque_limit>10.0</soft_torque_limit>
+    <min_angle_deg>0.0</min_angle_deg>
+    <max_angle_deg>0.0</max_angle_deg>
+  </joint>
+  <joint name="LARM_WRIST_P">
+    <actuator_type>motor</actuator_type>
+    <nn_id>25</nn_id>
+    <id>25</id>
+    <kp>40.0</kp>
+    <kd>2.0</kd>
+    <soft_torque_limit>10.0</soft_torque_limit>
+    <min_angle_deg>0.0</min_angle_deg>
+    <max_angle_deg>0.0</max_angle_deg>
+  </joint>
+  <joint name="LARM_WRIST_R">
+    <actuator_type>motor</actuator_type>
+    <nn_id>26</nn_id>
+    <id>26</id>
+    <kp>40.0</kp>
+    <kd>2.0</kd>
+    <soft_torque_limit>10.0</soft_torque_limit>
+    <min_angle_deg>0.0</min_angle_deg>
+    <max_angle_deg>0.0</max_angle_deg>
+  </joint>
+  <joint name="WAIST_P">
+    <actuator_type>motor</actuator_type>
+    <nn_id>27</nn_id>
+    <id>27</id>
+    <kp>40.0</kp>
+    <kd>2.0</kd>
+    <soft_torque_limit>10.0</soft_torque_limit>
+    <min_angle_deg>0.0</min_angle_deg>
+    <max_angle_deg>0.0</max_angle_deg>
+  </joint>
+  <joint name="WAIST_R">
+    <actuator_type>motor</actuator_type>
+    <nn_id>28</nn_id>
+    <id>28</id>
+    <kp>40.0</kp>
+    <kd>2.0</kd>
+    <soft_torque_limit>10.0</soft_torque_limit>
+    <min_angle_deg>0.0</min_angle_deg>
+    <max_angle_deg>0.0</max_angle_deg>
+  </joint>
+  <joint name="CHEST">
+    <actuator_type>motor</actuator_type>
+    <nn_id>29</nn_id>
+    <id>29</id>
+    <kp>40.0</kp>
+    <kd>2.0</kd>
+    <soft_torque_limit>10.0</soft_torque_limit>
+    <min_angle_deg>0.0</min_angle_deg>
+    <max_angle_deg>0.0</max_angle_deg>
+  </joint>
+</joint_metadata>

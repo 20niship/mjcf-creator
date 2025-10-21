@@ -1,44 +1,82 @@
 #include "doctest.h"
 #include "mjcf/mjcf.hpp"
+#include "../src/ext/tinyxml2.h"
 #include <filesystem>
 #include <fstream>
 #include <map>
 
-// Simple JSON parser for metadata files - in a real implementation you'd use a JSON library
-std::map<std::string, mjcf::JointMetadata> parse_joint_metadata_json(const std::string& json_path) {
+// XML parser for metadata files using tinyxml2
+std::map<std::string, mjcf::JointMetadata> parse_joint_metadata_xml(const std::string& xml_path) {
   std::map<std::string, mjcf::JointMetadata> metadata;
 
-  std::ifstream file(json_path);
-  if(!file.is_open()) {
+  tinyxml2::XMLDocument doc;
+  if(doc.LoadFile(xml_path.c_str()) != tinyxml2::XML_SUCCESS) {
     return metadata;
   }
 
-  std::string content;
-  std::string line;
-  while(std::getline(file, line)) {
-    content += line;
+  tinyxml2::XMLElement* root = doc.FirstChildElement("joint_metadata");
+  if(!root) {
+    return metadata;
   }
-  file.close();
 
-  // Simple approach - just look for some key joint names manually since the format is known
-  std::vector<std::string> known_joints = {"imu",          "RLEG_HIP_R",   "RLEG_HIP_P", "RLEG_HIP_Y", "RLEG_KNEE", "RLEG_ANKLE_P",    "RLEG_ANKLE_R",    "LLEG_HIP_R",      "LLEG_HIP_P",      "LLEG_HIP_Y", "LLEG_KNEE",
-                                           "LLEG_ANKLE_P", "LLEG_ANKLE_R", "WAIST_P",    "WAIST_R",    "CHEST",     "RARM_SHOULDER_P", "RARM_SHOULDER_R", "LARM_SHOULDER_P", "LARM_SHOULDER_R", "RARM_ELBOW", "LARM_ELBOW"};
+  for(tinyxml2::XMLElement* joint_elem = root->FirstChildElement("joint"); 
+      joint_elem != nullptr; 
+      joint_elem = joint_elem->NextSiblingElement("joint")) {
+    
+    const char* joint_name = joint_elem->Attribute("name");
+    if(!joint_name) continue;
 
-  int id_counter = 0;
-  for(const auto& joint_name : known_joints) {
-    if(content.find("\"" + joint_name + "\"") != std::string::npos) {
-      mjcf::JointMetadata joint_meta;
-      joint_meta.actuator_type     = "motor";
-      joint_meta.id                = id_counter++;
-      joint_meta.nn_id             = joint_meta.id;
-      joint_meta.kp                = 40.0;
-      joint_meta.kd                = 2.0;
-      joint_meta.soft_torque_limit = 10.0;
-      joint_meta.min_angle_deg     = 0.0;
-      joint_meta.max_angle_deg     = 0.0;
-
-      metadata[joint_name] = joint_meta;
+    mjcf::JointMetadata joint_meta;
+    
+    // Parse actuator_type
+    tinyxml2::XMLElement* actuator_type_elem = joint_elem->FirstChildElement("actuator_type");
+    if(actuator_type_elem && actuator_type_elem->GetText()) {
+      joint_meta.actuator_type = actuator_type_elem->GetText();
     }
+    
+    // Parse nn_id
+    tinyxml2::XMLElement* nn_id_elem = joint_elem->FirstChildElement("nn_id");
+    if(nn_id_elem && nn_id_elem->GetText()) {
+      joint_meta.nn_id = std::stoi(nn_id_elem->GetText());
+    }
+    
+    // Parse id
+    tinyxml2::XMLElement* id_elem = joint_elem->FirstChildElement("id");
+    if(id_elem && id_elem->GetText()) {
+      joint_meta.id = std::stoi(id_elem->GetText());
+    }
+    
+    // Parse kp
+    tinyxml2::XMLElement* kp_elem = joint_elem->FirstChildElement("kp");
+    if(kp_elem && kp_elem->GetText()) {
+      joint_meta.kp = std::stod(kp_elem->GetText());
+    }
+    
+    // Parse kd
+    tinyxml2::XMLElement* kd_elem = joint_elem->FirstChildElement("kd");
+    if(kd_elem && kd_elem->GetText()) {
+      joint_meta.kd = std::stod(kd_elem->GetText());
+    }
+    
+    // Parse soft_torque_limit
+    tinyxml2::XMLElement* soft_torque_limit_elem = joint_elem->FirstChildElement("soft_torque_limit");
+    if(soft_torque_limit_elem && soft_torque_limit_elem->GetText()) {
+      joint_meta.soft_torque_limit = std::stod(soft_torque_limit_elem->GetText());
+    }
+    
+    // Parse min_angle_deg
+    tinyxml2::XMLElement* min_angle_elem = joint_elem->FirstChildElement("min_angle_deg");
+    if(min_angle_elem && min_angle_elem->GetText()) {
+      joint_meta.min_angle_deg = std::stod(min_angle_elem->GetText());
+    }
+    
+    // Parse max_angle_deg
+    tinyxml2::XMLElement* max_angle_elem = joint_elem->FirstChildElement("max_angle_deg");
+    if(max_angle_elem && max_angle_elem->GetText()) {
+      joint_meta.max_angle_deg = std::stod(max_angle_elem->GetText());
+    }
+
+    metadata[joint_name] = joint_meta;
   }
 
   return metadata;
@@ -88,7 +126,7 @@ TEST_SUITE("URDF Conversion Tests") {
     // Path to test files
     std::string test_dir            = "../tests/";
     std::string urdf_path           = test_dir + "robot.urdf";
-    std::string joint_metadata_path = test_dir + "joint_metadata.json";
+    std::string joint_metadata_path = test_dir + "metadata.xml";
     std::string actuator_path       = test_dir + "actuators/motor.json";
     std::string output_path         = "/tmp/converted_robot_with_metadata.mjcf";
 
@@ -99,7 +137,7 @@ TEST_SUITE("URDF Conversion Tests") {
     }
 
     // Parse metadata files
-    auto joint_metadata = parse_joint_metadata_json(joint_metadata_path);
+    auto joint_metadata = parse_joint_metadata_xml(joint_metadata_path);
     auto actuator_meta  = parse_actuator_metadata_json(actuator_path);
     std::map<std::string, mjcf::ActuatorMetadata> actuator_metadata;
     actuator_metadata["motor"] = actuator_meta;
