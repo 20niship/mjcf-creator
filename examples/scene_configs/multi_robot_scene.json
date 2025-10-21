@@ -1,0 +1,64 @@
+{
+    "name": "example_multi_robot_scene",
+    "add_floor": true,
+    "floor_size": [10.0, 10.0, 0.1],
+    "add_default_lighting": true,
+    "compiler_options": {
+        "angle": "degree",
+        "meshdir": "meshes"
+    },
+    "simulation_options": {
+        "timestep": 0.002,
+        "integrator": "RK4"
+    },
+    "urdf_objects": [
+        {
+            "name": "robot1",
+            "urdf_path": "path/to/robot1.urdf",
+            "transform": {
+                "pos": [-2.0, 0.0, 0.0],
+                "euler": [0.0, 0.0, 0.0]
+            },
+            "metadata_path": "path/to/robot1_metadata.json",
+            "copy_meshes": true
+        },
+        {
+            "name": "robot2",
+            "urdf_path": "path/to/robot2.urdf",
+            "transform": {
+                "pos": [2.0, 0.0, 0.0],
+                "euler": [0.0, 0.0, 180.0]
+            },
+            "copy_meshes": true
+        }
+    ],
+    "geometric_objects": [
+        {
+            "name": "obstacle1",
+            "type": "box",
+            "size": [0.5, 0.5, 1.0],
+            "transform": {
+                "pos": [0.0, 0.0, 0.5]
+            },
+            "rgba": [1.0, 0.0, 0.0, 1.0]
+        },
+        {
+            "name": "obstacle2",
+            "type": "sphere",
+            "size": [0.3],
+            "transform": {
+                "pos": [0.0, 2.0, 0.3]
+            },
+            "rgba": [0.0, 1.0, 0.0, 1.0]
+        },
+        {
+            "name": "wall",
+            "type": "box",
+            "size": [0.1, 5.0, 2.0],
+            "transform": {
+                "pos": [4.0, 0.0, 1.0]
+            },
+            "rgba": [0.5, 0.5, 0.5, 1.0]
+        }
+    ]
+}

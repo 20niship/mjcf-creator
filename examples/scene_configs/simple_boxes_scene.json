@@ -1,0 +1,48 @@
+{
+    "name": "simple_boxes_scene",
+    "add_floor": true,
+    "floor_size": [8.0, 8.0, 0.1],
+    "add_default_lighting": true,
+    "simulation_options": {
+        "timestep": 0.001
+    },
+    "urdf_objects": [],
+    "geometric_objects": [
+        {
+            "name": "red_box",
+            "type": "box",
+            "size": [1.0, 1.0, 1.0],
+            "transform": {
+                "pos": [-2.0, -2.0, 0.5]
+            },
+            "rgba": [1.0, 0.0, 0.0, 1.0]
+        },
+        {
+            "name": "green_box",
+            "type": "box",
+            "size": [0.8, 0.8, 0.8],
+            "transform": {
+                "pos": [2.0, -2.0, 0.4]
+            },
+            "rgba": [0.0, 1.0, 0.0, 1.0]
+        },
+        {
+            "name": "blue_box",
+            "type": "box",
+            "size": [0.6, 0.6, 0.6],
+            "transform": {
+                "pos": [-2.0, 2.0, 0.3]
+            },
+            "rgba": [0.0, 0.0, 1.0, 1.0]
+        },
+        {
+            "name": "yellow_sphere",
+            "type": "sphere",
+            "size": [0.5],
+            "transform": {
+                "pos": [2.0, 2.0, 0.5]
+            },
+            "rgba": [1.0, 1.0, 0.0, 1.0]
+        }
+    ]
+}

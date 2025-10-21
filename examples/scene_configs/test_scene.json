@@ -1,0 +1,52 @@
+{
+    "name": "test_multi_robot_scene",
+    "add_floor": true,
+    "floor_size": [10.0, 10.0, 0.1],
+    "add_default_lighting": true,
+    "compiler_options": {
+        "angle": "degree"
+    },
+    "simulation_options": {
+        "timestep": 0.002
+    },
+    "urdf_objects": [
+        {
+            "name": "robot1",
+            "urdf_path": "examples/urdf_files/simple_robot.urdf",
+            "transform": {
+                "pos": [-2.0, 0.0, 0.15],
+                "euler": [0.0, 0.0, 0.0]
+            },
+            "copy_meshes": false
+        },
+        {
+            "name": "mobile_robot",
+            "urdf_path": "examples/urdf_files/mobile_base.urdf",
+            "transform": {
+                "pos": [2.0, 0.0, 0.15],
+                "euler": [0.0, 0.0, 180.0]
+            },
+            "copy_meshes": false
+        }
+    ],
+    "geometric_objects": [
+        {
+            "name": "obstacle1",
+            "type": "box",
+            "size": [0.5, 0.5, 1.0],
+            "transform": {
+                "pos": [0.0, -2.0, 0.5]
+            },
+            "rgba": [1.0, 0.0, 0.0, 1.0]
+        },
+        {
+            "name": "obstacle2",
+            "type": "sphere",
+            "size": [0.3],
+            "transform": {
+                "pos": [0.0, 2.0, 0.3]
+            },
+            "rgba": [0.0, 1.0, 0.0, 1.0]
+        }
+    ]
+}

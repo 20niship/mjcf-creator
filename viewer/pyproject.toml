@@ -1,0 +1,14 @@
+[project]
+name = "mjcf-viewer"
+version = "0.1.0"
+description = "MJCF file viewer using MuJoCo"
+requires-python = ">=3.8"
+dependencies = [
+    "mujoco>=3.0.0",
+    "numpy>=1.20.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=7.0.0",
+]

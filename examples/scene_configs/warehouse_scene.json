@@ -1,0 +1,135 @@
+{
+    "name": "warehouse_simulation",
+    "add_floor": true,
+    "floor_size": [20.0, 15.0, 0.1],
+    "add_default_lighting": true,
+    "compiler_options": {
+        "angle": "degree",
+        "meshdir": "meshes"
+    },
+    "simulation_options": {
+        "timestep": 0.001,
+        "integrator": "RK4"
+    },
+    "urdf_objects": [
+        {
+            "name": "robot1",
+            "urdf_path": "examples/urdf_files/mobile_base.urdf",
+            "transform": {
+                "pos": [-3.0, -2.0, 0.175],
+                "euler": [0.0, 0.0, 90.0]
+            },
+            "copy_meshes": false
+        },
+        {
+            "name": "robot2",
+            "urdf_path": "examples/urdf_files/mobile_base.urdf",
+            "transform": {
+                "pos": [3.0, 2.0, 0.175],
+                "euler": [0.0, 0.0, -90.0]
+            },
+            "copy_meshes": false
+        },
+        {
+            "name": "manipulator",
+            "urdf_path": "examples/urdf_files/simple_robot.urdf",
+            "transform": {
+                "pos": [0.0, 0.0, 0.8],
+                "euler": [0.0, 0.0, 0.0]
+            },
+            "copy_meshes": false
+        }
+    ],
+    "geometric_objects": [
+        {
+            "name": "wall_north",
+            "type": "box",
+            "size": [10.0, 0.2, 3.0],
+            "transform": {
+                "pos": [0.0, 7.3, 1.5]
+            },
+            "rgba": [0.7, 0.7, 0.7, 1.0]
+        },
+        {
+            "name": "wall_south",
+            "type": "box",
+            "size": [10.0, 0.2, 3.0],
+            "transform": {
+                "pos": [0.0, -7.3, 1.5]
+            },
+            "rgba": [0.7, 0.7, 0.7, 1.0]
+        },
+        {
+            "name": "wall_east",
+            "type": "box",
+            "size": [0.2, 7.3, 3.0],
+            "transform": {
+                "pos": [9.8, 0.0, 1.5]
+            },
+            "rgba": [0.7, 0.7, 0.7, 1.0]
+        },
+        {
+            "name": "wall_west",
+            "type": "box",
+            "size": [0.2, 7.3, 3.0],
+            "transform": {
+                "pos": [-9.8, 0.0, 1.5]
+            },
+            "rgba": [0.7, 0.7, 0.7, 1.0]
+        },
+        {
+            "name": "shelf1",
+            "type": "box",
+            "size": [2.0, 0.5, 2.0],
+            "transform": {
+                "pos": [-5.0, 3.0, 1.0]
+            },
+            "rgba": [0.8, 0.6, 0.4, 1.0]
+        },
+        {
+            "name": "shelf2",
+            "type": "box",
+            "size": [2.0, 0.5, 2.0],
+            "transform": {
+                "pos": [5.0, 3.0, 1.0]
+            },
+            "rgba": [0.8, 0.6, 0.4, 1.0]
+        },
+        {
+            "name": "shelf3",
+            "type": "box",
+            "size": [2.0, 0.5, 2.0],
+            "transform": {
+                "pos": [-5.0, -3.0, 1.0]
+            },
+            "rgba": [0.8, 0.6, 0.4, 1.0]
+        },
+        {
+            "name": "package1",
+            "type": "box",
+            "size": [0.3, 0.3, 0.3],
+            "transform": {
+                "pos": [-5.0, 3.0, 2.3]
+            },
+            "rgba": [0.9, 0.7, 0.2, 1.0]
+        },
+        {
+            "name": "package2",
+            "type": "box",
+            "size": [0.25, 0.25, 0.25],
+            "transform": {
+                "pos": [5.0, 3.0, 2.25]
+            },
+            "rgba": [0.2, 0.7, 0.9, 1.0]
+        },
+        {
+            "name": "workstation_table",
+            "type": "box",
+            "size": [1.5, 1.0, 0.4],
+            "transform": {
+                "pos": [0.0, 0.0, 0.4]
+            },
+            "rgba": [0.6, 0.4, 0.2, 1.0]
+        }
+    ]
+}
