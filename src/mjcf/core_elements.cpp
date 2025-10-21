@@ -27,6 +27,11 @@ void* Mujoco::write_xml_element(void* doc_ptr, void* parent_ptr) const {
 }
 
 bool Mujoco::add_urdf(const std::string& urdf_path, const std::string& name_prefix, bool copy_meshes, const std::map<std::string, JointMetadata>& joint_metadata, const std::map<std::string, ActuatorMetadata>& actuator_metadata) {
+  if(!std::filesystem::exists(urdf_path)) {
+    printf("URDF file does not exist: %s\n", urdf_path.c_str());
+    return false;
+  }
+
   return UrdfConverter::parse_urdf_to_mjcf(this, urdf_path, joint_metadata, actuator_metadata);
 }
 

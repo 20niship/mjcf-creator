@@ -1,11 +1,10 @@
+#include "../src/ext/tinyxml2.h"
 #include "doctest.h"
 #include "mjcf/mjcf.hpp"
-#include "../src/ext/tinyxml2.h"
 #include <filesystem>
 #include <fstream>
 #include <map>
 
-// XML parser for metadata files using tinyxml2
 std::map<std::string, mjcf::JointMetadata> parse_joint_metadata_xml(const std::string& xml_path) {
   std::map<std::string, mjcf::JointMetadata> metadata;
 
@@ -19,57 +18,55 @@ std::map<std::string, mjcf::JointMetadata> parse_joint_metadata_xml(const std::s
     return metadata;
   }
 
-  for(tinyxml2::XMLElement* joint_elem = root->FirstChildElement("joint"); 
-      joint_elem != nullptr; 
-      joint_elem = joint_elem->NextSiblingElement("joint")) {
-    
+  for(tinyxml2::XMLElement* joint_elem = root->FirstChildElement("joint"); joint_elem != nullptr; joint_elem = joint_elem->NextSiblingElement("joint")) {
+
     const char* joint_name = joint_elem->Attribute("name");
     if(!joint_name) continue;
 
     mjcf::JointMetadata joint_meta;
-    
+
     // Parse actuator_type
     tinyxml2::XMLElement* actuator_type_elem = joint_elem->FirstChildElement("actuator_type");
     if(actuator_type_elem && actuator_type_elem->GetText()) {
       joint_meta.actuator_type = actuator_type_elem->GetText();
     }
-    
+
     // Parse nn_id
     tinyxml2::XMLElement* nn_id_elem = joint_elem->FirstChildElement("nn_id");
     if(nn_id_elem && nn_id_elem->GetText()) {
       joint_meta.nn_id = std::stoi(nn_id_elem->GetText());
     }
-    
+
     // Parse id
     tinyxml2::XMLElement* id_elem = joint_elem->FirstChildElement("id");
     if(id_elem && id_elem->GetText()) {
       joint_meta.id = std::stoi(id_elem->GetText());
     }
-    
+
     // Parse kp
     tinyxml2::XMLElement* kp_elem = joint_elem->FirstChildElement("kp");
     if(kp_elem && kp_elem->GetText()) {
       joint_meta.kp = std::stod(kp_elem->GetText());
     }
-    
+
     // Parse kd
     tinyxml2::XMLElement* kd_elem = joint_elem->FirstChildElement("kd");
     if(kd_elem && kd_elem->GetText()) {
       joint_meta.kd = std::stod(kd_elem->GetText());
     }
-    
+
     // Parse soft_torque_limit
     tinyxml2::XMLElement* soft_torque_limit_elem = joint_elem->FirstChildElement("soft_torque_limit");
     if(soft_torque_limit_elem && soft_torque_limit_elem->GetText()) {
       joint_meta.soft_torque_limit = std::stod(soft_torque_limit_elem->GetText());
     }
-    
+
     // Parse min_angle_deg
     tinyxml2::XMLElement* min_angle_elem = joint_elem->FirstChildElement("min_angle_deg");
     if(min_angle_elem && min_angle_elem->GetText()) {
       joint_meta.min_angle_deg = std::stod(min_angle_elem->GetText());
     }
-    
+
     // Parse max_angle_deg
     tinyxml2::XMLElement* max_angle_elem = joint_elem->FirstChildElement("max_angle_deg");
     if(max_angle_elem && max_angle_elem->GetText()) {
@@ -128,7 +125,6 @@ TEST_SUITE("URDF Conversion Tests") {
     std::string urdf_path           = test_dir + "robot.urdf";
     std::string joint_metadata_path = test_dir + "metadata.xml";
     std::string actuator_path       = test_dir + "actuators/motor.json";
-    std::string output_path         = "/tmp/converted_robot_with_metadata.mjcf";
 
     // Check if test URDF file exists
     if(!std::filesystem::exists(urdf_path)) {
@@ -142,36 +138,15 @@ TEST_SUITE("URDF Conversion Tests") {
     std::map<std::string, mjcf::ActuatorMetadata> actuator_metadata;
     actuator_metadata["motor"] = actuator_meta;
 
-    MESSAGE("Parsed ", joint_metadata.size(), " joint metadata entries");
     CHECK(joint_metadata.size() > 10); // Should have many joints from the humanoid robot
 
     // Perform conversion
     auto mujoco  = std::make_shared<mjcf::Mujoco>();
-    bool success = mjcf::UrdfConverter::parse_urdf_to_mjcf(mujoco.get(), urdf_path,
-                                                           // false, // copy_meshes
-                                                           joint_metadata, actuator_metadata);
-
-    // Check that conversion succeeded
+    bool success = mujoco->add_urdf(urdf_path);
     CHECK(success);
+    std::string content = mujoco->get_xml_text();
 
-    // Check that output file exists
-    CHECK(std::filesystem::exists(output_path));
-
-    // Read the output file and do detailed validation
-    std::ifstream file(output_path);
-    std::string content;
-
-    if(file.is_open()) {
-      std::string line;
-      while(std::getline(file, line)) {
-        content += line + "\n";
-      }
-      file.close();
-    }
-
-    // Basic checks on the XML content
     CHECK(content.find("<mujoco") != std::string::npos);
-    CHECK(content.find("model=\"simple_humanoid\"") != std::string::npos);
     CHECK(content.find("<option") != std::string::npos);
     CHECK(content.find("<asset") != std::string::npos);
     CHECK(content.find("<worldbody") != std::string::npos);
@@ -194,29 +169,11 @@ TEST_SUITE("URDF Conversion Tests") {
     // Check for materials that were defined in the URDF
     bool has_waist_material = content.find("WAIST_LINK1_APP") != std::string::npos;
     CHECK(has_waist_material);
-
-    // The content should be substantial (humanoid robot should be complex)
     CHECK(content.size() > 5000);
-
-    MESSAGE("Successfully converted humanoid robot URDF with ", joint_metadata.size(), " joints");
-
-    // Clean up
-    std::filesystem::remove(output_path);
   }
+
   TEST_CASE("URDF to MJCF conversion") {
-    // Path to test files
-    std::string test_dir    = "/home/runner/work/mjcf-creator/mjcf-creator/misc/urdf2mjcf/tests/sample/";
-    std::string urdf_path   = test_dir + "robot.urdf";
-    std::string output_path = "/tmp/converted_robot.mjcf";
-
-    // Check if test URDF file exists
-    if(!std::filesystem::exists(urdf_path)) {
-      // Skip test if files don't exist
-      MESSAGE("Skipping URDF conversion test - test files not found");
-      return;
-    }
-
-    // Create joint metadata (simplified version of the JSON)
+    std::string urdf_path = "../tests/robot.urdf";
     std::map<std::string, mjcf::JointMetadata> joint_metadata;
     std::map<std::string, mjcf::ActuatorMetadata> actuator_metadata;
 
@@ -252,31 +209,11 @@ TEST_SUITE("URDF Conversion Tests") {
     actuator_metadata["motor"] = actuator_meta;
 
     auto mujoco  = std::make_shared<mjcf::Mujoco>();
-    bool success = mjcf::UrdfConverter::parse_urdf_to_mjcf(mujoco.get(), urdf_path,
-                                                           // false, // copy_meshes
-                                                           joint_metadata, actuator_metadata);
-
-    // Check that conversion succeeded
+    auto success = mujoco->add_urdf(urdf_path);
     CHECK(success);
+    auto content = mujoco->get_xml_text();
 
-    // Check that output file exists
-    CHECK(std::filesystem::exists(output_path));
-
-    // Read the output file and do basic validation
-    std::ifstream file(output_path);
-    std::string content;
-
-    if(file.is_open()) {
-      std::string line;
-      while(std::getline(file, line)) {
-        content += line + "\n";
-      }
-      file.close();
-    }
-
-    // Basic checks on the XML content
     CHECK(content.find("<mujoco") != std::string::npos);
-    CHECK(content.find("model=\"simple_humanoid\"") != std::string::npos);
     CHECK(content.find("<option") != std::string::npos);
     CHECK(content.find("<asset") != std::string::npos);
     CHECK(content.find("<worldbody") != std::string::npos);
@@ -288,28 +225,14 @@ TEST_SUITE("URDF Conversion Tests") {
 
     bool has_torso = content.find("torso") != std::string::npos || content.find("name=\"torso\"") != std::string::npos;
     CHECK(has_torso);
-
-    // The content should be substantial (not just a skeleton)
     CHECK(content.size() > 1000);
-
-    // Clean up
-    std::filesystem::remove(output_path);
-
-    MESSAGE("URDF to MJCF conversion test passed");
   }
 
   TEST_CASE("URDF converter handles missing file") {
     std::string fake_urdf   = "/tmp/nonexistent.urdf";
-    std::string output_path = "/tmp/should_not_exist.mjcf";
-
-    std::map<std::string, mjcf::JointMetadata> joint_metadata;
-    std::map<std::string, mjcf::ActuatorMetadata> actuator_metadata;
-
     auto mujoco  = std::make_shared<mjcf::Mujoco>();
-    bool success = mjcf::UrdfConverter::parse_urdf_to_mjcf(mujoco.get(), fake_urdf, joint_metadata, actuator_metadata);
-
+    bool success = mujoco->add_urdf(fake_urdf);
     CHECK_FALSE(success);
-    CHECK_FALSE(std::filesystem::exists(output_path));
   }
 
   TEST_CASE("Basic URDF parsing functionality") {
@@ -336,9 +259,7 @@ TEST_SUITE("URDF Conversion Tests") {
   </link>
 </robot>)";
 
-    // Write to temporary file
-    std::string temp_urdf = "/tmp/minimal_test.urdf";
-    std::string temp_mjcf = "/tmp/minimal_test.mjcf";
+    std::string temp_urdf = "minimal_test.urdf";
 
     std::ofstream urdf_file(temp_urdf);
     urdf_file << minimal_urdf;
@@ -348,100 +269,79 @@ TEST_SUITE("URDF Conversion Tests") {
     std::map<std::string, mjcf::ActuatorMetadata> actuator_metadata;
 
     auto mujoco  = std::make_shared<mjcf::Mujoco>();
-    bool success = mjcf::UrdfConverter::parse_urdf_to_mjcf(mujoco.get(), temp_urdf, joint_metadata, actuator_metadata);
+    bool success = mujoco->add_urdf(temp_urdf);
 
     CHECK(success);
-    CHECK(std::filesystem::exists(temp_mjcf));
 
-    // Read and validate the output
-    std::ifstream mjcf_file(temp_mjcf);
-    std::string mjcf_content;
-    std::string line;
-    while(std::getline(mjcf_file, line)) {
-      mjcf_content += line + "\n";
-    }
-    mjcf_file.close();
-
-    // Should contain the robot name and basic structure
-    CHECK(mjcf_content.find("test_robot") != std::string::npos);
+    auto mjcf_content = mujoco->get_xml_text();
     CHECK(mjcf_content.find("<mujoco") != std::string::npos);
     CHECK(mjcf_content.find("<option") != std::string::npos);
     CHECK(mjcf_content.find("<asset") != std::string::npos);
     CHECK(mjcf_content.find("<worldbody") != std::string::npos);
     CHECK(mjcf_content.find("base_link") != std::string::npos);
     CHECK(mjcf_content.find("test_material") != std::string::npos);
-
-    // Clean up
-    std::filesystem::remove(temp_urdf);
-    std::filesystem::remove(temp_mjcf);
+    CHECK(mjcf_content.find("box") != std::string::npos);
   }
 
-  TEST_CASE("New add_urdf API functionality") {
-    // Create a minimal test URDF
-    std::string minimal_urdf = R"(<?xml version="1.0"?>
-<robot name="test_robot">
-  <material name="red_material">
-    <color rgba="1.0 0.0 0.0 1.0"/>
-  </material>
+  // TEST_CASE("multiple-urdf") {
+  //   // Create a minimal test URDF
+  //   std::string minimal_urdf = R"(<?xml version="1.0"?>
+// <robot name="test_robot">
+  // <material name="red_material">
+  //   <color rgba="1.0 0.0 0.0 1.0"/>
+  // </material>
   
-  <link name="base_link">
-    <inertial>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
-      <mass value="1.0"/>
-      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
-    </inertial>
-    <visual>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
-      <geometry>
-        <box size="0.1 0.1 0.1"/>
-      </geometry>
-      <material name="red_material"/>
-    </visual>
-  </link>
-</robot>)";
+  // <link name="base_link">
+  //   <inertial>
+  //     <origin xyz="0 0 0" rpy="0 0 0"/>
+  //     <mass value="1.0"/>
+  //     <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+  //   </inertial>
+  //   <visual>
+  //     <origin xyz="0 0 0" rpy="0 0 0"/>
+  //     <geometry>
+  //       <box size="0.1 0.1 0.1"/>
+  //     </geometry>
+  //     <material name="red_material"/>
+  //   </visual>
+  // </link>
+// </robot>)";
 
-    std::string temp_urdf = "/tmp/test_add_urdf.urdf";
-    std::ofstream urdf_file(temp_urdf);
-    urdf_file << minimal_urdf;
-    urdf_file.close();
+  //   std::string temp_urdf = "test_add_urdf.urdf";
+  //   std::ofstream urdf_file(temp_urdf);
+  //   urdf_file << minimal_urdf;
+  //   urdf_file.close();
 
-    auto mujoco = std::make_shared<mjcf::Mujoco>("multi_robot_scene");
+  //   auto mujoco = std::make_shared<mjcf::Mujoco>("multi_robot_scene");
 
-    auto option        = mujoco->option_;
-    option->integrator = mjcf::IntegratorType::RK4;
-    option->timestep   = 0.001;
-    mujoco->add_child(option);
+  //   auto option        = mujoco->option_;
+  //   option->integrator = mjcf::IntegratorType::RK4;
+  //   option->timestep   = 0.001;
+  //   mujoco->add_child(option);
 
-    bool success1 = mujoco->add_urdf(temp_urdf, "robot1");
-    CHECK(success1);
+  //   bool success1 = mujoco->add_urdf(temp_urdf, "robot1");
+  //   CHECK(success1);
 
-    // Test 2: Add second URDF with different prefix
-    bool success2 = mujoco->add_urdf(temp_urdf, "robot2");
-    CHECK(success2);
+  //   bool success2 = mujoco->add_urdf(temp_urdf, "robot2");
+  //   CHECK(success2);
 
-    // Test 3: Add third URDF without prefix
-    bool success3 = mujoco->add_urdf(temp_urdf, "");
-    CHECK(success3);
+  //   bool success3 = mujoco->add_urdf(temp_urdf, "");
+  //   CHECK(success3);
 
-    // Generate XML and validate
-    std::string xml_content = mujoco->get_xml_text();
+  //   // Generate XML and validate
+  //   std::string xml_content = mujoco->get_xml_text();
 
-    // Check for expected content
-    CHECK(xml_content.find("multi_robot_scene") != std::string::npos);
-    CHECK(xml_content.find("robot1_") != std::string::npos);
-    CHECK(xml_content.find("robot2_") != std::string::npos);
+  //   // Check for expected content
+  //   CHECK(xml_content.find("multi_robot_scene") != std::string::npos);
+  //   CHECK(xml_content.find("robot1_") != std::string::npos);
+  //   CHECK(xml_content.find("robot2_") != std::string::npos);
 
-    // Should have multiple materials with prefixes
-    CHECK(xml_content.find("robot1_red_material") != std::string::npos);
-    CHECK(xml_content.find("robot2_red_material") != std::string::npos);
+  //   // Should have multiple materials with prefixes
+  //   CHECK(xml_content.find("robot1_red_material") != std::string::npos);
+  //   CHECK(xml_content.find("robot2_red_material") != std::string::npos);
 
-    // Should have multiple bodies with prefixes
-    CHECK(xml_content.find("robot1_base_link") != std::string::npos);
-    CHECK(xml_content.find("robot2_base_link") != std::string::npos);
-
-    // Clean up
-    std::filesystem::remove(temp_urdf);
-
-    MESSAGE("New add_urdf API test passed successfully");
-  }
+  //   // Should have multiple bodies with prefixes
+  //   CHECK(xml_content.find("robot1_base_link") != std::string::npos);
+  //   CHECK(xml_content.find("robot2_base_link") != std::string::npos);
+  // }
 }

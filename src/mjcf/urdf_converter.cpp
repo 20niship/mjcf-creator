@@ -88,10 +88,15 @@ ActuatorMetadata ActuatorMetadata::from_json(const std::string& json_str) {
 }
 
 bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_path, const std::map<std::string, JointMetadata>& joint_metadata, const std::map<std::string, ActuatorMetadata>& actuator_metadata) {
+  if(std::filesystem::path(urdf_path).extension() != ".urdf") {
+    std::cerr << "Provided file is not a URDF file: " << urdf_path << std::endl;
+    return false;
+  }
+
   const std::string urdf_content = read_file(urdf_path);
   XMLDocument doc;
   if(doc.Parse(urdf_content.c_str()) != XML_SUCCESS) {
-    std::cerr << "Failed to parse URDF file: " << urdf_path << std::endl;
+    printf("Failed to parse URDF file: %s\n", urdf_path.c_str());
     return false;
   }
 
