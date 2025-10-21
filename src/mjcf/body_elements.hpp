@@ -244,14 +244,10 @@ protected:
   bool is_default_value(const std::string& name, const AttributeValue& value) const override;
 };
 
-/**
- * @brief Joint element
- */
 class Joint : public Element {
 public:
-  // Public member variables with MuJoCo default values
-  std::string name                       = "";
-  std::string class_                     = "";
+  std::string name;
+  std::string class_;
   JointType type                         = JointType::Hinge; // MuJoCo default
   int group                              = 0;
   Arr3 pos                               = {0.0, 0.0, 0.0};
@@ -275,6 +271,36 @@ public:
   Arr3 user                              = {0.0, 0.0, 0.0};
 
   Joint();
+
+  static std::shared_ptr<Joint> Free(const std::string& name) {
+    auto joint  = std::make_shared<Joint>();
+    joint->name = name;
+    joint->type = JointType::Free;
+    return joint;
+  }
+
+  static std::shared_ptr<Joint> Hinge(const std::string& name, const Arr3& axis = {0.0, 0.0, 1.0}) {
+    auto joint  = std::make_shared<Joint>();
+    joint->name = name;
+    joint->type = JointType::Hinge;
+    joint->axis = axis;
+    return joint;
+  }
+
+  static std::shared_ptr<Joint> Slide(const std::string& name, const Arr3& axis = {0.0, 0.0, 1.0}) {
+    auto joint  = std::make_shared<Joint>();
+    joint->name = name;
+    joint->type = JointType::Slide;
+    joint->axis = axis;
+    return joint;
+  }
+
+  static std::shared_ptr<Joint> Ball(const std::string& name) {
+    auto joint  = std::make_shared<Joint>();
+    joint->name = name;
+    joint->type = JointType::Ball;
+    return joint;
+  }
 
   std::string element_name() const override { return "joint"; }
 
