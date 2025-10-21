@@ -11,7 +11,7 @@ void Body::set_xml_attrib() const {
 
   // Only set non-default values
   if(!name.empty()) mutable_this->set_attribute("name", name);
-  if(pos != std::array<double, 3>{0.0, 0.0, 0.0}) {
+  if(pos != Arr3{0.0, 0.0, 0.0}) {
     mutable_this->set_attribute("pos", std::vector<double>(pos.begin(), pos.end()));
   }
   if(quat != std::array<double, 4>{1.0, 0.0, 0.0, 0.0}) {
@@ -20,13 +20,13 @@ void Body::set_xml_attrib() const {
   if(axisangle != std::array<double, 4>{0.0, 0.0, 0.0, 0.0}) {
     mutable_this->set_attribute("axisangle", std::vector<double>(axisangle.begin(), axisangle.end()));
   }
-  if(euler != std::array<double, 3>{0.0, 0.0, 0.0}) {
+  if(euler != Arr3{0.0, 0.0, 0.0}) {
     mutable_this->set_attribute("euler", std::vector<double>(euler.begin(), euler.end()));
   }
   if(xyaxes != std::array<double, 6>{0.0, 0.0, 0.0, 0.0, 0.0, 0.0}) {
     mutable_this->set_attribute("xyaxes", std::vector<double>(xyaxes.begin(), xyaxes.end()));
   }
-  if(zaxis != std::array<double, 3>{0.0, 0.0, 0.0}) {
+  if(zaxis != Arr3{0.0, 0.0, 0.0}) {
     mutable_this->set_attribute("zaxis", std::vector<double>(zaxis.begin(), zaxis.end()));
   }
   if(mocap) mutable_this->set_attribute("mocap", mocap);
@@ -54,10 +54,10 @@ void Geom::set_xml_attrib() const {
   if(!name.empty()) mutable_this->set_attribute("name", name);
   if(!class_.empty()) mutable_this->set_attribute("class", class_);
   mutable_this->set_attribute("type", to_string(type));
-  if(size != std::array<double, 3>{0.0, 0.0, 0.0}) {
+  if(size != Arr3{0.0, 0.0, 0.0}) {
     mutable_this->set_attribute("size", std::vector<double>(size.begin(), size.end()));
   }
-  if(pos != std::array<double, 3>{0.0, 0.0, 0.0}) {
+  if(pos != Arr3{0.0, 0.0, 0.0}) {
     mutable_this->set_attribute("pos", std::vector<double>(pos.begin(), pos.end()));
   }
   if(quat != std::array<double, 4>{1.0, 0.0, 0.0, 0.0}) {
@@ -72,7 +72,7 @@ void Geom::set_xml_attrib() const {
   if(condim != 3) mutable_this->set_attribute("condim", condim);
   if(group != 0) mutable_this->set_attribute("group", group);
   if(priority != 0) mutable_this->set_attribute("priority", priority);
-  if(friction != std::array<double, 3>{1.0, 0.005, 0.0001}) {
+  if(friction != Arr3{1.0, 0.005, 0.0001}) {
     mutable_this->set_attribute("friction", std::vector<double>(friction.begin(), friction.end()));
   }
   if(solmix != 1.0) mutable_this->set_attribute("solmix", solmix);
@@ -90,13 +90,13 @@ void Geom::set_xml_attrib() const {
   if(axisangle != std::array<double, 4>{0.0, 0.0, 0.0, 0.0}) {
     mutable_this->set_attribute("axisangle", std::vector<double>(axisangle.begin(), axisangle.end()));
   }
-  if(euler != std::array<double, 3>{0.0, 0.0, 0.0}) {
+  if(euler != Arr3{0.0, 0.0, 0.0}) {
     mutable_this->set_attribute("euler", std::vector<double>(euler.begin(), euler.end()));
   }
   if(xyaxes != std::array<double, 6>{0.0, 0.0, 0.0, 0.0, 0.0, 0.0}) {
     mutable_this->set_attribute("xyaxes", std::vector<double>(xyaxes.begin(), xyaxes.end()));
   }
-  if(zaxis != std::array<double, 3>{0.0, 0.0, 0.0}) {
+  if(zaxis != Arr3{0.0, 0.0, 0.0}) {
     mutable_this->set_attribute("zaxis", std::vector<double>(zaxis.begin(), zaxis.end()));
   }
   if(!hfield.empty()) mutable_this->set_attribute("hfield", hfield);
@@ -116,11 +116,7 @@ bool Geom::is_default_value(const std::string& name, const AttributeValue& value
 }
 
 // Light implementation
-Light::Light(bool directional_,
-             const std::array<double, 3>& pos_,
-             const std::array<double, 3>& dir_,
-             const std::array<double, 3>& diffuse_)
-    : directional(directional_), pos(pos_), dir(dir_), diffuse(diffuse_) {}
+Light::Light(bool directional_, const Arr3& pos_, const Arr3& dir_, const Arr3& diffuse_) : directional(directional_), pos(pos_), dir(dir_), diffuse(diffuse_) {}
 
 void Light::set_xml_attrib() const {
   // Set attributes from public members before generating XML
@@ -132,24 +128,24 @@ void Light::set_xml_attrib() const {
   if(directional) mutable_this->set_attribute("directional", directional);
   if(!castshadow) mutable_this->set_attribute("castshadow", castshadow);
   if(!active) mutable_this->set_attribute("active", active);
-  if(pos != std::array<double, 3>{0.0, 0.0, 0.0}) {
+  if(pos != Arr3{0.0, 0.0, 0.0}) {
     mutable_this->set_attribute("pos", std::vector<double>(pos.begin(), pos.end()));
   }
-  if(dir != std::array<double, 3>{0.0, 0.0, -1.0}) {
+  if(dir != Arr3{0.0, 0.0, -1.0}) {
     mutable_this->set_attribute("dir", std::vector<double>(dir.begin(), dir.end()));
   }
-  if(attenuation != std::array<double, 3>{1.0, 0.0, 0.0}) {
+  if(attenuation != Arr3{1.0, 0.0, 0.0}) {
     mutable_this->set_attribute("attenuation", std::vector<double>(attenuation.begin(), attenuation.end()));
   }
   if(cutoff != 45.0) mutable_this->set_attribute("cutoff", cutoff);
   if(exponent != 10.0) mutable_this->set_attribute("exponent", exponent);
-  if(ambient != std::array<double, 3>{0.0, 0.0, 0.0}) {
+  if(ambient != Arr3{0.0, 0.0, 0.0}) {
     mutable_this->set_attribute("ambient", std::vector<double>(ambient.begin(), ambient.end()));
   }
-  if(diffuse != std::array<double, 3>{0.7, 0.7, 0.7}) {
+  if(diffuse != Arr3{0.7, 0.7, 0.7}) {
     mutable_this->set_attribute("diffuse", std::vector<double>(diffuse.begin(), diffuse.end()));
   }
-  if(specular != std::array<double, 3>{0.3, 0.3, 0.3}) {
+  if(specular != Arr3{0.3, 0.3, 0.3}) {
     mutable_this->set_attribute("specular", std::vector<double>(specular.begin(), specular.end()));
   }
   if(mode != LightMode::Fixed) mutable_this->set_attribute("mode", to_string(mode));
@@ -177,7 +173,7 @@ void Camera::set_xml_attrib() const {
   if(!class_.empty()) mutable_this->set_attribute("class", class_);
   if(mode != CameraMode::Fixed) mutable_this->set_attribute("mode", to_string(mode));
   if(!target.empty()) mutable_this->set_attribute("target", target);
-  if(pos != std::array<double, 3>{0.0, 0.0, 0.0}) {
+  if(pos != Arr3{0.0, 0.0, 0.0}) {
     mutable_this->set_attribute("pos", std::vector<double>(pos.begin(), pos.end()));
   }
   if(quat != std::array<double, 4>{1.0, 0.0, 0.0, 0.0}) {
@@ -186,13 +182,13 @@ void Camera::set_xml_attrib() const {
   if(axisangle != std::array<double, 4>{0.0, 0.0, 0.0, 0.0}) {
     mutable_this->set_attribute("axisangle", std::vector<double>(axisangle.begin(), axisangle.end()));
   }
-  if(euler != std::array<double, 3>{0.0, 0.0, 0.0}) {
+  if(euler != Arr3{0.0, 0.0, 0.0}) {
     mutable_this->set_attribute("euler", std::vector<double>(euler.begin(), euler.end()));
   }
   if(xyaxes != std::array<double, 6>{0.0, 0.0, 0.0, 0.0, 0.0, 0.0}) {
     mutable_this->set_attribute("xyaxes", std::vector<double>(xyaxes.begin(), xyaxes.end()));
   }
-  if(zaxis != std::array<double, 3>{0.0, 0.0, 0.0}) {
+  if(zaxis != Arr3{0.0, 0.0, 0.0}) {
     mutable_this->set_attribute("zaxis", std::vector<double>(zaxis.begin(), zaxis.end()));
   }
   if(fovy != 45.0) mutable_this->set_attribute("fovy", fovy);
@@ -219,10 +215,10 @@ void Site::set_xml_attrib() const {
   if(!name.empty()) mutable_this->set_attribute("name", name);
   if(!class_.empty()) mutable_this->set_attribute("class", class_);
   if(type != SiteType::Sphere) mutable_this->set_attribute("type", to_string(type));
-  if(size != std::array<double, 3>{0.005, 0.005, 0.005}) {
+  if(size != Arr3{0.005, 0.005, 0.005}) {
     mutable_this->set_attribute("size", std::vector<double>(size.begin(), size.end()));
   }
-  if(pos != std::array<double, 3>{0.0, 0.0, 0.0}) {
+  if(pos != Arr3{0.0, 0.0, 0.0}) {
     mutable_this->set_attribute("pos", std::vector<double>(pos.begin(), pos.end()));
   }
   if(quat != std::array<double, 4>{1.0, 0.0, 0.0, 0.0}) {
@@ -231,13 +227,13 @@ void Site::set_xml_attrib() const {
   if(axisangle != std::array<double, 4>{0.0, 0.0, 0.0, 0.0}) {
     mutable_this->set_attribute("axisangle", std::vector<double>(axisangle.begin(), axisangle.end()));
   }
-  if(euler != std::array<double, 3>{0.0, 0.0, 0.0}) {
+  if(euler != Arr3{0.0, 0.0, 0.0}) {
     mutable_this->set_attribute("euler", std::vector<double>(euler.begin(), euler.end()));
   }
   if(xyaxes != std::array<double, 6>{0.0, 0.0, 0.0, 0.0, 0.0, 0.0}) {
     mutable_this->set_attribute("xyaxes", std::vector<double>(xyaxes.begin(), xyaxes.end()));
   }
-  if(zaxis != std::array<double, 3>{0.0, 0.0, 0.0}) {
+  if(zaxis != Arr3{0.0, 0.0, 0.0}) {
     mutable_this->set_attribute("zaxis", std::vector<double>(zaxis.begin(), zaxis.end()));
   }
   if(rgba != std::array<double, 4>{0.5, 0.5, 0.5, 1.0}) {
@@ -269,10 +265,10 @@ void Joint::set_xml_attrib() const {
   if(!class_.empty()) mutable_this->set_attribute("class", class_);
   mutable_this->set_attribute("type", to_string(type));
   if(group != 0) mutable_this->set_attribute("group", group);
-  if(pos != std::array<double, 3>{0.0, 0.0, 0.0}) {
+  if(pos != Arr3{0.0, 0.0, 0.0}) {
     mutable_this->set_attribute("pos", std::vector<double>(pos.begin(), pos.end()));
   }
-  if(axis != std::array<double, 3>{0.0, 0.0, 1.0}) {
+  if(axis != Arr3{0.0, 0.0, 1.0}) {
     mutable_this->set_attribute("axis", std::vector<double>(axis.begin(), axis.end()));
   }
   if(springdamper != std::array<double, 2>{0.0, 0.0}) {
@@ -305,7 +301,7 @@ void Joint::set_xml_attrib() const {
     mutable_this->set_attribute("solimpfriction", std::vector<double>(solimpfriction.begin(), solimpfriction.end()));
   }
   if(stiffness != 0.0) mutable_this->set_attribute("stiffness", stiffness);
-  if(user != std::array<double, 3>{0.0, 0.0, 0.0}) {
+  if(user != Arr3{0.0, 0.0, 0.0}) {
     mutable_this->set_attribute("user", std::vector<double>(user.begin(), user.end()));
   }
 }
@@ -333,14 +329,14 @@ void Inertial::set_xml_attrib() const {
   auto* mutable_this = const_cast<Inertial*>(this);
 
   // Only set non-default values
-  if(pos != std::array<double, 3>{0.0, 0.0, 0.0}) {
+  if(pos != Arr3{0.0, 0.0, 0.0}) {
     mutable_this->set_attribute("pos", std::vector<double>(pos.begin(), pos.end()));
   }
   if(quat != std::array<double, 4>{1.0, 0.0, 0.0, 0.0}) {
     mutable_this->set_attribute("quat", std::vector<double>(quat.begin(), quat.end()));
   }
   if(mass != 1.0) mutable_this->set_attribute("mass", mass);
-  if(diaginertia != std::array<double, 3>{0.0, 0.0, 0.0}) {
+  if(diaginertia != Arr3{0.0, 0.0, 0.0}) {
     mutable_this->set_attribute("diaginertia", std::vector<double>(diaginertia.begin(), diaginertia.end()));
   }
   if(fullinertia != std::array<double, 6>{0.0, 0.0, 0.0, 0.0, 0.0, 0.0}) {

@@ -9,7 +9,8 @@
 
 namespace mjcf {
 
-// Forward declarations
+using Arr3 = std::array<double, 3>;
+
 class Element;
 
 // 属性値の型エイリアス

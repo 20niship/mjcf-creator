@@ -5,6 +5,7 @@
 #include "core_elements.hpp"
 #include <cmath>
 #include <iostream>
+#include <fstream>
 #include <set>
 #include <sstream>
 
@@ -60,31 +61,6 @@ std::vector<double> rpy_to_quat(const std::vector<double>& rpy) {
   double z = cr * cp * sy - sr * sp * cy;
 
   return {w, x, y, z};
-}
-
-JointMetadata JointMetadata::from_json(const std::string& json_str) {
-  JointMetadata metadata;
-  metadata.actuator_type     = "motor";
-  metadata.nn_id             = 0;
-  metadata.id                = 0;
-  metadata.kp                = 40.0;
-  metadata.kd                = 2.0;
-  metadata.soft_torque_limit = 10.0;
-  metadata.min_angle_deg     = 0.0;
-  metadata.max_angle_deg     = 0.0;
-  return metadata;
-}
-
-ActuatorMetadata ActuatorMetadata::from_json(const std::string& json_str) {
-  ActuatorMetadata metadata;
-  metadata.actuator_type = "motor";
-  metadata.sysid         = "";
-  metadata.max_torque    = 10.0;
-  metadata.max_velocity  = 5.0;
-  metadata.armature      = 0.001;
-  metadata.damping       = 0.1;
-  metadata.frictionloss  = 0.1;
-  return metadata;
 }
 
 bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_path, const std::map<std::string, JointMetadata>& joint_metadata, const std::map<std::string, ActuatorMetadata>& actuator_metadata) {

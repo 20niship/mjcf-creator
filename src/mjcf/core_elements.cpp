@@ -1,5 +1,6 @@
 #include "core_elements.hpp"
 #include "urdf_converter.hpp"
+#include <fstream>
 
 namespace mjcf {
 

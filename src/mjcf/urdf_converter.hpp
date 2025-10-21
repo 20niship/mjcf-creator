@@ -1,15 +1,12 @@
 #pragma once
 
-#include <fstream>
 #include <map>
 #include <memory>
 #include <set>
 #include <string>
-#include <vector>
 
 namespace mjcf {
 
-// Forward declarations
 class Element;
 class Mujoco;
 namespace detail {
@@ -17,9 +14,6 @@ class Asset;
 class Worldbody;
 } // namespace detail
 
-/**
- * @brief Metadata for joint parameters
- */
 struct JointMetadata {
   std::string actuator_type;
   int nn_id;
@@ -29,13 +23,8 @@ struct JointMetadata {
   double soft_torque_limit;
   double min_angle_deg;
   double max_angle_deg;
-
-  static JointMetadata from_json(const std::string& json_str);
 };
 
-/**
- * @brief Metadata for actuator parameters
- */
 struct ActuatorMetadata {
   std::string actuator_type;
   std::string sysid;
@@ -44,13 +33,8 @@ struct ActuatorMetadata {
   double armature;
   double damping;
   double frictionloss;
-
-  static ActuatorMetadata from_json(const std::string& json_str);
 };
 
-/**
- * @brief URDF to MJCF converter class
- */
 class UrdfConverter {
 public:
   static bool parse_urdf_to_mjcf( //
@@ -60,24 +44,9 @@ public:
     const std::map<std::string, ActuatorMetadata>& actuator_metadata //
   );
 
-  /**
-   * @brief Merge asset elements with name prefixing
-   */
   static void merge_asset_elements(const detail::Asset& source_asset, detail::Asset& target_asset, const std::string& name_prefix);
-
-  /**
-   * @brief Merge worldbody elements with name prefixing
-   */
   static void merge_worldbody_elements(const detail::Worldbody& source_worldbody, detail::Worldbody& target_worldbody, const std::string& name_prefix);
-
-  /**
-   * @brief Clone element with name prefix
-   */
   static std::shared_ptr<Element> clone_element_with_prefix(const std::shared_ptr<Element>& element, const std::string& name_prefix, const std::set<std::string>& existing_names);
-
-  /**
-   * @brief Clone attributes from source to target with name prefix
-   */
   static void clone_element_attributes(const Element& source, Element& target, const std::string& name_prefix);
 };
 
