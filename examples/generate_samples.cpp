@@ -5,6 +5,8 @@
 #include <iostream>
 #include <string>
 
+using namespace mjcf;
+
 /**
  * @brief Creates a MJCF scene with falling objects
  *
@@ -38,53 +40,24 @@ void create_falling_objects_scene() {
   asset->add_children({checker_texture, floor_mat});
 
 
-  auto light         = std::make_shared<mjcf::Light>();
-  light->directional = true;
-  light->pos         = std::array<double, 3>{0, 0, 3};
-  light->dir         = std::array<double, 3>{0, 0, -1};
-  light->diffuse     = std::array<double, 3>{0.8, 0.8, 0.8};
+  auto light = Light::Create(true, {0, 0, 3}, {0, 0, -1}, {0.8, 0.8, 0.8});
   worldbody->add_child(light);
 
-  auto floor      = std::make_shared<mjcf::Geom>();
-  floor->name     = "floor";
-  floor->type     = mjcf::GeomType::Plane;
-  floor->size     = std::array<double, 3>{5, 5, 0.1};
+  auto floor      = Geom::Plane("floor", {5, 5, 0.1});
   floor->material = "floor_mat";
   floor->condim   = 3;
   worldbody->add_child(floor);
 
-  // Object 1: Sphere (red)
-  auto sphere_body  = std::make_shared<mjcf::Body>();
-  sphere_body->name = "sphere";
-  sphere_body->pos  = std::array<double, 3>{-1.5, 0, 2.0};
-
-  auto sphere_geom  = std::make_shared<mjcf::Geom>();
-  sphere_geom->name = "sphere_geom";
-  sphere_geom->type = mjcf::GeomType::Sphere;
-  sphere_geom->size = std::array<double, 3>{0.2, 0, 0};
-  sphere_geom->rgba = std::array<double, 4>{1, 0, 0, 1};
-
-  auto sphere_joint  = std::make_shared<mjcf::Joint>();
-  sphere_joint->name = "sphere_joint";
-  sphere_joint->type = mjcf::JointType::Free;
+  auto sphere_body  = Body::Create("sphere", {-1.5, 0, 2.0});
+  auto sphere_geom  = Geom::Sphere("sphere_geom", 0.2, {0, 0, 0}, {1, 0, 0, 1});
+  auto sphere_joint = Joint::Free("sphere_joint");
 
   sphere_body->add_children({sphere_geom, sphere_joint});
   worldbody->add_child(sphere_body);
 
-  // Object 2: Box (green)
-  auto box_body  = std::make_shared<mjcf::Body>();
-  box_body->name = "box";
-  box_body->pos  = std::array<double, 3>{-0.5, 0, 2.5};
-
-  auto box_geom  = std::make_shared<mjcf::Geom>();
-  box_geom->name = "box_geom";
-  box_geom->type = mjcf::GeomType::Box;
-  box_geom->size = std::array<double, 3>{0.15, 0.15, 0.15};
-  box_geom->rgba = std::array<double, 4>{0, 1, 0, 1};
-
-  auto box_joint  = std::make_shared<mjcf::Joint>();
-  box_joint->name = "box_joint";
-  box_joint->type = mjcf::JointType::Free;
+  auto box_body = Body::Create("box", {-0.5, 0, 2.5});
+  auto box_geom = Geom::Box("box_geom", {0.15, 0.15, 0.15}, {0, 0, 0}, {0, 1, 0, 1});
+  auto box_joint = Joint::Free("box_joint");
 
   box_body->add_children({box_geom, box_joint});
   worldbody->add_child(box_body);
