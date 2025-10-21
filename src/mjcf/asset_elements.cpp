@@ -2,25 +2,22 @@
 
 namespace mjcf {
 
-// Texture implementation
-Texture::Texture(const std::string& name_, const std::string& file_) : name(name_), file(file_) {}
-
-Texture::Texture(const std::string& name_,
-                 TextureBuiltin builtin_,
-                 TextureType type_,
-                 const std::array<double, 3>& rgb1_,
-                 const std::array<double, 3>& rgb2_,
-                 int width_,
-                 int height_)
-    : name(name_), builtin(builtin_), type(type_), rgb1(rgb1_), rgb2(rgb2_), width(width_), height(height_) {}
-
-Texture Texture::CheckerTexture(const std::string& name,
-                                 const std::array<double, 3>& rgb1,
-                                 const std::array<double, 3>& rgb2,
-                                 int width,
-                                 int height) {
-  return Texture(name, TextureBuiltin::Checker, TextureType::TwoD, rgb1, rgb2, width, height);
+Texture::Texture(const std::string& name_, const std::string& file_) {
+  this->name = name_;
+  this->file = file_;
 }
+
+Texture::Texture(const std::string& name_, TextureBuiltin builtin_, TextureType type_, const std::array<double, 3>& rgb1_, const std::array<double, 3>& rgb2_, int width_, int height_) {
+  this->name    = name_;
+  this->builtin = builtin_;
+  this->type    = type_;
+  this->rgb1    = rgb1_;
+  this->rgb2    = rgb2_;    
+  this->width   = width_;
+  this->height  = height_;  
+}
+
+Texture Texture::CheckerTexture(const std::string& name, const std::array<double, 3>& rgb1, const std::array<double, 3>& rgb2, int width, int height) { return Texture(name, TextureBuiltin::Checker, TextureType::TwoD, rgb1, rgb2, width, height); }
 
 void Texture::set_xml_attrib() const {
   auto* mutable_this = const_cast<Texture*>(this);
@@ -42,7 +39,7 @@ void Texture::set_xml_attrib() const {
   if(!gridlayout.empty()) mutable_this->set_attribute("gridlayout", gridlayout);
 }
 
-bool Texture::from_xml(const std::string& xml_str) {
+bool Texture::from_xml([[maybe_unused]] const std::string& xml_str) {
   // Default implementation - could be extended to parse XML
   return false;
 }
@@ -59,8 +56,7 @@ bool Texture::is_default_value(const std::string& name, const AttributeValue& va
 // Material implementation
 Material::Material(const std::string& name_, const std::array<double, 4>& rgba_) : name(name_), rgba(rgba_) {}
 
-Material::Material(const std::string& name_, const std::string& texture_, const std::array<double, 2>& texrepeat_)
-    : name(name_), texture(texture_), texrepeat(texrepeat_) {}
+Material::Material(const std::string& name_, const std::string& texture_, const std::array<double, 2>& texrepeat_) : name(name_), texture(texture_), texrepeat(texrepeat_) {}
 
 void Material::set_xml_attrib() const {
   auto* mutable_this = const_cast<Material*>(this);
@@ -84,7 +80,7 @@ void Material::set_xml_attrib() const {
   }
 }
 
-bool Material::from_xml(const std::string& xml_str) { return false; }
+bool Material::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
 
 bool Material::is_default_value(const std::string& name, const AttributeValue& value) const {
   if(name == "emission" && std::get<double>(value) == 0.0) return true;
@@ -113,7 +109,7 @@ void Mesh::set_xml_attrib() const {
   if(!face.empty()) mutable_this->set_attribute("face", face);
 }
 
-bool Mesh::from_xml(const std::string& xml_str) { return false; }
+bool Mesh::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
 
 bool Mesh::is_default_value(const std::string& name, const AttributeValue& value) const {
   if(name == "smoothnormal" && std::get<bool>(value)) return true;
@@ -135,9 +131,9 @@ void Hfield::set_xml_attrib() const {
   if(ncol != 0) mutable_this->set_attribute("ncol", ncol);
 }
 
-bool Hfield::from_xml(const std::string& xml_str) { return false; }
+bool Hfield::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
 
-bool Hfield::is_default_value(const std::string& name, const AttributeValue& value) const { return false; }
+bool Hfield::is_default_value([[maybe_unused]] const std::string& name, [[maybe_unused]] const AttributeValue& value) const { return false; }
 
 // Numeric implementation
 Numeric::Numeric() = default;
@@ -152,7 +148,7 @@ void Numeric::set_xml_attrib() const {
   if(size != 0) mutable_this->set_attribute("size", size);
 }
 
-bool Numeric::from_xml(const std::string& xml_str) { return false; }
+bool Numeric::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
 
 bool Numeric::is_default_value(const std::string& name, const AttributeValue& value) const {
   if(name == "data" && std::get<std::string>(value) == "0 0 ...") return true;
@@ -169,9 +165,9 @@ void Text::set_xml_attrib() const {
   if(!data.empty()) mutable_this->set_attribute("data", data);
 }
 
-bool Text::from_xml(const std::string& xml_str) { return false; }
+bool Text::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
 
-bool Text::is_default_value(const std::string& name, const AttributeValue& value) const { return false; }
+bool Text::is_default_value([[maybe_unused]] const std::string& name, [[maybe_unused]] const AttributeValue& value) const { return false; }
 
 // Tuple implementation
 Tuple::Tuple() = default;
@@ -181,8 +177,8 @@ void Tuple::set_xml_attrib() const {
   if(!name.empty()) mutable_this->set_attribute("name", name);
 }
 
-bool Tuple::from_xml(const std::string& xml_str) { return false; }
+bool Tuple::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
 
-bool Tuple::is_default_value(const std::string& name, const AttributeValue& value) const { return false; }
+bool Tuple::is_default_value([[maybe_unused]] const std::string& name, [[maybe_unused]] const AttributeValue& value) const { return false; }
 
 } // namespace mjcf

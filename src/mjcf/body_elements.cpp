@@ -33,7 +33,7 @@ void Body::set_xml_attrib() const {
   if(!childclass.empty()) mutable_this->set_attribute("childclass", childclass);
 }
 
-bool Body::from_xml(const std::string& xml_str) {
+bool Body::from_xml([[maybe_unused]] const std::string& xml_str) {
   // Default implementation - could be extended to parse XML
   return false;
 }
@@ -104,7 +104,7 @@ void Geom::set_xml_attrib() const {
   if(fitscale != 1.0) mutable_this->set_attribute("fitscale", fitscale);
 }
 
-bool Geom::from_xml(const std::string& xml_str) { return false; }
+bool Geom::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
 
 bool Geom::is_default_value(const std::string& name, const AttributeValue& value) const {
   // Only filter out true defaults, not common values that should be shown
@@ -151,7 +151,7 @@ void Light::set_xml_attrib() const {
   if(mode != LightMode::Fixed) mutable_this->set_attribute("mode", to_string(mode));
 }
 
-bool Light::from_xml(const std::string& xml_str) { return false; }
+bool Light::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
 
 bool Light::is_default_value(const std::string& name, const AttributeValue& value) const {
   // Only filter actual defaults that are not commonly set
@@ -195,7 +195,7 @@ void Camera::set_xml_attrib() const {
   if(ipd != 0.068) mutable_this->set_attribute("ipd", ipd);
 }
 
-bool Camera::from_xml(const std::string& xml_str) { return false; }
+bool Camera::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
 
 bool Camera::is_default_value(const std::string& name, const AttributeValue& value) const {
   if(name == "mode" && std::get<std::string>(value) == to_string(CameraMode::Fixed)) return true;
@@ -246,7 +246,7 @@ void Site::set_xml_attrib() const {
   }
 }
 
-bool Site::from_xml(const std::string& xml_str) { return false; }
+bool Site::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
 
 bool Site::is_default_value(const std::string& name, const AttributeValue& value) const {
   // Only filter truly unnecessary defaults
@@ -306,7 +306,7 @@ void Joint::set_xml_attrib() const {
   }
 }
 
-bool Joint::from_xml(const std::string& xml_str) { return false; }
+bool Joint::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
 
 bool Joint::is_default_value(const std::string& name, const AttributeValue& value) const {
   // Only filter true defaults
@@ -344,7 +344,7 @@ void Inertial::set_xml_attrib() const {
   }
 }
 
-bool Inertial::from_xml(const std::string& xml_str) { return false; }
+bool Inertial::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
 
 bool Inertial::is_default_value(const std::string& name, const AttributeValue& value) const {
   if(name == "mass" && std::get<double>(value) == 1.0) return true;

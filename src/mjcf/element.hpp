@@ -47,28 +47,25 @@ public:
    * @param xml_str XML文字列
    * @return 変換成功時true
    */
-  virtual bool from_xml(const std::string& xml_str) {
-    // Default implementation - subclasses can override
-    return false;
-  }
+  virtual bool from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
 
   /**
    * @brief 要素名を取得（クラス名から派生）
    * @return 小文字の要素名
    */
-  virtual std::string element_name() const = 0;
+  [[nodiscard]] virtual std::string element_name() const = 0;
 
   /**
    * @brief 属性値をXML出力用の文字列に変換
    * @param value 属性値
    * @return 文字列表現
    */
-  std::string stringify_value(const AttributeValue& value) const;
+  [[nodiscard]] std::string stringify_value(const AttributeValue& value) const;
 
-  const std::vector<std::shared_ptr<Element>>& get_children() const;
+  [[nodiscard]] const std::vector<std::shared_ptr<Element>>& get_children() const;
   std::vector<std::shared_ptr<Element>>& get_children();
 
-  std::optional<AttributeValue> get_attribute_public(const std::string& name) const;
+  [[nodiscard]] std::optional<AttributeValue> get_attribute_public(const std::string& name) const;
 
   /**
    * @brief Set attribute value (public access for merging)
@@ -77,7 +74,7 @@ public:
    */
   void set_attribute_public(const std::string& name, const AttributeValue& value);
 
-  std::string get_xml_text() const { return xml(); }
+  [[nodiscard]] std::string get_xml_text() const { return xml(); }
 
 protected:
   /**
@@ -87,7 +84,7 @@ protected:
    */
   void set_attribute(const std::string& name, const AttributeValue& value);
 
-  std::optional<AttributeValue> get_attribute(const std::string& name) const;
+  [[nodiscard]] std::optional<AttributeValue> get_attribute(const std::string& name) const;
 
   /**
    * @brief 属性がデフォルト値かどうかをチェック
@@ -95,8 +92,8 @@ protected:
    * @param value 現在の値
    * @return 値がデフォルトの場合true
    */
-  virtual bool is_default_value(const std::string& name, const AttributeValue& value) const;
-  std::string xml() const;
+  [[nodiscard]] virtual bool is_default_value(const std::string& name, const AttributeValue& value) const;
+  [[nodiscard]] std::string xml() const;
 
   void* write_xml_element_base(void* doc, void* parent) const;
 

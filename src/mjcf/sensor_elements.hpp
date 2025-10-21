@@ -6,13 +6,9 @@
 
 namespace mjcf {
 
-/**
- * @brief Base class for all sensor elements
- */
 class BaseSensor : public Element {
 public:
-  // Public member variables with MuJoCo default values
-  std::string name           = "";
+  std::string name;
   double noise               = 0.0;
   double cutoff              = 0.0;
   std::array<double, 3> user = {0.0, 0.0, 0.0};
@@ -34,11 +30,9 @@ private:
  */
 class JointPos : public BaseSensor {
 public:
-  // Public member variables
-  std::string joint = "";
+  std::string joint;
 
   JointPos();
-
   std::string element_name() const override { return "jointpos"; }
 
   void set_xml_attrib() const override;
@@ -53,8 +47,7 @@ protected:
  */
 class JointVel : public BaseSensor {
 public:
-  // Public member variables
-  std::string joint = "";
+  std::string joint;
 
   JointVel();
 
@@ -72,7 +65,6 @@ protected:
  */
 class TendonPos : public BaseSensor {
 public:
-  // Public member variables
   std::string tendon = "";
 
   TendonPos();
@@ -91,7 +83,6 @@ protected:
  */
 class TendonVel : public BaseSensor {
 public:
-  // Public member variables
   std::string tendon = "";
 
   TendonVel();
@@ -110,7 +101,6 @@ protected:
  */
 class ActuatorPos : public BaseSensor {
 public:
-  // Public member variables
   std::string actuator = "";
 
   ActuatorPos();
@@ -129,7 +119,6 @@ protected:
  */
 class ActuatorVel : public BaseSensor {
 public:
-  // Public member variables
   std::string actuator = "";
 
   ActuatorVel();
@@ -148,7 +137,6 @@ protected:
  */
 class ActuatorFrc : public BaseSensor {
 public:
-  // Public member variables
   std::string actuator = "";
 
   ActuatorFrc();
@@ -167,7 +155,6 @@ protected:
  */
 class BallQuat : public BaseSensor {
 public:
-  // Public member variables
   std::string joint = "";
 
   BallQuat();
@@ -186,7 +173,6 @@ protected:
  */
 class BallAngVel : public BaseSensor {
 public:
-  // Public member variables
   std::string joint = "";
 
   BallAngVel();
@@ -205,7 +191,6 @@ protected:
  */
 class SitePos : public BaseSensor {
 public:
-  // Public member variables with MuJoCo default values
   std::string reftype = "body"; // MuJoCo default
   std::string objtype = "body"; // MuJoCo default
   std::string objname = "";
@@ -327,7 +312,6 @@ protected:
  */
 class SubtreeAngMom : public BaseSensor {
 public:
-  // Public member variables
   std::string body = "";
 
   SubtreeAngMom();
@@ -346,7 +330,6 @@ protected:
  */
 class Gyro : public BaseSensor {
 public:
-  // Public member variables
   std::string site = "";
 
   Gyro();
@@ -365,7 +348,6 @@ protected:
  */
 class Accelerometer : public BaseSensor {
 public:
-  // Public member variables
   std::string site = "";
 
   Accelerometer();
@@ -384,7 +366,6 @@ protected:
  */
 class Magnetometer : public BaseSensor {
 public:
-  // Public member variables
   std::string site = "";
 
   Magnetometer();
@@ -403,7 +384,6 @@ protected:
  */
 class Rangefinder : public BaseSensor {
 public:
-  // Public member variables
   std::string site = "";
 
   Rangefinder();
@@ -422,7 +402,6 @@ protected:
  */
 class Force : public BaseSensor {
 public:
-  // Public member variables
   std::string site = "";
 
   Force();
@@ -441,7 +420,6 @@ protected:
  */
 class Torque : public BaseSensor {
 public:
-  // Public member variables
   std::string site = "";
 
   Torque();
@@ -460,7 +438,6 @@ protected:
  */
 class Touch : public BaseSensor {
 public:
-  // Public member variables
   std::string site = "";
 
   Touch();

@@ -19,49 +19,49 @@ class Custom : public Element {
 public:
   Custom() = default;
 
-  std::string element_name() const override { return "custom"; }
+  [[nodiscard]] std::string element_name() const override { return "custom"; }
 };
 
 class Asset : public Element {
 public:
   Asset() = default;
-  std::string element_name() const override { return "asset"; }
+  [[nodiscard]] std::string element_name() const override { return "asset"; }
 };
 
 class Worldbody : public Element {
 public:
   Worldbody() = default;
-  std::string element_name() const override { return "worldbody"; }
+  [[nodiscard]] std::string element_name() const override { return "worldbody"; }
 };
 
 class Actuator : public Element {
 public:
   Actuator() = default;
-  std::string element_name() const override { return "actuator"; }
+  [[nodiscard]] std::string element_name() const override { return "actuator"; }
 };
 
 class Sensor : public Element {
 public:
   Sensor() = default;
-  std::string element_name() const override { return "sensor"; }
+  [[nodiscard]] std::string element_name() const override { return "sensor"; }
 };
 
 class Contact : public Element {
 public:
   Contact() = default;
-  std::string element_name() const override { return "contact"; }
+  [[nodiscard]] std::string element_name() const override { return "contact"; }
 };
 
 class Equality : public Element {
 public:
   Equality() = default;
-  std::string element_name() const override { return "equality"; }
+  [[nodiscard]] std::string element_name() const override { return "equality"; }
 };
 
 class Tendon : public Element {
 public:
   Tendon() = default;
-  std::string element_name() const override { return "tendon"; }
+  [[nodiscard]] std::string element_name() const override { return "tendon"; }
 };
 
 
@@ -74,13 +74,13 @@ public:
 
   Compiler() = default;
 
-  std::string element_name() const override { return "compiler"; }
+  [[nodiscard]] std::string element_name() const override { return "compiler"; }
 
   void set_xml_attrib() const override;
   bool from_xml(const std::string& xml_str) override;
 
 protected:
-  bool is_default_value(const std::string& name, const AttributeValue& value) const override;
+  [[nodiscard]] bool is_default_value(const std::string& name, const AttributeValue& value) const override;
 };
 
 class Option : public Element {
@@ -92,13 +92,13 @@ public:
 
   Option() = default;
 
-  std::string element_name() const override { return "option"; }
+  [[nodiscard]] std::string element_name() const override { return "option"; }
 
   void set_xml_attrib() const override;
   bool from_xml(const std::string& xml_str) override;
 
 protected:
-  bool is_default_value(const std::string& name, const AttributeValue& value) const override;
+  [[nodiscard]] bool is_default_value(const std::string& name, const AttributeValue& value) const override;
 };
 } // namespace detail
 
@@ -132,13 +132,12 @@ public:
    */
   bool add_urdf(const std::string& urdf_path, const std::string& name_prefix = "", bool copy_meshes = false, const std::map<std::string, JointMetadata>& joint_metadata = {}, const std::map<std::string, ActuatorMetadata>& actuator_metadata = {});
 
-  std::string element_name() const override { return "mujoco"; }
+  [[nodiscard]] std::string element_name() const override { return "mujoco"; }
 
   void set_xml_attrib() const override;
   bool from_xml(const std::string& xml_str) override;
 
-  void add_child(std::shared_ptr<Element> child) override {
-    static_assert("Unsupported child element type for Mujoco");
+  void add_child([[maybe_unused]] std::shared_ptr<Element> child) override {
     assert(false && "Unsupported child element type for Mujoco");
   }
 
@@ -152,7 +151,7 @@ public:
   std::shared_ptr<detail::Equality> equality_   = nullptr;
   std::shared_ptr<detail::Tendon> tendon_       = nullptr;
 
-  bool has_asset(const std::string& asset_name) const {
+  [[nodiscard]] bool has_asset(const std::string& asset_name) const {
     if(!asset_) return false;
     for(const auto& child : asset_->get_children()) {
       auto name_ = child->get_attribute_public("name");
@@ -174,7 +173,7 @@ public:
   }
 
 protected:
-  bool is_default_value(const std::string& name, const AttributeValue& value) const override { return false; }
+  [[nodiscard]] bool is_default_value([[maybe_unused]] const std::string& name, [[maybe_unused]] const AttributeValue& value) const override { return false; }
 
   void* write_xml_element(void* doc_ptr, void* parent_ptr) const override;
 };
@@ -192,13 +191,13 @@ public:
 
   Size();
 
-  std::string element_name() const override { return "size"; }
+  [[nodiscard]] std::string element_name() const override { return "size"; }
 
   void set_xml_attrib() const override;
   bool from_xml(const std::string& xml_str) override;
 
 protected:
-  bool is_default_value(const std::string& name, const AttributeValue& value) const override;
+  [[nodiscard]] bool is_default_value(const std::string& name, const AttributeValue& value) const override;
 };
 
 /**
@@ -208,7 +207,7 @@ class Visual : public Element {
 public:
   Visual();
 
-  std::string element_name() const override { return "visual"; }
+  [[nodiscard]] std::string element_name() const override { return "visual"; }
 };
 
 /**
@@ -218,7 +217,7 @@ class Statistic : public Element {
 public:
   Statistic();
 
-  std::string element_name() const override { return "statistic"; }
+  [[nodiscard]] std::string element_name() const override { return "statistic"; }
 };
 
 /**
@@ -231,12 +230,12 @@ public:
 
   Default(const std::string& class_name = "");
 
-  std::string element_name() const override { return "default"; }
+  [[nodiscard]] std::string element_name() const override { return "default"; }
 
   void set_xml_attrib() const override;
   bool from_xml(const std::string& xml_str) override;
 
 protected:
-  bool is_default_value(const std::string& name, const AttributeValue& value) const override;
+  [[nodiscard]] bool is_default_value(const std::string& name, const AttributeValue& value) const override;
 };
 } // namespace mjcf

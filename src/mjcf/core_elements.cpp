@@ -10,7 +10,7 @@ void Mujoco::set_xml_attrib() const {
   if(!model.empty()) mutable_this->set_attribute("model", model);
 }
 
-bool Mujoco::from_xml(const std::string& xml_str) { return false; }
+bool Mujoco::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
 
 void* Mujoco::write_xml_element(void* doc_ptr, void* parent_ptr) const {
   auto elm = this->write_xml_element_base(doc_ptr, parent_ptr);
@@ -46,7 +46,7 @@ void Compiler::set_xml_attrib() const {
   if(autolimits) mutable_this->set_attribute("autolimits", autolimits);
 }
 
-bool Compiler::from_xml(const std::string& xml_str) { return false; }
+bool Compiler::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
 
 bool Compiler::is_default_value(const std::string& name, const AttributeValue& value) const {
   if(name == "angle" && std::get<std::string>(value) == to_string(AngleUnit::Degree)) return true;
@@ -64,7 +64,7 @@ void Option::set_xml_attrib() const {
   if(viscosity != 0.0) mutable_this->set_attribute("viscosity", viscosity);
 }
 
-bool Option::from_xml(const std::string& xml_str) { return false; }
+bool Option::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
 
 bool Option::is_default_value(const std::string& name, const AttributeValue& value) const {
   if(name == "integrator" && std::get<std::string>(value) == to_string(IntegratorType::Euler)) return true;
@@ -87,9 +87,9 @@ void Size::set_xml_attrib() const {
   if(nuserdata != 0) mutable_this->set_attribute("nuserdata", nuserdata);
 }
 
-bool Size::from_xml(const std::string& xml_str) { return false; }
+bool Size::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
 
-bool Size::is_default_value(const std::string& name, const AttributeValue& value) const {
+bool Size::is_default_value([[maybe_unused]] const std::string& name, [[maybe_unused]] const AttributeValue& value) const {
   return false; // サイズパラメータは通常明示的に設定される
 }
 
@@ -103,9 +103,9 @@ void Default::set_xml_attrib() const {
   if(!class_.empty()) mutable_this->set_attribute("class", class_);
 }
 
-bool Default::from_xml(const std::string& xml_str) { return false; }
+bool Default::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
 
-bool Default::is_default_value(const std::string& name, const AttributeValue& value) const {
+bool Default::is_default_value([[maybe_unused]] const std::string& name, [[maybe_unused]] const AttributeValue& value) const {
   return false; // 設定されている場合はclassを常に含める
 }
 
