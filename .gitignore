@@ -39,3 +39,10 @@
 
 # debug information files
 *.dwo
+build
+CMakeFiles
+CMakeCache.txt
+
+clangd/
+
+.cache/

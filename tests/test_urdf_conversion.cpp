@@ -2,9 +2,7 @@
 #include "mjcf/mjcf.hpp"
 #include <filesystem>
 #include <fstream>
-#include <iostream>
 #include <map>
-#include <regex>
 
 // Simple JSON parser for metadata files - in a real implementation you'd use a JSON library
 std::map<std::string, mjcf::JointMetadata> parse_joint_metadata_json(const std::string& json_path) {
@@ -88,7 +86,7 @@ mjcf::ActuatorMetadata parse_actuator_metadata_json(const std::string& json_path
 TEST_SUITE("URDF Conversion Tests") {
   TEST_CASE("URDF to MJCF conversion with metadata") {
     // Path to test files
-    std::string test_dir            = "/home/runner/work/mjcf-creator/mjcf-creator/misc/urdf2mjcf/tests/sample/";
+    std::string test_dir            = "../tests/";
     std::string urdf_path           = test_dir + "robot.urdf";
     std::string joint_metadata_path = test_dir + "joint_metadata.json";
     std::string actuator_path       = test_dir + "actuators/motor.json";
@@ -272,7 +270,6 @@ TEST_SUITE("URDF Conversion Tests") {
     auto mujoco  = std::make_shared<mjcf::Mujoco>();
     bool success = mjcf::UrdfConverter::parse_urdf_to_mjcf(mujoco.get(), fake_urdf, joint_metadata, actuator_metadata);
 
-    // Should fail gracefully
     CHECK_FALSE(success);
     CHECK_FALSE(std::filesystem::exists(output_path));
   }
