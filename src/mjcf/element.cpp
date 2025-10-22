@@ -121,7 +121,8 @@ void* Element::write_xml_element_base(void* doc_ptr, void* parent_ptr) const {
 
   // Set attributes
   for(const auto& [name, value] : attributes_) {
-    // if(is_default_value(name, value)) continue;
+    // Note: Default value filtering is handled in set_xml_attrib() methods
+    // is_default_value() check is not used here to avoid inconsistencies
     element->SetAttribute(name.c_str(), stringify_value(value).c_str());
   }
 

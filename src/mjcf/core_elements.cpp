@@ -40,7 +40,7 @@ bool Mujoco::add_urdf(const std::string& urdf_path, const std::string& name_pref
 namespace detail {
 
 void Compiler::set_xml_attrib() const {
-  this->set_attribute("angle", to_string(angle));
+  if(angle != AngleUnit::Degree) this->set_attribute("angle", to_string(angle));
   if(coordinate != CoordinateType::Local) this->set_attribute("coordinate", to_string(coordinate));
   if(inertiafromgeom) this->set_attribute("inertiafromgeom", inertiafromgeom);
   if(autolimits) this->set_attribute("autolimits", autolimits);
