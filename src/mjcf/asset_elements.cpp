@@ -120,7 +120,6 @@ bool Mesh::is_default_value(const std::string& name, const AttributeValue& value
 Hfield::Hfield() = default;
 
 void Hfield::set_xml_attrib() const {
-  // Set attributes from public members before generating XML
   auto* mutable_this = const_cast<Hfield*>(this);
 
   // Only set non-default values
@@ -139,7 +138,6 @@ bool Hfield::is_default_value([[maybe_unused]] const std::string& name, [[maybe_
 Numeric::Numeric() = default;
 
 void Numeric::set_xml_attrib() const {
-  // Set attributes from public members before generating XML
   auto* mutable_this = const_cast<Numeric*>(this);
 
   // Only set non-default values

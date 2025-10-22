@@ -2,11 +2,9 @@
 
 namespace mjcf {
 
-// Body implementation
 Body::Body() = default;
 
 void Body::set_xml_attrib() const {
-  // Set attributes from public members before generating XML
   auto* mutable_this = const_cast<Body*>(this);
 
   // Only set non-default values
@@ -34,7 +32,6 @@ void Body::set_xml_attrib() const {
 }
 
 bool Body::from_xml([[maybe_unused]] const std::string& xml_str) {
-  // Default implementation - could be extended to parse XML
   return false;
 }
 
@@ -43,11 +40,9 @@ bool Body::is_default_value(const std::string& name, const AttributeValue& value
   return false;
 }
 
-// Geom implementation
 Geom::Geom() = default;
 
 void Geom::set_xml_attrib() const {
-  // Set attributes from public members before generating XML
   auto* mutable_this = const_cast<Geom*>(this);
 
   // Only set non-default values
@@ -119,7 +114,6 @@ bool Geom::is_default_value(const std::string& name, const AttributeValue& value
 Light::Light(bool directional_, const Arr3& pos_, const Arr3& dir_, const Arr3& diffuse_) : directional(directional_), pos(pos_), dir(dir_), diffuse(diffuse_) {}
 
 void Light::set_xml_attrib() const {
-  // Set attributes from public members before generating XML
   auto* mutable_this = const_cast<Light*>(this);
 
   // Only set non-default values
@@ -161,11 +155,9 @@ bool Light::is_default_value(const std::string& name, const AttributeValue& valu
   return false;
 }
 
-// Camera implementation
 Camera::Camera() = default;
 
 void Camera::set_xml_attrib() const {
-  // Set attributes from public members before generating XML
   auto* mutable_this = const_cast<Camera*>(this);
 
   // Only set non-default values
@@ -208,7 +200,6 @@ bool Camera::is_default_value(const std::string& name, const AttributeValue& val
 Site::Site() = default;
 
 void Site::set_xml_attrib() const {
-  // Set attributes from public members before generating XML
   auto* mutable_this = const_cast<Site*>(this);
 
   // Only set non-default values
@@ -254,11 +245,9 @@ bool Site::is_default_value(const std::string& name, const AttributeValue& value
   return false;
 }
 
-// Joint implementation
 Joint::Joint() = default;
 
 void Joint::set_xml_attrib() const {
-  // Set attributes from public members before generating XML
   auto* mutable_this = const_cast<Joint*>(this);
 
   if(!name.empty()) mutable_this->set_attribute("name", name);
@@ -309,7 +298,6 @@ void Joint::set_xml_attrib() const {
 bool Joint::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
 
 bool Joint::is_default_value(const std::string& name, const AttributeValue& value) const {
-  // Only filter true defaults
   if(name == "group" && std::get<int>(value) == 0) return true;
   if(name == "margin" && std::get<double>(value) == 0.0) return true;
   if(name == "ref" && std::get<double>(value) == 0.0) return true;

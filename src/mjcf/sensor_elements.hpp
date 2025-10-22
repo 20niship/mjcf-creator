@@ -211,7 +211,6 @@ protected:
  */
 class SiteQuat : public BaseSensor {
 public:
-  // Public member variables with MuJoCo default values
   std::string reftype = "body"; // MuJoCo default
   std::string objtype = "body"; // MuJoCo default
   std::string objname = "";
@@ -232,7 +231,6 @@ protected:
  */
 class SiteLinVel : public BaseSensor {
 public:
-  // Public member variables with MuJoCo default values
   std::string reftype = "body"; // MuJoCo default
   std::string objtype = "body"; // MuJoCo default
   std::string objname = "";
@@ -253,7 +251,6 @@ protected:
  */
 class SiteAngVel : public BaseSensor {
 public:
-  // Public member variables with MuJoCo default values
   std::string reftype = "body"; // MuJoCo default
   std::string objtype = "body"; // MuJoCo default
   std::string objname = "";
@@ -274,7 +271,6 @@ protected:
  */
 class SubtreeCom : public BaseSensor {
 public:
-  // Public member variables
   std::string body = "";
 
   SubtreeCom();
@@ -293,7 +289,6 @@ protected:
  */
 class SubtreeLinVel : public BaseSensor {
 public:
-  // Public member variables
   std::string body = "";
 
   SubtreeLinVel();

@@ -61,7 +61,6 @@ protected:
  */
 class Material : public Element {
 public:
-  // Public member variables
   std::string name                = "";
   std::string texture             = "";
   std::array<double, 2> texrepeat = {0.0, 0.0};
@@ -97,7 +96,6 @@ protected:
  */
 class Mesh : public Element {
 public:
-  // Public member variables with MuJoCo default values
   std::string name            = "";
   std::string file            = "";
   std::array<double, 3> scale = {1.0, 1.0, 1.0}; // MuJoCo default
@@ -122,7 +120,6 @@ protected:
  */
 class Hfield : public Element {
 public:
-  // Public member variables
   std::string name = "";
   std::string file = "";
   std::vector<double> size; // Keep as vector for variable length
@@ -145,7 +142,6 @@ protected:
  */
 class Numeric : public Element {
 public:
-  // Public member variables
   std::string name = "";
   std::string data = "";
   int size         = 0;
@@ -166,7 +162,6 @@ protected:
  */
 class Text : public Element {
 public:
-  // Public member variables
   std::string name = "";
   std::string data = "";
 
@@ -190,7 +185,6 @@ protected:
  */
 class Tuple : public Element {
 public:
-  // Public member variables
   std::string name = "";
 
   Tuple();

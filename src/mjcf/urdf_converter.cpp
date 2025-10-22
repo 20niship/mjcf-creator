@@ -64,10 +64,6 @@ std::vector<double> rpy_to_quat(const std::vector<double>& rpy) {
 }
 
 bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_path, const std::map<std::string, JointMetadata>& joint_metadata, const std::map<std::string, ActuatorMetadata>& actuator_metadata) {
-  if(std::filesystem::path(urdf_path).extension() != ".urdf") {
-    std::cerr << "Provided file is not a URDF file: " << urdf_path << std::endl;
-    return false;
-  }
 
   const std::string urdf_content = read_file(urdf_path);
   XMLDocument doc;
@@ -79,29 +75,13 @@ bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_p
   XMLElement* robot = doc.FirstChildElement("robot");
   if(!robot) {
     std::cerr << "No <robot> element found in URDF file: " << urdf_path << std::endl;
+    printf("[mjcf::parse_urdf_to_mjcf] No <robot> element found in urdf file %s \n", urdf_path.c_str());
     return false;
   }
 
   // Get robot name
   const char* robot_name = robot->Attribute("name");
   std::string model_name = robot_name ? robot_name : "converted_robot";
-
-  // Add default textures and materials for visualization
-  auto tex_grid     = std::make_shared<Texture>();
-  tex_grid->name    = "grid";
-  tex_grid->type    = TextureType::TwoD;
-  tex_grid->builtin = TextureBuiltin::Checker;
-  tex_grid->rgb1    = {0.1, 0.2, 0.3};
-  tex_grid->rgb2    = {0.2, 0.3, 0.4};
-  tex_grid->width   = 300;
-  tex_grid->height  = 300;
-  mujoco->add_asset(tex_grid);
-
-  auto mat_grid         = std::make_shared<Material>();
-  mat_grid->name        = "grid";
-  mat_grid->texture     = "grid";
-  mat_grid->reflectance = 0.2;
-  mujoco->add_asset(mat_grid);
 
   for(XMLElement* material = robot->FirstChildElement("material"); material; material = material->NextSiblingElement("material")) {
     const char* mat_name = material->Attribute("name");
@@ -124,14 +104,6 @@ bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_p
   }
 
   auto worldbody = mujoco->worldbody_;
-
-  auto floor_geom      = std::make_shared<Geom>();
-  floor_geom->name     = "floor";
-  floor_geom->material = "grid";
-  floor_geom->pos      = {0, 0, 0};
-  floor_geom->size     = {40.0, 40.0, 40.0};
-  floor_geom->type     = GeomType::Plane;
-  worldbody->add_child(floor_geom);
 
   std::map<std::string, std::shared_ptr<Body>> link_to_body;
 
@@ -199,6 +171,8 @@ bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_p
         XMLElement* cylinder = geometry->FirstChildElement("cylinder");
         XMLElement* sphere   = geometry->FirstChildElement("sphere");
 
+        // TODO: ここでメッシュの読み込みに対応すること!
+
         if(box) {
           geom->type       = GeomType::Box;
           const char* size = box->Attribute("size");
@@ -229,39 +203,39 @@ bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_p
       // }
       body->add_child(geom);
     }
-
-    // // Process collision elements
-    // for(XMLElement* collision = link->FirstChildElement("collision"); collision; collision = collision->NextSiblingElement("collision")) {
-    //   auto geom         = std::make_shared<Geom>();
-    //   geom->contype     = 1;
-    //   geom->conaffinity = 1;
-    //   XMLElement* origin = collision->FirstChildElement("origin");
-    //   if(origin) {
-    //     const char* xyz = origin->Attribute("xyz");
-    //     if(xyz) {
-    //       auto pos = parse_space_separated_values(xyz);
-    //       if(pos.size() >= 3) {
-    //         geom->pos = {pos[0], pos[1], pos[2]};
-    //       }
-    //     }
-    //   }
-    //   XMLElement* geometry = collision->FirstChildElement("geometry");
-    //   if(geometry) {
-    //     XMLElement* box = geometry->FirstChildElement("box");
-    //     if(box) {
-    //       geom->type       = GeomType::Box;
-    //       const char* size = box->Attribute("size");
-    //       if(size) {
-    //         auto sizes = parse_space_separated_values(size);
-    //         if(sizes.size() >= 3) {
-    //           geom->size = {sizes[0] / 2, sizes[1] / 2, sizes[2] / 2};
-    //         }
-    //       }
-    //     }
-    //   }
-    //   body->add_child(geom);
-    // }
-    // link_to_body[link_name] = body;
+#if 0
+    for(XMLElement* collision = link->FirstChildElement("collision"); collision; collision = collision->NextSiblingElement("collision")) {
+      auto geom         = std::make_shared<Geom>();
+      geom->contype     = 1;
+      geom->conaffinity = 1;
+      XMLElement* origin = collision->FirstChildElement("origin");
+      if(origin) {
+        const char* xyz = origin->Attribute("xyz");
+        if(xyz) {
+          auto pos = parse_space_separated_values(xyz);
+          if(pos.size() >= 3) {
+            geom->pos = {pos[0], pos[1], pos[2]};
+          }
+        }
+      }
+      XMLElement* geometry = collision->FirstChildElement("geometry");
+      if(geometry) {
+        XMLElement* box = geometry->FirstChildElement("box");
+        if(box) {
+          geom->type       = GeomType::Box;
+          const char* size = box->Attribute("size");
+          if(size) {
+            auto sizes = parse_space_separated_values(size);
+            if(sizes.size() >= 3) {
+              geom->size = {sizes[0] / 2, sizes[1] / 2, sizes[2] / 2};
+            }
+          }
+        }
+      }
+      body->add_child(geom);
+    }
+#endif
+    link_to_body[link_name] = body;
   }
 
   // Find root link (link without parent joint)

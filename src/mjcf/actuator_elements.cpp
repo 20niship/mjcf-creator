@@ -6,7 +6,6 @@ namespace mjcf {
 BaseActuator::BaseActuator(const std::string& element_name) : element_name_(element_name) {}
 
 void BaseActuator::set_xml_attrib() const {
-  // Set attributes from public members before generating XML
   auto* mutable_this = const_cast<BaseActuator*>(this);
 
   // Only set non-default values
@@ -58,7 +57,6 @@ void Motor::set_xml_attrib() const { BaseActuator::set_xml_attrib(); }
 Position::Position() : BaseActuator("position") {}
 
 void Position::set_xml_attrib() const {
-  // Set attributes from public members before generating XML
   auto* mutable_this = const_cast<Position*>(this);
 
   // Set base class attributes first
@@ -91,7 +89,6 @@ void Velocity::set_xml_attrib() const {
   // Set base class attributes first
   BaseActuator::set_xml_attrib();
 
-  // Set attributes from public members before generating XML
   auto* mutable_this = const_cast<Velocity*>(this);
 
   // Only set non-default values specific to Velocity
@@ -117,7 +114,6 @@ void Cylinder::set_xml_attrib() const {
   // Set base class attributes first
   BaseActuator::set_xml_attrib();
 
-  // Set attributes from public members before generating XML
   auto* mutable_this = const_cast<Cylinder*>(this);
 
   // Only set non-default values
@@ -145,7 +141,6 @@ void Muscle::set_xml_attrib() const {
   // Set base class attributes first
   BaseActuator::set_xml_attrib();
 
-  // Set attributes from public members before generating XML
   auto* mutable_this = const_cast<Muscle*>(this);
 
   // Only set non-default values
@@ -189,7 +184,6 @@ void General::set_xml_attrib() const {
   // Set base class attributes first
   BaseActuator::set_xml_attrib();
 
-  // Set attributes from public members before generating XML
   auto* mutable_this = const_cast<General*>(this);
 
   // Only set non-default values specific to General

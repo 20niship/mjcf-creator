@@ -104,7 +104,6 @@ protected:
 
 class Mujoco : public Element {
 public:
-  // Public member variables
   std::string model = "";
 
   Mujoco(const std::string& model = "") {
@@ -137,9 +136,7 @@ public:
   void set_xml_attrib() const override;
   bool from_xml(const std::string& xml_str) override;
 
-  void add_child([[maybe_unused]] std::shared_ptr<Element> child) override {
-    assert(false && "Unsupported child element type for Mujoco");
-  }
+  void add_child([[maybe_unused]] std::shared_ptr<Element> child) override { assert(false && "Unsupported child element type for Mujoco"); }
 
   std::shared_ptr<detail::Compiler> compiler_   = nullptr;
   std::shared_ptr<detail::Option> option_       = nullptr;
@@ -225,7 +222,6 @@ public:
  */
 class Default : public Element {
 public:
-  // Public member variables
   std::string class_ = "";
 
   Default(const std::string& class_name = "");

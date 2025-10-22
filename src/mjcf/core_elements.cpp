@@ -77,7 +77,6 @@ bool Option::is_default_value(const std::string& name, const AttributeValue& val
 Size::Size() = default;
 
 void Size::set_xml_attrib() const {
-  // Set attributes from public members before generating XML
   auto* mutable_this = const_cast<Size*>(this);
 
   // Only set non-default values

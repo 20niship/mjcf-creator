@@ -11,7 +11,6 @@ namespace mjcf {
  */
 class BaseActuator : public Element {
 public:
-  // Public member variables - use empty strings and 0 as sentinels
   std::string name                  = "";
   std::string class_                = "";
   int group                         = 0;
@@ -59,7 +58,6 @@ protected:
  */
 class Position : public BaseActuator {
 public:
-  // Public member variables - no setters needed, use default sentinel values
   double kp = 0.0; // Position feedback gain (0 means not set)
   double kv = 0.0; // Velocity feedback gain (0 means not set)
 
@@ -79,7 +77,6 @@ protected:
  */
 class Velocity : public BaseActuator {
 public:
-  // Public member variables
   double kv = 0.0; // Velocity feedback gain (0 means not set)
 
   Velocity();
@@ -98,7 +95,6 @@ protected:
  */
 class Cylinder : public BaseActuator {
 public:
-  // Public member variables
   double timeconst           = 0.0;
   double area                = 0.0;
   double diameter            = 0.0;
@@ -120,7 +116,6 @@ protected:
  */
 class Muscle : public BaseActuator {
 public:
-  // Public member variables
   std::array<double, 2> timeconst = {0.0, 0.0};
   std::array<double, 2> range     = {0.0, 0.0};
   double force                    = 0.0;
@@ -162,7 +157,6 @@ protected:
  */
 class General : public BaseActuator {
 public:
-  // Public member variables with MuJoCo default values
   std::string dyntype            = "none";                                             // Activation dynamics type
   std::string gaintype           = "fixed";                                            // Gain type
   std::string biastype           = "none";                                             // Bias type

@@ -187,7 +187,6 @@ protected:
  */
 class Camera : public Element {
 public:
-  // Public member variables with MuJoCo default values
   std::string name                = "";
   std::string class_              = "";
   CameraMode mode                 = CameraMode::Fixed; // MuJoCo default
@@ -217,7 +216,6 @@ protected:
  */
 class Site : public Element {
 public:
-  // Public member variables with MuJoCo default values
   std::string name                = "";
   std::string class_              = "";
   SiteType type                   = SiteType::Sphere;      // MuJoCo default
@@ -313,7 +311,6 @@ protected:
 
 class Inertial : public Element {
 public:
-  // Public member variables with MuJoCo default values
   Arr3 pos                          = {0.0, 0.0, 0.0};
   std::array<double, 4> quat        = {1.0, 0.0, 0.0, 0.0};
   double mass                       = 1.0; // MuJoCo default

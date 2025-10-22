@@ -5,7 +5,6 @@ namespace mjcf {
 BaseSensor::BaseSensor(const std::string& element_name) : element_name_(element_name) {}
 
 void BaseSensor::set_xml_attrib() const {
-  // Set attributes from public members before generating XML
   auto* mutable_this = const_cast<BaseSensor*>(this);
 
   // Only set non-default values
