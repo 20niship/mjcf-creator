@@ -12,7 +12,10 @@ void Element::add_child(std::shared_ptr<Element> child) {
 }
 
 void Element::add_children(const std::vector<std::shared_ptr<Element>>& children) {
-  for(const auto& child : children) add_child(child);
+  for(const auto& child : children) {
+    if(child == nullptr) continue;
+    add_child(child);
+  }
 }
 
 const std::vector<std::shared_ptr<Element>>& Element::get_children() const { return children_; }
