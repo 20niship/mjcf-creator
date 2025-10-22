@@ -49,3 +49,5 @@ clangd/
 
 # Generated output files
 output/
+examples/output/
+empty-demo.xml
