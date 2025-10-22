@@ -170,8 +170,9 @@ bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_p
         XMLElement* box      = geometry->FirstChildElement("box");
         XMLElement* cylinder = geometry->FirstChildElement("cylinder");
         XMLElement* sphere   = geometry->FirstChildElement("sphere");
+        XMLElement* mesh     = geometry->FirstChildElement("mesh");
 
-        // TODO: ここでメッシュの読み込みに対応すること!
+        bool geometry_found = false;
 
         if(box) {
           geom->type       = GeomType::Box;
@@ -182,16 +183,78 @@ bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_p
               geom->size = {sizes[0] / 2, sizes[1] / 2, sizes[2] / 2}; // MJCF uses half-sizes
             }
           }
+          geometry_found = true;
         } else if(cylinder) {
           geom->type    = GeomType::Cylinder;
           double radius = cylinder->DoubleAttribute("radius");
           double length = cylinder->DoubleAttribute("length");
           geom->size    = {radius, length / 2, 0.001}; // MJCF uses half-length
+          geometry_found = true;
         } else if(sphere) {
           geom->type    = GeomType::Sphere;
           double radius = sphere->DoubleAttribute("radius");
           geom->size    = {radius, 0.001, 0.001};
+          geometry_found = true;
+        } else if(mesh) {
+          geom->type = GeomType::Mesh;
+          
+          const char* filename = mesh->Attribute("filename");
+          if(filename) {
+            std::string mesh_filename = filename;
+            
+            // Remove ROS package:// prefix if present
+            const std::string package_prefix = "package://";
+            if(mesh_filename.find(package_prefix) == 0) {
+              mesh_filename = mesh_filename.substr(package_prefix.length());
+              // Extract just the filename after the last slash
+              size_t last_slash = mesh_filename.find_last_of("/\\");
+              if(last_slash != std::string::npos) {
+                mesh_filename = mesh_filename.substr(last_slash + 1);
+              }
+            } else {
+              // Extract just the filename from the path
+              size_t last_slash = mesh_filename.find_last_of("/\\");
+              if(last_slash != std::string::npos) {
+                mesh_filename = mesh_filename.substr(last_slash + 1);
+              }
+            }
+            
+            // Create a unique mesh name based on link name and mesh filename
+            std::string mesh_name = std::string(link_name) + "_" + mesh_filename;
+            
+            // Create mesh asset
+            auto mesh_asset = std::make_shared<Mesh>();
+            mesh_asset->name = mesh_name;
+            mesh_asset->file = filename; // Keep original path for file reference
+            
+            // Parse scale attribute if present
+            const char* scale_attr = mesh->Attribute("scale");
+            if(scale_attr) {
+              auto scale_values = parse_space_separated_values(scale_attr);
+              if(scale_values.size() >= 3) {
+                mesh_asset->scale = {scale_values[0], scale_values[1], scale_values[2]};
+              } else if(scale_values.size() == 1) {
+                // Uniform scale
+                mesh_asset->scale = {scale_values[0], scale_values[0], scale_values[0]};
+              }
+            }
+            
+            // Add mesh to assets
+            mujoco->add_asset(mesh_asset);
+            
+            // Reference the mesh in the geom
+            geom->mesh = mesh_name;
+          }
+          geometry_found = true;
         }
+        
+        // Only add the geom if a valid geometry type was found
+        if(geometry_found) {
+          body->add_child(geom);
+        }
+      } else {
+        // No geometry element found, don't add the geom
+        continue;
       }
 
       // XMLElement* material = visual->FirstChildElement("material");
@@ -201,7 +264,6 @@ bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_p
       //   // get color...
       //   printf("TODO: ここで色情報も取り出して,mujoconの<assets>のなかに入れるべき")
       // }
-      body->add_child(geom);
     }
 #if 0
     for(XMLElement* collision = link->FirstChildElement("collision"); collision; collision = collision->NextSiblingElement("collision")) {

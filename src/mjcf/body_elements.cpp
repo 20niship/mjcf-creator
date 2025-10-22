@@ -2,13 +2,25 @@
 
 namespace mjcf {
 
+// Helper function to sanitize body names
+std::string sanitize_body_name(const std::string& name) {
+  if (name == "world") {
+    return "world.001";
+  }
+  return name;
+}
+
 Body::Body() = default;
 
 void Body::set_xml_attrib() const {
   auto* mutable_this = const_cast<Body*>(this);
 
   // Only set non-default values
-  if(!name.empty()) mutable_this->set_attribute("name", name);
+  // Sanitize the name to avoid reserved names like "world"
+  if(!name.empty()) {
+    std::string sanitized_name = sanitize_body_name(name);
+    mutable_this->set_attribute("name", sanitized_name);
+  }
   if(pos != Arr3{0.0, 0.0, 0.0}) {
     mutable_this->set_attribute("pos", std::vector<double>(pos.begin(), pos.end()));
   }
