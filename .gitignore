@@ -46,3 +46,6 @@ CMakeCache.txt
 clangd/
 
 .cache/
+
+# Generated output files
+output/
