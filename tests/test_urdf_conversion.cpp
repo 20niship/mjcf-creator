@@ -397,6 +397,120 @@ TEST_SUITE("URDF Conversion Tests") {
     CHECK(xml_content.find("forcerange=\"-25 25\"") != std::string::npos);
   }
 
+  TEST_CASE("URDF to MJCF with no actuators when metadata is empty") {
+    // Create a minimal test URDF
+    std::string test_urdf = R"(<?xml version="1.0"?>
+<robot name="test_robot">
+  <link name="base_link">
+    <inertial>
+      <mass value="1.0"/>
+    </inertial>
+  </link>
+  
+  <link name="link1">
+    <inertial>
+      <mass value="0.5"/>
+    </inertial>
+  </link>
+  
+  <joint name="joint1" type="revolute">
+    <parent link="base_link"/>
+    <child link="link1"/>
+    <origin xyz="0 0 0.5"/>
+    <axis xyz="0 1 0"/>
+  </joint>
+</robot>)";
+
+    std::string temp_urdf = "/tmp/test_no_actuators.urdf";
+    std::ofstream urdf_file(temp_urdf);
+    urdf_file << test_urdf;
+    urdf_file.close();
+
+    std::map<std::string, mjcf::JointMetadata> joint_metadata; // Empty metadata
+    std::map<std::string, mjcf::ActuatorMetadata> actuator_metadata;
+    
+    auto mujoco = std::make_shared<mjcf::Mujoco>();
+    bool success = mujoco->add_urdf(temp_urdf, "", false, joint_metadata, actuator_metadata);
+    
+    CHECK(success);
+    
+    std::string xml_content = mujoco->get_xml_text();
+    
+    // Should not have any motor or position elements since metadata is empty
+    CHECK(xml_content.find("<motor") == std::string::npos);
+    CHECK(xml_content.find("<position") == std::string::npos);
+    CHECK(xml_content.find("joint1_motor") == std::string::npos);
+  }
+
+  TEST_CASE("URDF to MJCF skips fixed joints when creating actuators") {
+    // Create a test URDF with fixed and revolute joints
+    std::string test_urdf = R"(<?xml version="1.0"?>
+<robot name="test_robot">
+  <link name="base_link">
+    <inertial>
+      <mass value="1.0"/>
+    </inertial>
+  </link>
+  
+  <link name="link1">
+    <inertial>
+      <mass value="0.5"/>
+    </inertial>
+  </link>
+  
+  <link name="link2">
+    <inertial>
+      <mass value="0.3"/>
+    </inertial>
+  </link>
+  
+  <joint name="fixed_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="link1"/>
+  </joint>
+  
+  <joint name="revolute_joint" type="revolute">
+    <parent link="link1"/>
+    <child link="link2"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-1.57" upper="1.57"/>
+  </joint>
+</robot>)";
+
+    std::string temp_urdf = "/tmp/test_fixed_joint.urdf";
+    std::ofstream urdf_file(temp_urdf);
+    urdf_file << test_urdf;
+    urdf_file.close();
+
+    std::map<std::string, mjcf::JointMetadata> joint_metadata;
+    
+    // Add metadata for both joints
+    mjcf::JointMetadata fixed_meta;
+    fixed_meta.actuator_type = "motor";
+    fixed_meta.soft_torque_limit = 10.0;
+    joint_metadata["fixed_joint"] = fixed_meta;
+    
+    mjcf::JointMetadata revolute_meta;
+    revolute_meta.actuator_type = "motor";
+    revolute_meta.soft_torque_limit = 15.0;
+    joint_metadata["revolute_joint"] = revolute_meta;
+
+    std::map<std::string, mjcf::ActuatorMetadata> actuator_metadata;
+    
+    auto mujoco = std::make_shared<mjcf::Mujoco>();
+    bool success = mujoco->add_urdf(temp_urdf, "", false, joint_metadata, actuator_metadata);
+    
+    CHECK(success);
+    
+    std::string xml_content = mujoco->get_xml_text();
+    
+    // Should NOT create actuator for fixed joint
+    CHECK(xml_content.find("fixed_joint_motor") == std::string::npos);
+    
+    // Should create actuator for revolute joint
+    CHECK(xml_content.find("revolute_joint_motor") != std::string::npos);
+  }
+
   TEST_CASE("Basic URDF parsing functionality") {
     // Create a minimal test URDF in memory
     std::string minimal_urdf = R"(<?xml version="1.0"?>
