@@ -7,8 +7,7 @@ namespace mjcf {
 
 
 void Mujoco::set_xml_attrib() const {
-  auto* mutable_this = const_cast<Mujoco*>(this);
-  if(!model.empty()) mutable_this->set_attribute("model", model);
+  if(!model.empty()) this->set_attribute("model", model);
 }
 
 bool Mujoco::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
@@ -21,6 +20,7 @@ void* Mujoco::write_xml_element(void* doc_ptr, void* parent_ptr) const {
   worldbody_->write_xml_element(doc_ptr, elm);
   actuator_->write_xml_element(doc_ptr, elm);
   sensor_->write_xml_element(doc_ptr, elm);
+  contact_->write_xml_element(doc_ptr, elm);
   equality_->write_xml_element(doc_ptr, elm);
   tendon_->write_xml_element(doc_ptr, elm);
   for(const auto& child : this->get_children())
@@ -40,11 +40,10 @@ bool Mujoco::add_urdf(const std::string& urdf_path, const std::string& name_pref
 namespace detail {
 
 void Compiler::set_xml_attrib() const {
-  auto* mutable_this = const_cast<Compiler*>(this);
-  mutable_this->set_attribute("angle", to_string(angle));
-  if(coordinate != CoordinateType::Local) mutable_this->set_attribute("coordinate", to_string(coordinate));
-  if(inertiafromgeom) mutable_this->set_attribute("inertiafromgeom", inertiafromgeom);
-  if(autolimits) mutable_this->set_attribute("autolimits", autolimits);
+  this->set_attribute("angle", to_string(angle));
+  if(coordinate != CoordinateType::Local) this->set_attribute("coordinate", to_string(coordinate));
+  if(inertiafromgeom) this->set_attribute("inertiafromgeom", inertiafromgeom);
+  if(autolimits) this->set_attribute("autolimits", autolimits);
 }
 
 bool Compiler::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
@@ -58,11 +57,10 @@ bool Compiler::is_default_value(const std::string& name, const AttributeValue& v
 }
 
 void Option::set_xml_attrib() const {
-  auto* mutable_this = const_cast<Option*>(this);
-  if(integrator != IntegratorType::Euler) mutable_this->set_attribute("integrator", to_string(integrator));
-  if(timestep != 0.002) mutable_this->set_attribute("timestep", timestep);
-  mutable_this->set_attribute("gravity", std::vector<double>(gravity.begin(), gravity.end()));
-  if(viscosity != 0.0) mutable_this->set_attribute("viscosity", viscosity);
+  if(integrator != IntegratorType::Euler) this->set_attribute("integrator", to_string(integrator));
+  if(timestep != 0.002) this->set_attribute("timestep", timestep);
+  this->set_attribute("gravity", std::vector<double>(gravity.begin(), gravity.end()));
+  if(viscosity != 0.0) this->set_attribute("viscosity", viscosity);
 }
 
 bool Option::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
@@ -78,13 +76,11 @@ bool Option::is_default_value(const std::string& name, const AttributeValue& val
 Size::Size() = default;
 
 void Size::set_xml_attrib() const {
-  auto* mutable_this = const_cast<Size*>(this);
-
   // Only set non-default values
-  if(njmax != 0) mutable_this->set_attribute("njmax", njmax);
-  if(nconmax != 0) mutable_this->set_attribute("nconmax", nconmax);
-  if(nstack != 0) mutable_this->set_attribute("nstack", nstack);
-  if(nuserdata != 0) mutable_this->set_attribute("nuserdata", nuserdata);
+  if(njmax != 0) this->set_attribute("njmax", njmax);
+  if(nconmax != 0) this->set_attribute("nconmax", nconmax);
+  if(nstack != 0) this->set_attribute("nstack", nstack);
+  if(nuserdata != 0) this->set_attribute("nuserdata", nuserdata);
 }
 
 bool Size::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
@@ -99,8 +95,7 @@ Statistic::Statistic() = default;
 Default::Default(const std::string& class_name) : class_(class_name) {}
 
 void Default::set_xml_attrib() const {
-  auto* mutable_this = const_cast<Default*>(this);
-  if(!class_.empty()) mutable_this->set_attribute("class", class_);
+  if(!class_.empty()) this->set_attribute("class", class_);
 }
 
 bool Default::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }

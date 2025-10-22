@@ -26,7 +26,7 @@ std::optional<AttributeValue> Element::get_attribute_public(const std::string& n
 
 void Element::set_attribute_public(const std::string& name, const AttributeValue& value) { set_attribute(name, value); }
 
-void Element::set_attribute(const std::string& name, const AttributeValue& value) { attributes_[name] = value; }
+void Element::set_attribute(const std::string& name, const AttributeValue& value) const { attributes_[name] = value; }
 
 std::optional<AttributeValue> Element::get_attribute(const std::string& name) const {
   auto it = attributes_.find(name);
