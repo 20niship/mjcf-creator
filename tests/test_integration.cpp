@@ -209,4 +209,47 @@ TEST_SUITE("Integration Tests") {
       outfile.close();
     }
   }
+
+  TEST_CASE("Body with 'world' name is sanitized in full model") {
+    // Create a full model with a body named "world"
+    auto mujoco = std::make_shared<mjcf::Mujoco>("test_world_name");
+    
+    auto worldbody = mujoco->worldbody_;
+    
+    // Create a body with the reserved name "world"
+    auto world_body = mjcf::Body::Create("world", {1.0, 0.0, 1.0});
+    
+    // Add a geom to the body
+    auto world_geom = std::make_shared<mjcf::Geom>();
+    world_geom->name = "world_geom";
+    world_geom->type = mjcf::GeomType::Sphere;
+    world_geom->size = {0.1, 0.0, 0.0};
+    
+    world_body->add_child(world_geom);
+    worldbody->add_child(world_body);
+    
+    // Also add a normal body for comparison
+    auto normal_body = mjcf::Body::Create("normal_body", {2.0, 0.0, 1.0});
+    auto normal_geom = std::make_shared<mjcf::Geom>();
+    normal_geom->name = "normal_geom";
+    normal_geom->type = mjcf::GeomType::Box;
+    normal_geom->size = {0.1, 0.1, 0.1};
+    
+    normal_body->add_child(normal_geom);
+    worldbody->add_child(normal_body);
+    
+    // Generate XML
+    std::string xml = mujoco->get_xml_text();
+    
+    // Verify that "world" was renamed to "world.001"
+    CHECK(xml.find("name=\"world.001\"") != std::string::npos);
+    CHECK(xml.find("<body name=\"world\"") == std::string::npos);
+    
+    // Verify normal body is unchanged
+    CHECK(xml.find("name=\"normal_body\"") != std::string::npos);
+    
+    // Verify geoms are present
+    CHECK(xml.find("name=\"world_geom\"") != std::string::npos);
+    CHECK(xml.find("name=\"normal_geom\"") != std::string::npos);
+  }
 }
