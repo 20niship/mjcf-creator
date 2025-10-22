@@ -1,5 +1,4 @@
 #include "mjcf/mjcf.hpp"
-#include "mjcf/urdf_converter.hpp"
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -55,8 +54,8 @@ void create_falling_objects_scene() {
   sphere_body->add_children({sphere_geom, sphere_joint});
   worldbody->add_child(sphere_body);
 
-  auto box_body = Body::Create("box", {-0.5, 0, 2.5});
-  auto box_geom = Geom::Box("box_geom", {0.15, 0.15, 0.15}, {0, 0, 0}, {0, 1, 0, 1});
+  auto box_body  = Body::Create("box", {-0.5, 0, 2.5});
+  auto box_geom  = Geom::Box("box_geom", {0.15, 0.15, 0.15}, {0, 0, 0}, {0, 1, 0, 1});
   auto box_joint = Joint::Free("box_joint");
 
   box_body->add_children({box_geom, box_joint});
@@ -439,22 +438,6 @@ void convert_urdf_to_mjcf() {
 
   auto mujoco = std::make_shared<mjcf::Mujoco>();
   mujoco->add_urdf(urdf_path);
-
-  auto light         = std::make_shared<mjcf::Light>();
-  light->directional = true;
-  light->pos         = std::array<double, 3>{0, 0, 5};
-  light->dir         = std::array<double, 3>{0, 0, -1};
-  light->diffuse     = std::array<double, 3>{0.8, 0.8, 0.8};
-  mujoco->worldbody_->add_child(light);
-
-  auto floor      = std::make_shared<mjcf::Geom>();
-  floor->name     = "floor";
-  floor->type     = mjcf::GeomType::Plane;
-  floor->size     = std::array<double, 3>{20, 20, 0.1};
-  floor->material = "ground_mat";
-  floor->condim   = 3;
-  floor->friction = std::array<double, 3>{1, 0.5, 0.5};
-  mujoco->worldbody_->add_child(floor);
 
   std::ofstream file(output_path);
   file << mujoco->get_xml_text();

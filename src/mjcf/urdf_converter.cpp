@@ -4,8 +4,8 @@
 #include "body_elements.hpp"
 #include "core_elements.hpp"
 #include <cmath>
-#include <iostream>
 #include <fstream>
+#include <iostream>
 #include <set>
 #include <sstream>
 
@@ -212,57 +212,56 @@ bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_p
           geom->type    = GeomType::Cylinder;
           double radius = cylinder->DoubleAttribute("radius");
           double length = cylinder->DoubleAttribute("length");
-          geom->size    = {radius, length / 2, 0}; // MJCF uses half-length
+          geom->size    = {radius, length / 2, 0.001}; // MJCF uses half-length
         } else if(sphere) {
           geom->type    = GeomType::Sphere;
           double radius = sphere->DoubleAttribute("radius");
-          geom->size    = {radius, 0, 0};
+          geom->size    = {radius, 0.001, 0.001};
         }
       }
 
-      XMLElement* material = visual->FirstChildElement("material");
-      if(material) {
-        const char* mat_name = material->Attribute("name");
-        if(mat_name) geom->material = mat_name;
-      }
+      // XMLElement* material = visual->FirstChildElement("material");
+      // if(material) {
+      //   const char* mat_name = material->Attribute("name");
+      //   if(mat_name) geom->material = mat_name;
+      //   // get color...
+      //   printf("TODO: ここで色情報も取り出して,mujoconの<assets>のなかに入れるべき")
+      // }
       body->add_child(geom);
     }
 
-    // Process collision elements
-    for(XMLElement* collision = link->FirstChildElement("collision"); collision; collision = collision->NextSiblingElement("collision")) {
-      auto geom         = std::make_shared<Geom>();
-      geom->contype     = 1;
-      geom->conaffinity = 1;
-
-      XMLElement* origin = collision->FirstChildElement("origin");
-      if(origin) {
-        const char* xyz = origin->Attribute("xyz");
-        if(xyz) {
-          auto pos = parse_space_separated_values(xyz);
-          if(pos.size() >= 3) {
-            geom->pos = {pos[0], pos[1], pos[2]};
-          }
-        }
-      }
-
-      XMLElement* geometry = collision->FirstChildElement("geometry");
-      if(geometry) {
-        XMLElement* box = geometry->FirstChildElement("box");
-        if(box) {
-          geom->type       = GeomType::Box;
-          const char* size = box->Attribute("size");
-          if(size) {
-            auto sizes = parse_space_separated_values(size);
-            if(sizes.size() >= 3) {
-              geom->size = {sizes[0] / 2, sizes[1] / 2, sizes[2] / 2};
-            }
-          }
-        }
-      }
-
-      body->add_child(geom);
-    }
-    link_to_body[link_name] = body;
+    // // Process collision elements
+    // for(XMLElement* collision = link->FirstChildElement("collision"); collision; collision = collision->NextSiblingElement("collision")) {
+    //   auto geom         = std::make_shared<Geom>();
+    //   geom->contype     = 1;
+    //   geom->conaffinity = 1;
+    //   XMLElement* origin = collision->FirstChildElement("origin");
+    //   if(origin) {
+    //     const char* xyz = origin->Attribute("xyz");
+    //     if(xyz) {
+    //       auto pos = parse_space_separated_values(xyz);
+    //       if(pos.size() >= 3) {
+    //         geom->pos = {pos[0], pos[1], pos[2]};
+    //       }
+    //     }
+    //   }
+    //   XMLElement* geometry = collision->FirstChildElement("geometry");
+    //   if(geometry) {
+    //     XMLElement* box = geometry->FirstChildElement("box");
+    //     if(box) {
+    //       geom->type       = GeomType::Box;
+    //       const char* size = box->Attribute("size");
+    //       if(size) {
+    //         auto sizes = parse_space_separated_values(size);
+    //         if(sizes.size() >= 3) {
+    //           geom->size = {sizes[0] / 2, sizes[1] / 2, sizes[2] / 2};
+    //         }
+    //       }
+    //     }
+    //   }
+    //   body->add_child(geom);
+    // }
+    // link_to_body[link_name] = body;
   }
 
   // Find root link (link without parent joint)

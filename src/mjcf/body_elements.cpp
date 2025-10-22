@@ -321,26 +321,19 @@ bool Joint::is_default_value(const std::string& name, const AttributeValue& valu
   return false;
 }
 
-// Inertial implementation
-Inertial::Inertial() = default;
-
 void Inertial::set_xml_attrib() const {
-  // Set attributes from public members before generating XML
   auto* mutable_this = const_cast<Inertial*>(this);
 
-  // Only set non-default values
-  if(pos != Arr3{0.0, 0.0, 0.0}) {
-    mutable_this->set_attribute("pos", std::vector<double>(pos.begin(), pos.end()));
-  }
+  mutable_this->set_attribute("pos", std::vector<double>(pos.begin(), pos.end()));
+  mutable_this->set_attribute("mass", mass);
+
   if(quat != std::array<double, 4>{1.0, 0.0, 0.0, 0.0}) {
     mutable_this->set_attribute("quat", std::vector<double>(quat.begin(), quat.end()));
   }
-  if(mass != 1.0) mutable_this->set_attribute("mass", mass);
-  if(diaginertia != Arr3{0.0, 0.0, 0.0}) {
-    mutable_this->set_attribute("diaginertia", std::vector<double>(diaginertia.begin(), diaginertia.end()));
-  }
   if(fullinertia != std::array<double, 6>{0.0, 0.0, 0.0, 0.0, 0.0, 0.0}) {
     mutable_this->set_attribute("fullinertia", std::vector<double>(fullinertia.begin(), fullinertia.end()));
+  } else {
+    mutable_this->set_attribute("diaginertia", std::vector<double>(diaginertia.begin(), diaginertia.end()));
   }
 }
 

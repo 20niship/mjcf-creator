@@ -311,19 +311,16 @@ protected:
   bool is_default_value(const std::string& name, const AttributeValue& value) const override;
 };
 
-/**
- * @brief Inertial element
- */
 class Inertial : public Element {
 public:
   // Public member variables with MuJoCo default values
   Arr3 pos                          = {0.0, 0.0, 0.0};
   std::array<double, 4> quat        = {1.0, 0.0, 0.0, 0.0};
   double mass                       = 1.0; // MuJoCo default
-  Arr3 diaginertia                  = {0.0, 0.0, 0.0};
+  Arr3 diaginertia                  = {0.01, 0.01, 0.01};
   std::array<double, 6> fullinertia = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 
-  Inertial();
+  Inertial() = default;
 
   std::string element_name() const override { return "inertial"; }
 
