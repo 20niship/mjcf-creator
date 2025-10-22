@@ -2,6 +2,14 @@
 
 namespace mjcf {
 
+// Helper function to sanitize body names
+std::string sanitize_body_name(const std::string& name) {
+  if (name == "world") {
+    return "world.001";
+  }
+  return name;
+}
+
 Body::Body() = default;
 
 void Body::set_xml_attrib() const {

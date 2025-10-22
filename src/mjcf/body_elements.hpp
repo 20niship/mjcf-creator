@@ -7,12 +7,7 @@
 namespace mjcf {
 
 // Helper function to sanitize body names
-inline std::string sanitize_body_name(const std::string& name) {
-  if (name == "world") {
-    return "world.001";
-  }
-  return name;
-}
+std::string sanitize_body_name(const std::string& name);
 
 class Body : public Element {
 public:
