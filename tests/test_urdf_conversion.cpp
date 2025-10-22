@@ -283,6 +283,76 @@ TEST_SUITE("URDF Conversion Tests") {
     CHECK(mjcf_content.find("box") != std::string::npos);
   }
 
+  TEST_CASE("URDF with mesh geometry support") {
+    std::string urdf_path = "../tests/robot_with_mesh.urdf";
+    
+    // Check if test file exists
+    if(!std::filesystem::exists(urdf_path)) {
+      MESSAGE("Skipping mesh test - test file not found");
+      return;
+    }
+
+    auto mujoco  = std::make_shared<mjcf::Mujoco>();
+    bool success = mujoco->add_urdf(urdf_path);
+    
+    CHECK(success);
+    
+    std::string xml_content = mujoco->get_xml_text();
+    
+    // Check for basic MJCF structure
+    CHECK(xml_content.find("<mujoco") != std::string::npos);
+    CHECK(xml_content.find("<asset") != std::string::npos);
+    CHECK(xml_content.find("<worldbody") != std::string::npos);
+    
+    // Check that mesh assets were created
+    CHECK(xml_content.find("<mesh") != std::string::npos);
+    CHECK(xml_content.find("base_link_base.stl") != std::string::npos);
+    CHECK(xml_content.find("link1_link1.obj") != std::string::npos);
+    
+    // Check that mesh geometries reference the correct mesh names
+    CHECK(xml_content.find("type=\"mesh\"") != std::string::npos);
+    CHECK(xml_content.find("mesh=\"base_link_base.stl\"") != std::string::npos);
+    CHECK(xml_content.find("mesh=\"link1_link1.obj\"") != std::string::npos);
+    
+    // Check that scale attributes are preserved
+    CHECK(xml_content.find("scale=\"0.5 0.5 0.5\"") != std::string::npos);
+    
+    // Check that box geometry is still processed correctly
+    CHECK(xml_content.find("type=\"box\"") != std::string::npos);
+    CHECK(xml_content.find("link2") != std::string::npos);
+    
+    // Verify no unexpected sphere geoms were created
+    // Count mesh and box geoms vs sphere geoms
+    size_t mesh_count = 0;
+    size_t box_count = 0;
+    size_t sphere_count = 0;
+    
+    size_t pos = 0;
+    while((pos = xml_content.find("type=\"mesh\"", pos)) != std::string::npos) {
+      mesh_count++;
+      pos += 11; // Length of "type=\"mesh\""
+    }
+    
+    pos = 0;
+    while((pos = xml_content.find("type=\"box\"", pos)) != std::string::npos) {
+      box_count++;
+      pos += 10; // Length of "type=\"box\""
+    }
+    
+    pos = 0;
+    while((pos = xml_content.find("type=\"sphere\"", pos)) != std::string::npos) {
+      sphere_count++;
+      pos += 13; // Length of "type=\"sphere\""
+    }
+    
+    // We expect 2 mesh geoms (base_link and link1) and 1 box geom (link2)
+    // No sphere geoms should be created from the URDF
+    CHECK(mesh_count == 2);
+    CHECK(box_count == 1);
+    CHECK(sphere_count == 0);
+  }
+
+
   // TEST_CASE("multiple-urdf") {
   //   // Create a minimal test URDF
   //   std::string minimal_urdf = R"(<?xml version="1.0"?>
