@@ -209,7 +209,7 @@ TEST_SUITE("URDF Conversion Tests") {
     actuator_metadata["motor"] = actuator_meta;
 
     auto mujoco  = std::make_shared<mjcf::Mujoco>();
-    auto success = mujoco->add_urdf(urdf_path);
+    auto success = mujoco->add_urdf(urdf_path, "", false, joint_metadata, actuator_metadata);
     CHECK(success);
     auto content = mujoco->get_xml_text();
 
@@ -225,6 +225,17 @@ TEST_SUITE("URDF Conversion Tests") {
 
     bool has_torso = content.find("torso") != std::string::npos || content.find("name=\"torso\"") != std::string::npos;
     CHECK(has_torso);
+    
+    // Check for actuator elements
+    CHECK(content.find("<actuator>") != std::string::npos);
+    CHECK(content.find("RLEG_HIP_R_motor") != std::string::npos);
+    CHECK(content.find("RLEG_HIP_P_motor") != std::string::npos);
+    CHECK(content.find("RLEG_KNEE_motor") != std::string::npos);
+    
+    // Check that actuators have force limits
+    CHECK(content.find("forcelimited=\"true\"") != std::string::npos);
+    CHECK(content.find("forcerange=\"-10 10\"") != std::string::npos);
+    
     CHECK(content.size() > 1000);
   }
 
@@ -233,6 +244,157 @@ TEST_SUITE("URDF Conversion Tests") {
     auto mujoco  = std::make_shared<mjcf::Mujoco>();
     bool success = mujoco->add_urdf(fake_urdf);
     CHECK_FALSE(success);
+  }
+
+  TEST_CASE("URDF to MJCF with different actuator types") {
+    // Create a minimal test URDF with multiple joints
+    std::string test_urdf = R"(<?xml version="1.0"?>
+<robot name="test_robot">
+  <link name="base_link">
+    <inertial>
+      <mass value="1.0"/>
+    </inertial>
+  </link>
+  
+  <link name="link1">
+    <inertial>
+      <mass value="0.5"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <box size="0.1 0.1 0.2"/>
+      </geometry>
+    </visual>
+  </link>
+  
+  <link name="link2">
+    <inertial>
+      <mass value="0.3"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <cylinder radius="0.05" length="0.15"/>
+      </geometry>
+    </visual>
+  </link>
+  
+  <joint name="joint1" type="revolute">
+    <parent link="base_link"/>
+    <child link="link1"/>
+    <origin xyz="0 0 0.5"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-1.57" upper="1.57"/>
+  </joint>
+  
+  <joint name="joint2" type="revolute">
+    <parent link="link1"/>
+    <child link="link2"/>
+    <origin xyz="0 0 0.2"/>
+    <axis xyz="1 0 0"/>
+    <limit lower="-3.14" upper="3.14"/>
+  </joint>
+</robot>)";
+
+    std::string temp_urdf = "/tmp/test_actuator_types.urdf";
+    std::ofstream urdf_file(temp_urdf);
+    urdf_file << test_urdf;
+    urdf_file.close();
+
+    std::map<std::string, mjcf::JointMetadata> joint_metadata;
+    
+    // Test motor actuator
+    mjcf::JointMetadata motor_meta;
+    motor_meta.actuator_type = "motor";
+    motor_meta.kp = 0.0;
+    motor_meta.kd = 0.0;
+    motor_meta.soft_torque_limit = 15.0;
+    joint_metadata["joint1"] = motor_meta;
+    
+    // Test position actuator with PD gains
+    mjcf::JointMetadata position_meta;
+    position_meta.actuator_type = "position";
+    position_meta.kp = 50.0;
+    position_meta.kd = 3.0;
+    position_meta.soft_torque_limit = 20.0;
+    joint_metadata["joint2"] = position_meta;
+
+    std::map<std::string, mjcf::ActuatorMetadata> actuator_metadata;
+    
+    auto mujoco = std::make_shared<mjcf::Mujoco>();
+    bool success = mujoco->add_urdf(temp_urdf, "", false, joint_metadata, actuator_metadata);
+    
+    CHECK(success);
+    
+    std::string xml_content = mujoco->get_xml_text();
+    
+    // Check basic structure
+    CHECK(xml_content.find("<mujoco") != std::string::npos);
+    CHECK(xml_content.find("<actuator>") != std::string::npos);
+    
+    // Check motor actuator
+    CHECK(xml_content.find("joint1_motor") != std::string::npos);
+    CHECK(xml_content.find("forcelimited=\"true\"") != std::string::npos);
+    CHECK(xml_content.find("forcerange=\"-15 15\"") != std::string::npos);
+    
+    // Check position actuator
+    CHECK(xml_content.find("joint2_position") != std::string::npos);
+    CHECK(xml_content.find("kp=\"50\"") != std::string::npos);
+    CHECK(xml_content.find("kv=\"3\"") != std::string::npos);
+    CHECK(xml_content.find("forcerange=\"-20 20\"") != std::string::npos);
+  }
+
+  TEST_CASE("URDF to MJCF with velocity actuator type") {
+    // Create a minimal test URDF
+    std::string test_urdf = R"(<?xml version="1.0"?>
+<robot name="test_robot">
+  <link name="base_link">
+    <inertial>
+      <mass value="1.0"/>
+    </inertial>
+  </link>
+  
+  <link name="link1">
+    <inertial>
+      <mass value="0.5"/>
+    </inertial>
+  </link>
+  
+  <joint name="joint1" type="revolute">
+    <parent link="base_link"/>
+    <child link="link1"/>
+    <origin xyz="0 0 0.5"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-1.57" upper="1.57"/>
+  </joint>
+</robot>)";
+
+    std::string temp_urdf = "/tmp/test_velocity_actuator.urdf";
+    std::ofstream urdf_file(temp_urdf);
+    urdf_file << test_urdf;
+    urdf_file.close();
+
+    std::map<std::string, mjcf::JointMetadata> joint_metadata;
+    
+    // Test velocity actuator
+    mjcf::JointMetadata velocity_meta;
+    velocity_meta.actuator_type = "velocity";
+    velocity_meta.kd = 5.0;
+    velocity_meta.soft_torque_limit = 25.0;
+    joint_metadata["joint1"] = velocity_meta;
+
+    std::map<std::string, mjcf::ActuatorMetadata> actuator_metadata;
+    
+    auto mujoco = std::make_shared<mjcf::Mujoco>();
+    bool success = mujoco->add_urdf(temp_urdf, "", false, joint_metadata, actuator_metadata);
+    
+    CHECK(success);
+    
+    std::string xml_content = mujoco->get_xml_text();
+    
+    // Check velocity actuator
+    CHECK(xml_content.find("joint1_velocity") != std::string::npos);
+    CHECK(xml_content.find("kv=\"5\"") != std::string::npos);
+    CHECK(xml_content.find("forcerange=\"-25 25\"") != std::string::npos);
   }
 
   TEST_CASE("Basic URDF parsing functionality") {

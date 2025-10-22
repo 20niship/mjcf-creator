@@ -1,5 +1,6 @@
 #include "urdf_converter.hpp"
 #include "../ext/tinyxml2.h"
+#include "actuator_elements.hpp"
 #include "asset_elements.hpp"
 #include "body_elements.hpp"
 #include "core_elements.hpp"
@@ -384,6 +385,78 @@ bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_p
     }
     parent_body->add_child(child_body);
   }
+
+  // Process joint_metadata and create actuators
+  if(!joint_metadata.empty() && mujoco->actuator_) {
+    for(XMLElement* joint = robot->FirstChildElement("joint"); joint; joint = joint->NextSiblingElement("joint")) {
+      const char* joint_name = joint->Attribute("name");
+      const char* joint_type = joint->Attribute("type");
+      
+      if(!joint_name || !joint_type) continue;
+      
+      // Skip fixed joints
+      if(std::string(joint_type) == "fixed") continue;
+      
+      // Check if we have metadata for this joint
+      auto it = joint_metadata.find(joint_name);
+      if(it == joint_metadata.end()) continue;
+      
+      const JointMetadata& meta = it->second;
+      
+      // Create actuator based on actuator_type
+      if(meta.actuator_type == "motor") {
+        auto actuator = std::make_shared<Motor>();
+        actuator->name = std::string(joint_name) + "_motor";
+        actuator->joint = joint_name;
+        
+        // Set force limits based on soft_torque_limit
+        if(meta.soft_torque_limit > 0.0) {
+          actuator->forcelimited = true;
+          actuator->forcerange = {-meta.soft_torque_limit, meta.soft_torque_limit};
+        }
+        
+        mujoco->actuator_->add_child(actuator);
+      } else if(meta.actuator_type == "position") {
+        auto actuator = std::make_shared<Position>();
+        actuator->name = std::string(joint_name) + "_position";
+        actuator->joint = joint_name;
+        
+        // Set PD gains
+        if(meta.kp > 0.0) {
+          actuator->kp = meta.kp;
+        }
+        if(meta.kd > 0.0) {
+          actuator->kv = meta.kd; // Note: kv is the velocity gain in Position actuator
+        }
+        
+        // Set force limits
+        if(meta.soft_torque_limit > 0.0) {
+          actuator->forcelimited = true;
+          actuator->forcerange = {-meta.soft_torque_limit, meta.soft_torque_limit};
+        }
+        
+        mujoco->actuator_->add_child(actuator);
+      } else if(meta.actuator_type == "velocity") {
+        auto actuator = std::make_shared<Velocity>();
+        actuator->name = std::string(joint_name) + "_velocity";
+        actuator->joint = joint_name;
+        
+        // Set velocity gain
+        if(meta.kd > 0.0) {
+          actuator->kv = meta.kd;
+        }
+        
+        // Set force limits
+        if(meta.soft_torque_limit > 0.0) {
+          actuator->forcelimited = true;
+          actuator->forcerange = {-meta.soft_torque_limit, meta.soft_torque_limit};
+        }
+        
+        mujoco->actuator_->add_child(actuator);
+      }
+    }
+  }
+  
   return true;
 }
 
