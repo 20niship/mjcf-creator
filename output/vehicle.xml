@@ -1,0 +1,41 @@
+<mujoco model="vehicle">
+    <compiler angle="degree" inertiafromgeom="true"/>
+    <option gravity="0 0 -9.81" integrator="RK4" timestep="0.01"/>
+    <asset>
+        <texture builtin="checker" height="512" name="ground" rgb1="0.3 0.3 0.3" rgb2="0.4 0.4 0.4" width="512"/>
+        <material name="ground_mat" reflectance="0.1" texrepeat="20 20" texture="ground"/>
+    </asset>
+    <worldbody>
+        <light diffuse="0.8 0.8 0.8" directional="true" pos="0 0 5"/>
+        <geom friction="1 0.5 0.5" material="ground_mat" name="floor" size="20 20 0.1" type="plane"/>
+        <body name="chassis" pos="0 0 0.3">
+            <joint name="chassis_free" type="free"/>
+            <geom name="chassis_geom" rgba="0.7 0.3 0.3 1" size="0.6 0.3 0.15" type="box"/>
+            <body name="front_left" pos="0.4 0.35 0">
+                <joint axis="0 1 0" damping="0.1" name="front_left_joint" type="hinge"/>
+                <geom friction="1.5 0.5 0.5" name="front_left_geom" quat="0.707107 0 0.707107 0" rgba="0.2 0.2 0.2 1" size="0.15 0.08 0" type="cylinder"/>
+            </body>
+            <body name="front_right" pos="0.4 -0.35 0">
+                <joint axis="0 1 0" damping="0.1" name="front_right_joint" type="hinge"/>
+                <geom friction="1.5 0.5 0.5" name="front_right_geom" quat="0.707107 0 0.707107 0" rgba="0.2 0.2 0.2 1" size="0.15 0.08 0" type="cylinder"/>
+            </body>
+            <body name="rear_left" pos="-0.4 0.35 0">
+                <joint axis="0 1 0" damping="0.1" name="rear_left_joint" type="hinge"/>
+                <geom friction="1.5 0.5 0.5" name="rear_left_geom" quat="0.707107 0 0.707107 0" rgba="0.2 0.2 0.2 1" size="0.15 0.08 0" type="cylinder"/>
+            </body>
+            <body name="rear_right" pos="-0.4 -0.35 0">
+                <joint axis="0 1 0" damping="0.1" name="rear_right_joint" type="hinge"/>
+                <geom friction="1.5 0.5 0.5" name="rear_right_geom" quat="0.707107 0 0.707107 0" rgba="0.2 0.2 0.2 1" size="0.15 0.08 0" type="cylinder"/>
+            </body>
+        </body>
+    </worldbody>
+    <actuator>
+        <motor ctrlrange="-1 1" gear="100 0 0 0 0 0" joint="front_left_joint" name="front_left_motor"/>
+        <motor ctrlrange="-1 1" gear="100 0 0 0 0 0" joint="front_right_joint" name="front_right_motor"/>
+        <motor ctrlrange="-1 1" gear="100 0 0 0 0 0" joint="rear_left_joint" name="rear_left_motor"/>
+        <motor ctrlrange="-1 1" gear="100 0 0 0 0 0" joint="rear_right_joint" name="rear_right_motor"/>
+    </actuator>
+    <sensor/>
+    <equality/>
+    <tendon/>
+</mujoco>

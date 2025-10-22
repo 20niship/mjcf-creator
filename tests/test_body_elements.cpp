@@ -113,4 +113,41 @@ TEST_SUITE("body-elements-tests") {
     CHECK(light2.dir == std::array<double, 3>{0.0, 0.0, -1.0});
     CHECK(light2.diffuse == std::array<double, 3>{0.7, 0.7, 0.7});
   }
+
+  TEST_CASE("body-name-sanitization") {
+    // Test that "world" name is automatically renamed to "world.001"
+    
+    // Test with Body::Create
+    auto body1 = mjcf::Body::Create("world", {1.0, 2.0, 3.0});
+    CHECK(body1->name == "world.001");
+    std::string xml1 = body1->get_xml_text();
+    CHECK(xml1.find("name=\"world.001\"") != std::string::npos);
+    CHECK(xml1.find("name=\"world\"") == std::string::npos);
+    
+    // Test with direct construction and assignment
+    mjcf::Body body2;
+    body2.name = "world";
+    body2.pos = {1.0, 2.0, 3.0};
+    // Note: Direct assignment doesn't sanitize, but XML generation does
+    CHECK(body2.name == "world"); // Internal name is still "world"
+    std::string xml2 = body2.get_xml_text();
+    CHECK(xml2.find("name=\"world.001\"") != std::string::npos);
+    CHECK(xml2.find("name=\"world\"") == std::string::npos);
+    
+    // Test that other names are not affected
+    auto body3 = mjcf::Body::Create("my_body", {0.0, 0.0, 0.0});
+    CHECK(body3->name == "my_body");
+    std::string xml3 = body3->get_xml_text();
+    CHECK(xml3.find("name=\"my_body\"") != std::string::npos);
+    
+    // Test empty name
+    auto body4 = mjcf::Body::Create("", {0.0, 0.0, 0.0});
+    CHECK(body4->name == "");
+    
+    // Test case sensitivity - "World" should not be renamed
+    auto body5 = mjcf::Body::Create("World", {0.0, 0.0, 0.0});
+    CHECK(body5->name == "World");
+    std::string xml5 = body5->get_xml_text();
+    CHECK(xml5.find("name=\"World\"") != std::string::npos);
+  }
 }

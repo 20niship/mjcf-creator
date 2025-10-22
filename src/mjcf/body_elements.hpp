@@ -6,6 +6,14 @@
 
 namespace mjcf {
 
+// Helper function to sanitize body names
+inline std::string sanitize_body_name(const std::string& name) {
+  if (name == "world") {
+    return "world.001";
+  }
+  return name;
+}
+
 class Body : public Element {
 public:
   std::string name;
@@ -22,7 +30,7 @@ public:
 
   static std::shared_ptr<Body> Create(const std::string& name, Arr3 pos = {0.0, 0.0, 0.0}) {
     auto body  = std::make_shared<Body>();
-    body->name = name;
+    body->name = sanitize_body_name(name);
     body->pos  = pos;
     return body;
   }
