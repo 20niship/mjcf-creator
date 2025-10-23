@@ -4,7 +4,7 @@ namespace mjcf {
 
 // Helper function to sanitize body names
 std::string sanitize_body_name(const std::string& name) {
-  if (name == "world") {
+  if(name == "world") {
     return "world.001";
   }
   return name;
@@ -41,9 +41,7 @@ void Body::set_xml_attrib() const {
   if(!childclass.empty()) this->set_attribute("childclass", childclass);
 }
 
-bool Body::from_xml([[maybe_unused]] const std::string& xml_str) {
-  return false;
-}
+bool Body::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
 
 bool Body::is_default_value(const std::string& name, const AttributeValue& value) const {
   if(name == "mocap" && !std::get<bool>(value)) return true;

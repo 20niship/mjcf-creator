@@ -47,13 +47,11 @@ bool BaseActuator::is_default_value(const std::string& name, const AttributeValu
   return false;
 }
 
-// Motor implementation
 Motor::Motor() : BaseActuator("motor") {}
 
 bool Motor::is_default_value(const std::string& name, const AttributeValue& value) const { return BaseActuator::is_default_value(name, value); }
 void Motor::set_xml_attrib() const { BaseActuator::set_xml_attrib(); }
 
-Position::Position() : BaseActuator("position") {}
 
 void Position::set_xml_attrib() const {
 

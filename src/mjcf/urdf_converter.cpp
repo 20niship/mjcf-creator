@@ -1,5 +1,6 @@
 #include "urdf_converter.hpp"
 #include "../ext/tinyxml2.h"
+#include "actuator_elements.hpp"
 #include "asset_elements.hpp"
 #include "body_elements.hpp"
 #include "core_elements.hpp"
@@ -139,7 +140,6 @@ bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_p
       body->add_child(inertial_elem);
     }
 
-    // Process visual elements
     for(XMLElement* visual = link->FirstChildElement("visual"); visual; visual = visual->NextSiblingElement("visual")) {
       auto geom = std::make_shared<Geom>();
 
@@ -300,7 +300,6 @@ bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_p
     link_to_body[link_name] = body;
   }
 
-  // Find root link (link without parent joint)
   std::set<std::string> child_links;
   for(XMLElement* joint = robot->FirstChildElement("joint"); joint; joint = joint->NextSiblingElement("joint")) {
     XMLElement* child = joint->FirstChildElement("child");
@@ -322,10 +321,11 @@ bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_p
   }
 
   // Process joints and create parent-child relationships
-  for(XMLElement* joint = robot->FirstChildElement("joint"); joint; joint = joint->NextSiblingElement("joint")) {
-    const char* joint_name = joint->Attribute("name");
-    const char* joint_type = joint->Attribute("type");
-    if(!joint_name || !joint_type) continue;
+  for(XMLElement* joint = robot->FirstChildElement("joint"); joint != nullptr; joint = joint->NextSiblingElement("joint")) {
+    const char* joint_name  = joint->Attribute("name");
+    const char* joint_type_ = joint->Attribute("type");
+    if(joint_name == nullptr || joint_type_ == nullptr) continue;
+    const std::string joint_type = joint_type_;
 
     XMLElement* parent = joint->FirstChildElement("parent");
     XMLElement* child  = joint->FirstChildElement("child");
@@ -351,14 +351,14 @@ bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_p
       }
     }
 
-    // Add joint if not fixed
-    if(std::string(joint_type) != "fixed") {
-      auto mjcf_joint  = std::make_shared<Joint>();
+    auto mjcf_joint = std::make_shared<Joint>();
+
+    if(joint_type != "fixed") {
       mjcf_joint->name = joint_name;
 
-      if(std::string(joint_type) == "revolute" || std::string(joint_type) == "continuous") {
+      if(joint_type == "revolute" || joint_type == "continuous") {
         mjcf_joint->type = JointType::Hinge;
-      } else if(std::string(joint_type) == "prismatic") {
+      } else if(joint_type == "prismatic") {
         mjcf_joint->type = JointType::Slide;
       }
 
@@ -379,10 +379,17 @@ bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_p
         double upper      = limit->DoubleAttribute("upper");
         mjcf_joint->range = {lower, upper};
       }
-
       child_body->add_child(mjcf_joint);
     }
     parent_body->add_child(child_body);
+
+    // if(mjcf_joint->type == JointType::Hinge) {
+    //   auto ac         = Position::Create(joint_name);
+    //   ac->ctrllimited = false;
+    //   ac->kv          = 100;
+    //   ac->kp          = 10;
+    //   mujoco->actuator_->add_child(ac);
+    // }
   }
   return true;
 }
