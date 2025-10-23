@@ -58,10 +58,18 @@ protected:
  */
 class Position : public BaseActuator {
 public:
-  double kp = 0.0; // Position feedback gain (0 means not set)
-  double kv = 0.0; // Velocity feedback gain (0 means not set)
+  double kp = 0.0;   // Position feedback gain (0 means not set)
+  double kv = 100.0; // Velocity feedback gain (0 means not set)
 
-  Position();
+  Position() : BaseActuator("position") {}
+
+  static std::shared_ptr<Position> Create(const std::string& joint, const std::string& name = "", float kv = 100) {
+    auto p   = std::make_shared<Position>();
+    p->joint = joint;
+    p->name  = name;
+    p->kv    = kv;
+    return p;
+  }
 
   std::string element_name() const override { return "position"; }
 
