@@ -43,27 +43,27 @@ std::vector<double> parse_space_separated_values(const std::string& str) {
   return values;
 }
 
+/**
+ * これはTanaka-sanのコードを参考にした
+ */
 std::vector<double> rpy_to_quat(const std::vector<double>& rpy) {
   if(rpy.size() != 3) {
     return {1.0, 0.0, 0.0, 0.0};
   }
 
-  double roll  = rpy[0] / 2.0;
-  double pitch = rpy[1] / 2.0;
-  double yaw   = rpy[2] / 2.0;
-
-  double cr = cos(roll);
-  double sr = sin(roll);
-  double cp = cos(pitch);
-  double sp = sin(pitch);
-  double cy = cos(yaw);
-  double sy = sin(yaw);
-
-  double w = cr * cp * cy + sr * sp * sy;
-  double x = sr * cp * cy - cr * sp * sy;
-  double y = cr * sp * cy + sr * cp * sy;
-  double z = cr * cp * sy - sr * sp * cy;
-
+  double roll  = rpy[0];
+  double pitch = rpy[1];
+  double yaw   = rpy[2];
+  double cy    = cos(yaw * 0.5);
+  double sy    = sin(yaw * 0.5);
+  double cp    = cos(pitch * 0.5);
+  double sp    = sin(pitch * 0.5);
+  double cr    = cos(roll * 0.5);
+  double sr    = sin(roll * 0.5);
+  double w     = cr * cp * cy + sr * sp * sy;
+  double x     = sr * cp * cy - cr * sp * sy;
+  double y     = cr * sp * cy + sr * cp * sy;
+  double z     = cr * cp * sy - sr * sp * cy;
   return {w, x, y, z};
 }
 
@@ -134,12 +134,9 @@ bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_p
         const char* xyz = origin->Attribute("xyz");
         if(xyz) {
           auto pos = parse_space_separated_values(xyz);
-          if(pos.size() >= 3) {
-            inertial_elem->pos = {pos[0], pos[1], pos[2]};
-          }
+          if(pos.size() >= 3) inertial_elem->pos = {pos[0], pos[1], pos[2]};
         }
       }
-
       body->add_child(inertial_elem);
     }
 
@@ -151,9 +148,7 @@ bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_p
         const char* xyz = origin->Attribute("xyz");
         if(xyz) {
           auto pos = parse_space_separated_values(xyz);
-          if(pos.size() >= 3) {
-            geom->pos = {pos[0], pos[1], pos[2]};
-          }
+          if(pos.size() >= 3) geom->pos = {pos[0], pos[1], pos[2]};
         }
 
         const char* rpy = origin->Attribute("rpy");
@@ -161,9 +156,7 @@ bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_p
           auto rpy_values = parse_space_separated_values(rpy);
           if(rpy_values.size() >= 3) {
             auto quat = rpy_to_quat(rpy_values);
-            if(quat.size() >= 4) {
-              geom->quat = {quat[0], quat[1], quat[2], quat[3]};
-            }
+            if(quat.size() >= 4) geom->quat = {quat[0], quat[1], quat[2], quat[3]};
           }
         }
       }
@@ -372,6 +365,17 @@ bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_p
           child_body->pos = {pos[0], pos[1], pos[2]};
         }
       }
+
+      const char* rpy = origin->Attribute("rpy");
+      if(rpy) {
+        auto rpy_values = parse_space_separated_values(rpy);
+        if(rpy_values.size() >= 3) {
+          auto quat = rpy_to_quat(rpy_values);
+          if(quat.size() >= 4) {
+            child_body->quat = {quat[0], quat[1], quat[2], quat[3]};
+          }
+        }
+      }
     }
 
     auto mjcf_joint = std::make_shared<Joint>();
@@ -390,9 +394,7 @@ bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_p
         const char* xyz = axis->Attribute("xyz");
         if(xyz) {
           auto axis_values = parse_space_separated_values(xyz);
-          if(axis_values.size() >= 3) {
-            mjcf_joint->axis = {axis_values[0], axis_values[1], axis_values[2]};
-          }
+          if(axis_values.size() >= 3) mjcf_joint->axis = {axis_values[0], axis_values[1], axis_values[2]};
         }
       }
 
@@ -402,6 +404,9 @@ bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_p
         double upper      = limit->DoubleAttribute("upper");
         mjcf_joint->range = {lower, upper};
       }
+
+
+
       child_body->add_child(mjcf_joint);
 
       if(mjcf_joint->type == JointType::Hinge) {
