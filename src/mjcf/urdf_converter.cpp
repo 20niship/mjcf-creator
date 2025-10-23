@@ -8,7 +8,6 @@
 #include <filesystem>
 #include <fstream>
 #include <functional>
-#include <iomanip>
 #include <iostream>
 #include <set>
 #include <sstream>
@@ -217,9 +216,7 @@ bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_p
                 // Copy the mesh file
                 if(copy_mesh_file(source_mesh_path, dest_mesh_path)) {
                   final_mesh_path = hash_filename; // Use the hash-based filename
-                  std::cout << "Copied mesh: " << source_mesh_path << " -> " << dest_mesh_path << std::endl;
                 } else {
-                  std::cerr << "Failed to copy mesh: " << source_mesh_path << std::endl;
                   final_mesh_path = mesh_filename; // Fallback to original
                 }
               } else {

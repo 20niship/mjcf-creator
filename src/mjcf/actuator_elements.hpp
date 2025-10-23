@@ -11,23 +11,23 @@ namespace mjcf {
  */
 class BaseActuator : public Element {
 public:
-  std::string name                  = "";
-  std::string class_                = "";
+  std::string name;
+  std::string class_;
   int group                         = 0;
   bool ctrllimited                  = false;
   bool forcelimited                 = false;
   std::array<double, 2> ctrlrange   = {0.0, 0.0};
   std::array<double, 2> forcerange  = {0.0, 0.0};
   std::array<double, 2> lengthrange = {0.0, 0.0};
-  std::array<double, 6> gear        = {1.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+  std::array<double, 6> gear        = {};
   double cranklength                = 0.0;
-  std::string joint                 = "";
-  std::string jointinparent         = "";
-  std::string tendon                = "";
-  std::string cranksite             = "";
-  std::string site                  = "";
-  std::string refsite               = "";
-  std::array<double, 3> user        = {0.0, 0.0, 0.0};
+  std::string joint;
+  std::string jointinparent;
+  std::string tendon;
+  std::string cranksite;
+  std::string site;
+  std::string refsite;
+  std::array<double, 3> user = {0.0, 0.0, 0.0};
 
   BaseActuator(const std::string& element_name);
 
@@ -58,8 +58,8 @@ protected:
  */
 class Position : public BaseActuator {
 public:
-  double kp = 0.0;   // Position feedback gain (0 means not set)
-  double kv = 100.0; // Velocity feedback gain (0 means not set)
+  double kp = 1.0;  // Position feedback gain (1 means not set)
+  double kv = 0.01; // Velocity feedback gain (0 means not set)
 
   Position() : BaseActuator("position") {}
 

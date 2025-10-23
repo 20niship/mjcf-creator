@@ -18,13 +18,9 @@ void BaseActuator::set_xml_attrib() const {
   if(ctrlrange != std::array<double, 2>{0.0, 0.0}) {
     this->set_attribute("ctrlrange", std::vector<double>(ctrlrange.begin(), ctrlrange.end()));
   }
-  if(forcerange != std::array<double, 2>{0.0, 0.0}) {
-    this->set_attribute("forcerange", std::vector<double>(forcerange.begin(), forcerange.end()));
-  }
-  if(lengthrange != std::array<double, 2>{0.0, 0.0}) {
-    this->set_attribute("lengthrange", std::vector<double>(lengthrange.begin(), lengthrange.end()));
-  }
-  this->set_attribute("gear", std::vector<double>(gear.begin(), gear.end()));
+  if(forcerange != std::array<double, 2>{0.0, 0.0}) this->set_attribute("forcerange", std::vector<double>(forcerange.begin(), forcerange.end()));
+  if(lengthrange != std::array<double, 2>{0.0, 0.0}) this->set_attribute("lengthrange", std::vector<double>(lengthrange.begin(), lengthrange.end()));
+  if(gear.size() > 0) this->set_attribute("gear", std::vector<double>(gear.begin(), gear.end()));
 
   if(cranklength != 0.0) this->set_attribute("cranklength", cranklength);
   if(!joint.empty()) this->set_attribute("joint", joint);
@@ -54,21 +50,12 @@ void Motor::set_xml_attrib() const { BaseActuator::set_xml_attrib(); }
 
 
 void Position::set_xml_attrib() const {
-
-  // Set base class attributes first
   BaseActuator::set_xml_attrib();
-
-  // Only set non-default values specific to Position
-  if(kp != 0.0) {
-    this->set_attribute("kp", kp);
-  }
-  if(kv != 0.0) {
-    this->set_attribute("kv", kv);
-  }
+  this->set_attribute("kp", kp);
+  this->set_attribute("kv", kv);
 }
 
 bool Position::from_xml(const std::string& xml_str) {
-  // Default implementation - could be extended to parse XML
   return false;
 }
 
@@ -78,7 +65,6 @@ bool Position::is_default_value(const std::string& name, const AttributeValue& v
   return BaseActuator::is_default_value(name, value);
 }
 
-// Velocity implementation
 Velocity::Velocity() : BaseActuator("velocity") {}
 
 void Velocity::set_xml_attrib() const {
