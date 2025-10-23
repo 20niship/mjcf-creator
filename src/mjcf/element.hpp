@@ -82,7 +82,7 @@ protected:
    * @param name 属性名
    * @param value 属性値
    */
-  void set_attribute(const std::string& name, const AttributeValue& value);
+  void set_attribute(const std::string& name, const AttributeValue& value) const;
 
   [[nodiscard]] std::optional<AttributeValue> get_attribute(const std::string& name) const;
 
@@ -101,7 +101,7 @@ public:
   virtual void* write_xml_element(void* doc, void* parent) const { return write_xml_element_base(doc, parent); }
 
 private:
-  std::map<std::string, AttributeValue> attributes_;
+  mutable std::map<std::string, AttributeValue> attributes_;
   std::vector<std::shared_ptr<Element>> children_;
 };
 

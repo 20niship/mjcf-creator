@@ -5,14 +5,13 @@ namespace mjcf {
 BaseSensor::BaseSensor(const std::string& element_name) : element_name_(element_name) {}
 
 void BaseSensor::set_xml_attrib() const {
-  auto* mutable_this = const_cast<BaseSensor*>(this);
 
   // Only set non-default values
-  if(!name.empty()) mutable_this->set_attribute("name", name);
-  if(noise != 0.0) mutable_this->set_attribute("noise", noise);
-  if(cutoff != 0.0) mutable_this->set_attribute("cutoff", cutoff);
+  if(!name.empty()) this->set_attribute("name", name);
+  if(noise != 0.0) this->set_attribute("noise", noise);
+  if(cutoff != 0.0) this->set_attribute("cutoff", cutoff);
   if(user != std::array<double, 3>{0.0, 0.0, 0.0}) {
-    mutable_this->set_attribute("user", std::vector<double>(user.begin(), user.end()));
+    this->set_attribute("user", std::vector<double>(user.begin(), user.end()));
   }
 }
 
@@ -30,8 +29,7 @@ void JointPos::set_xml_attrib() const {
   // Set base class attributes first
   BaseSensor::set_xml_attrib();
 
-  auto* mutable_this = const_cast<JointPos*>(this);
-  if(!joint.empty()) mutable_this->set_attribute("joint", joint);
+  if(!joint.empty()) this->set_attribute("joint", joint);
 }
 
 bool JointPos::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
@@ -44,8 +42,7 @@ JointVel::JointVel() : BaseSensor("jointvel") {}
 void JointVel::set_xml_attrib() const {
   BaseSensor::set_xml_attrib();
 
-  auto* mutable_this = const_cast<JointVel*>(this);
-  if(!joint.empty()) mutable_this->set_attribute("joint", joint);
+  if(!joint.empty()) this->set_attribute("joint", joint);
 }
 
 bool JointVel::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
@@ -58,8 +55,7 @@ TendonPos::TendonPos() : BaseSensor("tendonpos") {}
 void TendonPos::set_xml_attrib() const {
   BaseSensor::set_xml_attrib();
 
-  auto* mutable_this = const_cast<TendonPos*>(this);
-  if(!tendon.empty()) mutable_this->set_attribute("tendon", tendon);
+  if(!tendon.empty()) this->set_attribute("tendon", tendon);
 }
 
 bool TendonPos::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
@@ -72,8 +68,7 @@ TendonVel::TendonVel() : BaseSensor("tendonvel") {}
 void TendonVel::set_xml_attrib() const {
   BaseSensor::set_xml_attrib();
 
-  auto* mutable_this = const_cast<TendonVel*>(this);
-  if(!tendon.empty()) mutable_this->set_attribute("tendon", tendon);
+  if(!tendon.empty()) this->set_attribute("tendon", tendon);
 }
 
 bool TendonVel::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
@@ -86,8 +81,7 @@ ActuatorPos::ActuatorPos() : BaseSensor("actuatorpos") {}
 void ActuatorPos::set_xml_attrib() const {
   BaseSensor::set_xml_attrib();
 
-  auto* mutable_this = const_cast<ActuatorPos*>(this);
-  if(!actuator.empty()) mutable_this->set_attribute("actuator", actuator);
+  if(!actuator.empty()) this->set_attribute("actuator", actuator);
 }
 
 bool ActuatorPos::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
@@ -100,8 +94,7 @@ ActuatorVel::ActuatorVel() : BaseSensor("actuatorvel") {}
 void ActuatorVel::set_xml_attrib() const {
   BaseSensor::set_xml_attrib();
 
-  auto* mutable_this = const_cast<ActuatorVel*>(this);
-  if(!actuator.empty()) mutable_this->set_attribute("actuator", actuator);
+  if(!actuator.empty()) this->set_attribute("actuator", actuator);
 }
 
 bool ActuatorVel::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
@@ -114,8 +107,7 @@ ActuatorFrc::ActuatorFrc() : BaseSensor("actuatorfrc") {}
 void ActuatorFrc::set_xml_attrib() const {
   BaseSensor::set_xml_attrib();
 
-  auto* mutable_this = const_cast<ActuatorFrc*>(this);
-  if(!actuator.empty()) mutable_this->set_attribute("actuator", actuator);
+  if(!actuator.empty()) this->set_attribute("actuator", actuator);
 }
 
 bool ActuatorFrc::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
@@ -128,8 +120,7 @@ BallQuat::BallQuat() : BaseSensor("ballquat") {}
 void BallQuat::set_xml_attrib() const {
   BaseSensor::set_xml_attrib();
 
-  auto* mutable_this = const_cast<BallQuat*>(this);
-  if(!joint.empty()) mutable_this->set_attribute("joint", joint);
+  if(!joint.empty()) this->set_attribute("joint", joint);
 }
 
 bool BallQuat::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
@@ -142,8 +133,7 @@ BallAngVel::BallAngVel() : BaseSensor("ballangvel") {}
 void BallAngVel::set_xml_attrib() const {
   BaseSensor::set_xml_attrib();
 
-  auto* mutable_this = const_cast<BallAngVel*>(this);
-  if(!joint.empty()) mutable_this->set_attribute("joint", joint);
+  if(!joint.empty()) this->set_attribute("joint", joint);
 }
 
 bool BallAngVel::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
@@ -156,10 +146,9 @@ SitePos::SitePos() : BaseSensor("framepos") {}
 void SitePos::set_xml_attrib() const {
   BaseSensor::set_xml_attrib();
 
-  auto* mutable_this = const_cast<SitePos*>(this);
-  if(reftype != "body") mutable_this->set_attribute("reftype", reftype);
-  if(objtype != "body") mutable_this->set_attribute("objtype", objtype);
-  if(!objname.empty()) mutable_this->set_attribute("objname", objname);
+  if(reftype != "body") this->set_attribute("reftype", reftype);
+  if(objtype != "body") this->set_attribute("objtype", objtype);
+  if(!objname.empty()) this->set_attribute("objname", objname);
 }
 
 bool SitePos::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
@@ -176,10 +165,9 @@ SiteQuat::SiteQuat() : BaseSensor("framequat") {}
 void SiteQuat::set_xml_attrib() const {
   BaseSensor::set_xml_attrib();
 
-  auto* mutable_this = const_cast<SiteQuat*>(this);
-  if(reftype != "body") mutable_this->set_attribute("reftype", reftype);
-  if(objtype != "body") mutable_this->set_attribute("objtype", objtype);
-  if(!objname.empty()) mutable_this->set_attribute("objname", objname);
+  if(reftype != "body") this->set_attribute("reftype", reftype);
+  if(objtype != "body") this->set_attribute("objtype", objtype);
+  if(!objname.empty()) this->set_attribute("objname", objname);
 }
 
 bool SiteQuat::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
@@ -196,10 +184,9 @@ SiteLinVel::SiteLinVel() : BaseSensor("framelinvel") {}
 void SiteLinVel::set_xml_attrib() const {
   BaseSensor::set_xml_attrib();
 
-  auto* mutable_this = const_cast<SiteLinVel*>(this);
-  if(reftype != "body") mutable_this->set_attribute("reftype", reftype);
-  if(objtype != "body") mutable_this->set_attribute("objtype", objtype);
-  if(!objname.empty()) mutable_this->set_attribute("objname", objname);
+  if(reftype != "body") this->set_attribute("reftype", reftype);
+  if(objtype != "body") this->set_attribute("objtype", objtype);
+  if(!objname.empty()) this->set_attribute("objname", objname);
 }
 
 bool SiteLinVel::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
@@ -216,10 +203,9 @@ SiteAngVel::SiteAngVel() : BaseSensor("frameangvel") {}
 void SiteAngVel::set_xml_attrib() const {
   BaseSensor::set_xml_attrib();
 
-  auto* mutable_this = const_cast<SiteAngVel*>(this);
-  if(reftype != "body") mutable_this->set_attribute("reftype", reftype);
-  if(objtype != "body") mutable_this->set_attribute("objtype", objtype);
-  if(!objname.empty()) mutable_this->set_attribute("objname", objname);
+  if(reftype != "body") this->set_attribute("reftype", reftype);
+  if(objtype != "body") this->set_attribute("objtype", objtype);
+  if(!objname.empty()) this->set_attribute("objname", objname);
 }
 
 bool SiteAngVel::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
@@ -236,8 +222,7 @@ SubtreeCom::SubtreeCom() : BaseSensor("subtreecom") {}
 void SubtreeCom::set_xml_attrib() const {
   BaseSensor::set_xml_attrib();
 
-  auto* mutable_this = const_cast<SubtreeCom*>(this);
-  if(!body.empty()) mutable_this->set_attribute("body", body);
+  if(!body.empty()) this->set_attribute("body", body);
 }
 
 bool SubtreeCom::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
@@ -250,8 +235,7 @@ SubtreeLinVel::SubtreeLinVel() : BaseSensor("subtreelinvel") {}
 void SubtreeLinVel::set_xml_attrib() const {
   BaseSensor::set_xml_attrib();
 
-  auto* mutable_this = const_cast<SubtreeLinVel*>(this);
-  if(!body.empty()) mutable_this->set_attribute("body", body);
+  if(!body.empty()) this->set_attribute("body", body);
 }
 
 bool SubtreeLinVel::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
@@ -264,8 +248,7 @@ SubtreeAngMom::SubtreeAngMom() : BaseSensor("subtreeangmom") {}
 void SubtreeAngMom::set_xml_attrib() const {
   BaseSensor::set_xml_attrib();
 
-  auto* mutable_this = const_cast<SubtreeAngMom*>(this);
-  if(!body.empty()) mutable_this->set_attribute("body", body);
+  if(!body.empty()) this->set_attribute("body", body);
 }
 
 bool SubtreeAngMom::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
@@ -278,8 +261,7 @@ Gyro::Gyro() : BaseSensor("gyro") {}
 void Gyro::set_xml_attrib() const {
   BaseSensor::set_xml_attrib();
 
-  auto* mutable_this = const_cast<Gyro*>(this);
-  if(!site.empty()) mutable_this->set_attribute("site", site);
+  if(!site.empty()) this->set_attribute("site", site);
 }
 
 bool Gyro::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
@@ -292,8 +274,7 @@ Accelerometer::Accelerometer() : BaseSensor("accelerometer") {}
 void Accelerometer::set_xml_attrib() const {
   BaseSensor::set_xml_attrib();
 
-  auto* mutable_this = const_cast<Accelerometer*>(this);
-  if(!site.empty()) mutable_this->set_attribute("site", site);
+  if(!site.empty()) this->set_attribute("site", site);
 }
 
 bool Accelerometer::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
@@ -306,8 +287,7 @@ Magnetometer::Magnetometer() : BaseSensor("magnetometer") {}
 void Magnetometer::set_xml_attrib() const {
   BaseSensor::set_xml_attrib();
 
-  auto* mutable_this = const_cast<Magnetometer*>(this);
-  if(!site.empty()) mutable_this->set_attribute("site", site);
+  if(!site.empty()) this->set_attribute("site", site);
 }
 
 bool Magnetometer::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
@@ -320,8 +300,7 @@ Rangefinder::Rangefinder() : BaseSensor("rangefinder") {}
 void Rangefinder::set_xml_attrib() const {
   BaseSensor::set_xml_attrib();
 
-  auto* mutable_this = const_cast<Rangefinder*>(this);
-  if(!site.empty()) mutable_this->set_attribute("site", site);
+  if(!site.empty()) this->set_attribute("site", site);
 }
 
 bool Rangefinder::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
@@ -334,8 +313,7 @@ Force::Force() : BaseSensor("force") {}
 void Force::set_xml_attrib() const {
   BaseSensor::set_xml_attrib();
 
-  auto* mutable_this = const_cast<Force*>(this);
-  if(!site.empty()) mutable_this->set_attribute("site", site);
+  if(!site.empty()) this->set_attribute("site", site);
 }
 
 bool Force::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
@@ -348,8 +326,7 @@ Torque::Torque() : BaseSensor("torque") {}
 void Torque::set_xml_attrib() const {
   BaseSensor::set_xml_attrib();
 
-  auto* mutable_this = const_cast<Torque*>(this);
-  if(!site.empty()) mutable_this->set_attribute("site", site);
+  if(!site.empty()) this->set_attribute("site", site);
 }
 
 bool Torque::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
@@ -362,8 +339,7 @@ Touch::Touch() : BaseSensor("touch") {}
 void Touch::set_xml_attrib() const {
   BaseSensor::set_xml_attrib();
 
-  auto* mutable_this = const_cast<Touch*>(this);
-  if(!site.empty()) mutable_this->set_attribute("site", site);
+  if(!site.empty()) this->set_attribute("site", site);
 }
 
 bool Touch::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }

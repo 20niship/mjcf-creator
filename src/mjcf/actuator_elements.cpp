@@ -6,37 +6,36 @@ namespace mjcf {
 BaseActuator::BaseActuator(const std::string& element_name) : element_name_(element_name) {}
 
 void BaseActuator::set_xml_attrib() const {
-  auto* mutable_this = const_cast<BaseActuator*>(this);
 
   // Only set non-default values
-  if(!name.empty()) mutable_this->set_attribute("name", name);
-  if(!class_.empty()) mutable_this->set_attribute("class", class_);
-  if(group != 0) mutable_this->set_attribute("group", group);
-  if(ctrllimited) mutable_this->set_attribute("ctrllimited", ctrllimited);
-  if(forcelimited) mutable_this->set_attribute("forcelimited", forcelimited);
+  if(!name.empty()) this->set_attribute("name", name);
+  if(!class_.empty()) this->set_attribute("class", class_);
+  if(group != 0) this->set_attribute("group", group);
+  if(ctrllimited) this->set_attribute("ctrllimited", ctrllimited);
+  if(forcelimited) this->set_attribute("forcelimited", forcelimited);
 
   // For arrays, check if they're non-default
   if(ctrlrange != std::array<double, 2>{0.0, 0.0}) {
-    mutable_this->set_attribute("ctrlrange", std::vector<double>(ctrlrange.begin(), ctrlrange.end()));
+    this->set_attribute("ctrlrange", std::vector<double>(ctrlrange.begin(), ctrlrange.end()));
   }
   if(forcerange != std::array<double, 2>{0.0, 0.0}) {
-    mutable_this->set_attribute("forcerange", std::vector<double>(forcerange.begin(), forcerange.end()));
+    this->set_attribute("forcerange", std::vector<double>(forcerange.begin(), forcerange.end()));
   }
   if(lengthrange != std::array<double, 2>{0.0, 0.0}) {
-    mutable_this->set_attribute("lengthrange", std::vector<double>(lengthrange.begin(), lengthrange.end()));
+    this->set_attribute("lengthrange", std::vector<double>(lengthrange.begin(), lengthrange.end()));
   }
-  mutable_this->set_attribute("gear", std::vector<double>(gear.begin(), gear.end()));
+  this->set_attribute("gear", std::vector<double>(gear.begin(), gear.end()));
 
-  if(cranklength != 0.0) mutable_this->set_attribute("cranklength", cranklength);
-  if(!joint.empty()) mutable_this->set_attribute("joint", joint);
-  if(!jointinparent.empty()) mutable_this->set_attribute("jointinparent", jointinparent);
-  if(!tendon.empty()) mutable_this->set_attribute("tendon", tendon);
-  if(!cranksite.empty()) mutable_this->set_attribute("cranksite", cranksite);
-  if(!site.empty()) mutable_this->set_attribute("site", site);
-  if(!refsite.empty()) mutable_this->set_attribute("refsite", refsite);
+  if(cranklength != 0.0) this->set_attribute("cranklength", cranklength);
+  if(!joint.empty()) this->set_attribute("joint", joint);
+  if(!jointinparent.empty()) this->set_attribute("jointinparent", jointinparent);
+  if(!tendon.empty()) this->set_attribute("tendon", tendon);
+  if(!cranksite.empty()) this->set_attribute("cranksite", cranksite);
+  if(!site.empty()) this->set_attribute("site", site);
+  if(!refsite.empty()) this->set_attribute("refsite", refsite);
 
   if(user != std::array<double, 3>{0.0, 0.0, 0.0}) {
-    mutable_this->set_attribute("user", std::vector<double>(user.begin(), user.end()));
+    this->set_attribute("user", std::vector<double>(user.begin(), user.end()));
   }
 }
 
@@ -55,17 +54,16 @@ void Motor::set_xml_attrib() const { BaseActuator::set_xml_attrib(); }
 
 
 void Position::set_xml_attrib() const {
-  auto* mutable_this = const_cast<Position*>(this);
 
   // Set base class attributes first
   BaseActuator::set_xml_attrib();
 
   // Only set non-default values specific to Position
   if(kp != 0.0) {
-    mutable_this->set_attribute("kp", kp);
+    this->set_attribute("kp", kp);
   }
   if(kv != 0.0) {
-    mutable_this->set_attribute("kv", kv);
+    this->set_attribute("kv", kv);
   }
 }
 
@@ -87,11 +85,10 @@ void Velocity::set_xml_attrib() const {
   // Set base class attributes first
   BaseActuator::set_xml_attrib();
 
-  auto* mutable_this = const_cast<Velocity*>(this);
 
   // Only set non-default values specific to Velocity
   if(kv != 0.0) {
-    mutable_this->set_attribute("kv", kv);
+    this->set_attribute("kv", kv);
   }
 }
 
@@ -112,14 +109,13 @@ void Cylinder::set_xml_attrib() const {
   // Set base class attributes first
   BaseActuator::set_xml_attrib();
 
-  auto* mutable_this = const_cast<Cylinder*>(this);
 
   // Only set non-default values
-  if(timeconst != 0.0) mutable_this->set_attribute("timeconst", timeconst);
-  if(area != 0.0) mutable_this->set_attribute("area", area);
-  if(diameter != 0.0) mutable_this->set_attribute("diameter", diameter);
+  if(timeconst != 0.0) this->set_attribute("timeconst", timeconst);
+  if(area != 0.0) this->set_attribute("area", area);
+  if(diameter != 0.0) this->set_attribute("diameter", diameter);
   if(bias != std::array<double, 3>{0.0, 0.0, 0.0}) {
-    mutable_this->set_attribute("bias", std::vector<double>(bias.begin(), bias.end()));
+    this->set_attribute("bias", std::vector<double>(bias.begin(), bias.end()));
   }
 }
 
@@ -139,22 +135,21 @@ void Muscle::set_xml_attrib() const {
   // Set base class attributes first
   BaseActuator::set_xml_attrib();
 
-  auto* mutable_this = const_cast<Muscle*>(this);
 
   // Only set non-default values
   if(timeconst != std::array<double, 2>{0.0, 0.0}) {
-    mutable_this->set_attribute("timeconst", std::vector<double>(timeconst.begin(), timeconst.end()));
+    this->set_attribute("timeconst", std::vector<double>(timeconst.begin(), timeconst.end()));
   }
   if(range != std::array<double, 2>{0.0, 0.0}) {
-    mutable_this->set_attribute("range", std::vector<double>(range.begin(), range.end()));
+    this->set_attribute("range", std::vector<double>(range.begin(), range.end()));
   }
-  if(force != 0.0) mutable_this->set_attribute("force", force);
-  if(scale != 0.0) mutable_this->set_attribute("scale", scale);
-  if(lmin != 0.0) mutable_this->set_attribute("lmin", lmin);
-  if(lmax != 0.0) mutable_this->set_attribute("lmax", lmax);
-  if(vmax != 0.0) mutable_this->set_attribute("vmax", vmax);
-  if(fpmax != 0.0) mutable_this->set_attribute("fpmax", fpmax);
-  if(fvmax != 0.0) mutable_this->set_attribute("fvmax", fvmax);
+  if(force != 0.0) this->set_attribute("force", force);
+  if(scale != 0.0) this->set_attribute("scale", scale);
+  if(lmin != 0.0) this->set_attribute("lmin", lmin);
+  if(lmax != 0.0) this->set_attribute("lmax", lmax);
+  if(vmax != 0.0) this->set_attribute("vmax", vmax);
+  if(fpmax != 0.0) this->set_attribute("fpmax", fpmax);
+  if(fvmax != 0.0) this->set_attribute("fvmax", fvmax);
 }
 
 bool Muscle::from_xml(const std::string& xml_str) { return false; }
@@ -182,28 +177,27 @@ void General::set_xml_attrib() const {
   // Set base class attributes first
   BaseActuator::set_xml_attrib();
 
-  auto* mutable_this = const_cast<General*>(this);
 
   // Only set non-default values specific to General
   if(dyntype != "none") {
-    mutable_this->set_attribute("dyntype", dyntype);
+    this->set_attribute("dyntype", dyntype);
   }
   if(gaintype != "fixed") {
-    mutable_this->set_attribute("gaintype", gaintype);
+    this->set_attribute("gaintype", gaintype);
   }
   if(biastype != "none") {
-    mutable_this->set_attribute("biastype", biastype);
+    this->set_attribute("biastype", biastype);
   }
 
   // For arrays, check if they're non-default
   if(dynprm != std::array<double, 10>{1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}) {
-    mutable_this->set_attribute("dynprm", std::vector<double>(dynprm.begin(), dynprm.end()));
+    this->set_attribute("dynprm", std::vector<double>(dynprm.begin(), dynprm.end()));
   }
   if(gainprm != std::array<double, 10>{1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}) {
-    mutable_this->set_attribute("gainprm", std::vector<double>(gainprm.begin(), gainprm.end()));
+    this->set_attribute("gainprm", std::vector<double>(gainprm.begin(), gainprm.end()));
   }
   if(biasprm != std::array<double, 10>{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}) {
-    mutable_this->set_attribute("biasprm", std::vector<double>(biasprm.begin(), biasprm.end()));
+    this->set_attribute("biasprm", std::vector<double>(biasprm.begin(), biasprm.end()));
   }
 }
 

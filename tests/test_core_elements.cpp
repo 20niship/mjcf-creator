@@ -16,13 +16,14 @@ TEST_SUITE("core-elements-tests") {
   TEST_CASE("compiler-element") {
     Compiler compiler;
     CHECK(compiler.element_name() == "compiler");
-    compiler.angle           = mjcf::AngleUnit::Degree;
-    compiler.coordinate      = mjcf::CoordinateType::Local;
+    compiler.angle           = mjcf::AngleUnit::Radian;  // Changed to non-default value
+    compiler.coordinate      = mjcf::CoordinateType::Global;  // Changed to non-default value
     compiler.inertiafromgeom = true;
     compiler.autolimits      = true;
     std::string xml          = compiler.get_xml_text();
     printf("%s\n", xml.c_str());
-    CHECK(xml.find("angle=\"degree\"") != std::string::npos);
+    CHECK(xml.find("angle=\"radian\"") != std::string::npos);  // Updated expectation
+    CHECK(xml.find("coordinate=\"global\"") != std::string::npos);  // Added check for coordinate
     CHECK(xml.find("inertiafromgeom=\"true\"") != std::string::npos);
     CHECK(xml.find("autolimits=\"true\"") != std::string::npos);
   }

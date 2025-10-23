@@ -87,7 +87,7 @@ public:
     auto geom  = std::make_shared<Geom>();
     geom->name = name;
     geom->type = GeomType::Sphere;
-    geom->size = {radius};
+    geom->size = {radius, 0.0, 0.0};  // Explicitly initialize all three elements
     geom->pos  = pos;
     geom->rgba = rgba;
     return geom;

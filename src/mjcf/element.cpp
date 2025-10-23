@@ -26,7 +26,7 @@ std::optional<AttributeValue> Element::get_attribute_public(const std::string& n
 
 void Element::set_attribute_public(const std::string& name, const AttributeValue& value) { set_attribute(name, value); }
 
-void Element::set_attribute(const std::string& name, const AttributeValue& value) { attributes_[name] = value; }
+void Element::set_attribute(const std::string& name, const AttributeValue& value) const { attributes_[name] = value; }
 
 std::optional<AttributeValue> Element::get_attribute(const std::string& name) const {
   auto it = attributes_.find(name);
@@ -121,7 +121,8 @@ void* Element::write_xml_element_base(void* doc_ptr, void* parent_ptr) const {
 
   // Set attributes
   for(const auto& [name, value] : attributes_) {
-    // if(is_default_value(name, value)) continue;
+    // Note: Default value filtering is handled in set_xml_attrib() methods
+    // is_default_value() check is not used here to avoid inconsistencies
     element->SetAttribute(name.c_str(), stringify_value(value).c_str());
   }
 
