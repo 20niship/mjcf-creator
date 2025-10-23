@@ -87,7 +87,7 @@ public:
     auto geom  = std::make_shared<Geom>();
     geom->name = name;
     geom->type = GeomType::Sphere;
-    geom->size = {radius, 0.0, 0.0};  // Explicitly initialize all three elements
+    geom->size = {radius, 0.0, 0.0}; // Explicitly initialize all three elements
     geom->pos  = pos;
     geom->rgba = rgba;
     return geom;
@@ -271,7 +271,7 @@ public:
   double stiffness                       = 0.0;
   Arr3 user                              = {0.0, 0.0, 0.0};
 
-  Joint();
+  Joint() = default;
 
   static std::shared_ptr<Joint> Free(const std::string& name) {
     auto joint  = std::make_shared<Joint>();

@@ -248,20 +248,14 @@ bool Site::is_default_value(const std::string& name, const AttributeValue& value
   return false;
 }
 
-Joint::Joint() = default;
-
 void Joint::set_xml_attrib() const {
-
-  if(!name.empty()) this->set_attribute("name", name);
-  if(!class_.empty()) this->set_attribute("class", class_);
+  this->set_attribute("name", name);
   this->set_attribute("type", to_string(type));
+
+  if(!class_.empty()) this->set_attribute("class", class_);
   if(group != 0) this->set_attribute("group", group);
-  if(pos != Arr3{0.0, 0.0, 0.0}) {
-    this->set_attribute("pos", std::vector<double>(pos.begin(), pos.end()));
-  }
-  if(axis != Arr3{0.0, 0.0, 1.0}) {
-    this->set_attribute("axis", std::vector<double>(axis.begin(), axis.end()));
-  }
+  if(pos != Arr3{0.0, 0.0, 0.0}) this->set_attribute("pos", std::vector<double>(pos.begin(), pos.end()));
+  if(axis != Arr3{0.0, 0.0, 1.0}) this->set_attribute("axis", std::vector<double>(axis.begin(), axis.end()));
   if(springdamper != std::array<double, 2>{0.0, 0.0}) {
     this->set_attribute("springdamper", std::vector<double>(springdamper.begin(), springdamper.end()));
   }

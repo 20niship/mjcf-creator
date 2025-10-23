@@ -5,7 +5,10 @@
 #include "body_elements.hpp"
 #include "core_elements.hpp"
 #include <cmath>
+#include <filesystem>
 #include <fstream>
+#include <functional>
+#include <iomanip>
 #include <iostream>
 #include <set>
 #include <sstream>
@@ -64,7 +67,7 @@ std::vector<double> rpy_to_quat(const std::vector<double>& rpy) {
   return {w, x, y, z};
 }
 
-bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_path, const std::map<std::string, JointMetadata>& joint_metadata, const std::map<std::string, ActuatorMetadata>& actuator_metadata) {
+bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_path, const std::map<std::string, JointMetadata>& joint_metadata, const std::map<std::string, ActuatorMetadata>& actuator_metadata, bool copy_meshes, const std::string& output_dir) {
 
   const std::string urdf_content = read_file(urdf_path);
   XMLDocument doc;
@@ -185,48 +188,68 @@ bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_p
           }
           geometry_found = true;
         } else if(cylinder) {
-          geom->type    = GeomType::Cylinder;
-          double radius = cylinder->DoubleAttribute("radius");
-          double length = cylinder->DoubleAttribute("length");
-          geom->size    = {radius, length / 2, 0.001}; // MJCF uses half-length
+          geom->type     = GeomType::Cylinder;
+          double radius  = cylinder->DoubleAttribute("radius");
+          double length  = cylinder->DoubleAttribute("length");
+          geom->size     = {radius, length / 2, 0.001}; // MJCF uses half-length
           geometry_found = true;
         } else if(sphere) {
-          geom->type    = GeomType::Sphere;
-          double radius = sphere->DoubleAttribute("radius");
-          geom->size    = {radius, 0.001, 0.001};
+          geom->type     = GeomType::Sphere;
+          double radius  = sphere->DoubleAttribute("radius");
+          geom->size     = {radius, 0.001, 0.001};
           geometry_found = true;
         } else if(mesh) {
           geom->type = GeomType::Mesh;
-          
+
           const char* filename = mesh->Attribute("filename");
           if(filename) {
-            std::string mesh_filename = filename;
-            
+            std::string mesh_filename   = filename;
+            std::string final_mesh_path = mesh_filename;
+
             // Remove ROS package:// prefix if present
             const std::string package_prefix = "package://";
             if(mesh_filename.find(package_prefix) == 0) {
               mesh_filename = mesh_filename.substr(package_prefix.length());
+            }
+
+            if(copy_meshes) {
+              // Resolve the full path to the mesh file
+              std::string source_mesh_path = resolve_mesh_path(urdf_path, mesh_filename);
+
+              if(std::filesystem::exists(source_mesh_path)) {
+                // Generate hash-based filename
+                std::string hash_filename  = generate_hash_filename(source_mesh_path);
+                std::string dest_mesh_path = (output_dir.empty() ? "./" : (output_dir + "/")) + hash_filename;
+
+                // Copy the mesh file
+                if(copy_mesh_file(source_mesh_path, dest_mesh_path)) {
+                  final_mesh_path = hash_filename; // Use the hash-based filename
+                  std::cout << "Copied mesh: " << source_mesh_path << " -> " << dest_mesh_path << std::endl;
+                } else {
+                  std::cerr << "Failed to copy mesh: " << source_mesh_path << std::endl;
+                  final_mesh_path = mesh_filename; // Fallback to original
+                }
+              } else {
+                std::cerr << "Mesh file not found: " << source_mesh_path << std::endl;
+                final_mesh_path = mesh_filename; // Fallback to original
+              }
+            } else {
               // Extract just the filename after the last slash
               size_t last_slash = mesh_filename.find_last_of("/\\");
               if(last_slash != std::string::npos) {
                 mesh_filename = mesh_filename.substr(last_slash + 1);
               }
-            } else {
-              // Extract just the filename from the path
-              size_t last_slash = mesh_filename.find_last_of("/\\");
-              if(last_slash != std::string::npos) {
-                mesh_filename = mesh_filename.substr(last_slash + 1);
-              }
+              final_mesh_path = mesh_filename;
             }
-            
+
             // Create a unique mesh name based on link name and mesh filename
-            std::string mesh_name = std::string(link_name) + "_" + mesh_filename;
-            
+            std::string mesh_name = std::string(link_name) + "_" + std::filesystem::path(final_mesh_path).stem().string();
+
             // Create mesh asset
-            auto mesh_asset = std::make_shared<Mesh>();
+            auto mesh_asset  = std::make_shared<Mesh>();
             mesh_asset->name = mesh_name;
-            mesh_asset->file = filename; // Keep original path for file reference
-            
+            mesh_asset->file = final_mesh_path;
+
             // Parse scale attribute if present
             const char* scale_attr = mesh->Attribute("scale");
             if(scale_attr) {
@@ -238,16 +261,16 @@ bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_p
                 mesh_asset->scale = {scale_values[0], scale_values[0], scale_values[0]};
               }
             }
-            
+
             // Add mesh to assets
             mujoco->add_asset(mesh_asset);
-            
+
             // Reference the mesh in the geom
             geom->mesh = mesh_name;
           }
           geometry_found = true;
         }
-        
+
         // Only add the geom if a valid geometry type was found
         if(geometry_found) {
           body->add_child(geom);
@@ -380,16 +403,16 @@ bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_p
         mjcf_joint->range = {lower, upper};
       }
       child_body->add_child(mjcf_joint);
+
+      if(mjcf_joint->type == JointType::Hinge) {
+        auto ac         = Position::Create(joint_name);
+        ac->ctrllimited = false;
+        ac->kv          = 100;
+        ac->kp          = 10;
+        mujoco->actuator_->add_child(ac);
+      }
     }
     parent_body->add_child(child_body);
-
-    // if(mjcf_joint->type == JointType::Hinge) {
-    //   auto ac         = Position::Create(joint_name);
-    //   ac->ctrllimited = false;
-    //   ac->kv          = 100;
-    //   ac->kp          = 10;
-    //   mujoco->actuator_->add_child(ac);
-    // }
   }
   return true;
 }
@@ -512,6 +535,68 @@ void UrdfConverter::clone_element_attributes(const Element& source, Element& tar
     std::string original_name = std::get<std::string>(*name_attr);
     target.set_attribute_public("name", add_prefix(original_name));
   }
+}
+
+std::string UrdfConverter::generate_hash_filename(const std::string& original_path) {
+  // Get the parent directory path for hashing
+  std::filesystem::path path(original_path);
+  std::string parent_dir = path.parent_path().string();
+
+  // Generate hash of the parent directory path
+  std::hash<std::string> hasher;
+  size_t hash_value = hasher(parent_dir);
+
+  // Convert hash to hex string and take first 5 characters
+  std::stringstream ss;
+  ss << std::hex << hash_value;
+  std::string hash_str = ss.str();
+  if(hash_str.length() > 5) {
+    hash_str = hash_str.substr(0, 5);
+  }
+
+  // Get original filename and extension
+  std::string filename = path.filename().string();
+
+  // Combine hash prefix with original filename
+  return hash_str + "_" + filename;
+}
+
+bool UrdfConverter::copy_mesh_file(const std::string& source_path, const std::string& dest_path) {
+  try {
+    // Create output directory if it doesn't exist
+    std::filesystem::path dest_file_path(dest_path);
+    std::filesystem::create_directories(dest_file_path.parent_path());
+
+    std::filesystem::copy_file(source_path, dest_path, std::filesystem::copy_options::overwrite_existing);
+    return true;
+  } catch(const std::filesystem::filesystem_error& e) {
+    std::cerr << "Filesystem error: " << e.what() << std::endl;
+    return false;
+  } catch(const std::exception& e) {
+    std::cerr << "Error copying file: " << e.what() << std::endl;
+    return false;
+  }
+}
+
+std::string UrdfConverter::resolve_mesh_path(const std::string& urdf_path, const std::string& mesh_filename) {
+  std::filesystem::path urdf_dir = std::filesystem::path(urdf_path).parent_path();
+  std::string mesh_path          = mesh_filename;
+
+  // Remove ROS package:// prefix if present
+  const std::string package_prefix = "package://";
+  if(mesh_path.find(package_prefix) == 0) {
+    mesh_path = mesh_path.substr(package_prefix.length());
+  }
+
+  // If it's a relative path, make it relative to URDF directory
+  std::filesystem::path full_mesh_path;
+  if(std::filesystem::path(mesh_path).is_absolute()) {
+    full_mesh_path = mesh_path;
+  } else {
+    full_mesh_path = urdf_dir / mesh_path;
+  }
+
+  return full_mesh_path.string();
 }
 
 } // namespace mjcf

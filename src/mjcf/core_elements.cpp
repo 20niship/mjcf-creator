@@ -34,7 +34,7 @@ bool Mujoco::add_urdf(const std::string& urdf_path, const std::string& name_pref
     return false;
   }
 
-  return UrdfConverter::parse_urdf_to_mjcf(this, urdf_path, joint_metadata, actuator_metadata);
+  return UrdfConverter::parse_urdf_to_mjcf(this, urdf_path, joint_metadata, actuator_metadata, copy_meshes);
 }
 
 namespace detail {

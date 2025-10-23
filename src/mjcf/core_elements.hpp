@@ -104,7 +104,7 @@ protected:
 
 class Mujoco : public Element {
 public:
-  std::string model = "";
+  std::string model;
 
   Mujoco(const std::string& model = "") {
     this->model      = model;
