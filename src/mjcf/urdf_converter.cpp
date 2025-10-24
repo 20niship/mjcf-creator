@@ -104,7 +104,6 @@ bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_p
         }
       }
     }
-        printf("[mjcf::ho] Adding material %s \n", mat_name);
     mujoco->add_asset(mjcf_material);
   }
 
@@ -274,11 +273,9 @@ bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_p
       if(material) {
         const char* mat_name = material->Attribute("name");
         if(mat_name == nullptr) continue;
-        geom->material    = mat_name;
+        geom->material = mat_name;
 
         if(mujoco->has_material(mat_name)) continue;
-        printf("[mjcf::parse_urdf_to_mjcf] Adding material %s \n", mat_name);
-
         XMLElement* color = material->FirstChildElement("color");
         if(color == nullptr) continue;
         const char* rgba = color->Attribute("rgba");
@@ -416,15 +413,14 @@ bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_p
         mjcf_joint->range = {lower, upper};
       }
 
-
-
       child_body->add_child(mjcf_joint);
 
       if(mjcf_joint->type == JointType::Hinge) {
         auto ac         = Position::Create(joint_name);
+        ac->name        = joint_name;
         ac->ctrllimited = false;
-        ac->kv          = 100;
-        ac->kp          = 10;
+        ac->kp          = 2.0;
+        ac->kv          = 0.0;
         mujoco->actuator_->add_child(ac);
       }
     }
