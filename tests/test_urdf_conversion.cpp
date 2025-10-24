@@ -449,13 +449,15 @@ TEST_SUITE("URDF Conversion Tests") {
     
     // Check that mesh assets were created
     CHECK(xml_content.find("<mesh") != std::string::npos);
-    CHECK(xml_content.find("base_link_base.stl") != std::string::npos);
-    CHECK(xml_content.find("link1_link1.obj") != std::string::npos);
+    CHECK(xml_content.find("name=\"base_link_base\"") != std::string::npos);
+    CHECK(xml_content.find("name=\"link1_link1\"") != std::string::npos);
+    CHECK(xml_content.find("file=\"base.stl\"") != std::string::npos);
+    CHECK(xml_content.find("file=\"link1.obj\"") != std::string::npos);
     
     // Check that mesh geometries reference the correct mesh names
     CHECK(xml_content.find("type=\"mesh\"") != std::string::npos);
-    CHECK(xml_content.find("mesh=\"base_link_base.stl\"") != std::string::npos);
-    CHECK(xml_content.find("mesh=\"link1_link1.obj\"") != std::string::npos);
+    CHECK(xml_content.find("mesh=\"base_link_base\"") != std::string::npos);
+    CHECK(xml_content.find("mesh=\"link1_link1\"") != std::string::npos);
     
     // Check that scale attributes are preserved
     CHECK(xml_content.find("scale=\"0.5 0.5 0.5\"") != std::string::npos);
