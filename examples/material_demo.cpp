@@ -105,7 +105,7 @@ int main() {
       <geometry>
         <sphere radius="0.1"/>
       </geometry>
-      <!-- Inline material definition -->
+      <!-- Inline material definition with RGBA (full format) -->
       <material name="blue_shiny">
         <color rgba="0.0 0.0 1.0 1.0"/>
       </material>
@@ -122,7 +122,7 @@ int main() {
       <geometry>
         <box size="0.1 0.1 0.3"/>
       </geometry>
-      <!-- Another inline material with RGB (alpha defaults to 1.0) -->
+      <!-- Another inline material with RGB only (alpha defaults to 1.0) -->
       <material name="yellow_matte">
         <color rgba="1.0 1.0 0.0"/>
       </material>
