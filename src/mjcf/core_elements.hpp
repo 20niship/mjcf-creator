@@ -1,5 +1,6 @@
 #pragma once
 
+#include "asset_elements.hpp"
 #include "element.hpp"
 #include "enums.hpp"
 #include <array>
@@ -147,6 +148,15 @@ public:
   std::shared_ptr<detail::Contact> contact_     = nullptr;
   std::shared_ptr<detail::Equality> equality_   = nullptr;
   std::shared_ptr<detail::Tendon> tendon_       = nullptr;
+
+  [[nodiscard]] bool has_material(const std::string& material_name) const {
+    if(!asset_) return false;
+    for(const auto& child : asset_->get_children()) {
+      auto m = std::dynamic_pointer_cast<Material>(child);
+      if(m != nullptr && m->name == material_name) return true;
+    }
+    return false;
+  }
 
   [[nodiscard]] bool has_asset(const std::string& asset_name) const {
     if(!asset_) return false;

@@ -27,25 +27,15 @@ public:
   std::string gridlayout        = "";
 
   Texture() = default;
-  
+
   // Convenience constructor for file-based texture
   Texture(const std::string& name, const std::string& file);
-  
+
   // Convenience constructor for procedural texture
-  Texture(const std::string& name,
-          TextureBuiltin builtin,
-          TextureType type,
-          const std::array<double, 3>& rgb1,
-          const std::array<double, 3>& rgb2,
-          int width = 512,
-          int height = 512);
-  
+  Texture(const std::string& name, TextureBuiltin builtin, TextureType type, const std::array<double, 3>& rgb1, const std::array<double, 3>& rgb2, int width = 512, int height = 512);
+
   // Static factory method for checkerboard texture
-  static Texture CheckerTexture(const std::string& name,
-                                const std::array<double, 3>& rgb1 = {0.1, 0.2, 0.3},
-                                const std::array<double, 3>& rgb2 = {0.2, 0.3, 0.4},
-                                int width = 512,
-                                int height = 512);
+  static Texture CheckerTexture(const std::string& name, const std::array<double, 3>& rgb1 = {0.1, 0.2, 0.3}, const std::array<double, 3>& rgb2 = {0.2, 0.3, 0.4}, int width = 512, int height = 512);
 
   std::string element_name() const override { return "texture"; }
 
@@ -56,13 +46,10 @@ protected:
   bool is_default_value(const std::string& name, const AttributeValue& value) const override;
 };
 
-/**
- * @brief Material asset element
- */
 class Material : public Element {
 public:
-  std::string name                = "";
-  std::string texture             = "";
+  std::string name;
+  std::string texture;
   std::array<double, 2> texrepeat = {0.0, 0.0};
   bool texuniform                 = false;
   double emission                 = 0.0;
@@ -72,15 +59,9 @@ public:
   std::array<double, 4> rgba      = {0.0, 0.0, 0.0, 0.0};
 
   Material() = default;
-  
-  // Convenience constructor for simple material
-  Material(const std::string& name, 
-           const std::array<double, 4>& rgba);
-  
-  // Convenience constructor for textured material
-  Material(const std::string& name,
-           const std::string& texture,
-           const std::array<double, 2>& texrepeat = {1.0, 1.0});
+
+  Material(const std::string& name, const std::array<double, 4>& rgba);
+  Material(const std::string& name, const std::string& texture, const std::array<double, 2>& texrepeat = {1.0, 1.0});
 
   std::string element_name() const override { return "material"; }
 
@@ -91,18 +72,15 @@ protected:
   bool is_default_value(const std::string& name, const AttributeValue& value) const override;
 };
 
-/**
- * @brief Mesh asset element
- */
 class Mesh : public Element {
 public:
-  std::string name            = "";
-  std::string file            = "";
-  std::array<double, 3> scale = {1.0, 1.0, 1.0}; // MuJoCo default
-  bool smoothnormal           = true;            // MuJoCo default
-  std::vector<double> vertex;                    // Keep as vector for variable length
-  std::vector<double> normal;                    // Keep as vector for variable length
-  std::vector<int> face;                         // Keep as vector for variable length
+  std::string name;
+  std::string file;
+  Arr3 scale        = {1.0, 1.0, 1.0}; // MuJoCo default
+  bool smoothnormal = true;            // MuJoCo default
+  std::vector<double> vertex;          // Keep as vector for variable length
+  std::vector<double> normal;          // Keep as vector for variable length
+  std::vector<int> face;               // Keep as vector for variable length
 
   Mesh();
 

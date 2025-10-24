@@ -89,6 +89,7 @@ bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_p
   for(XMLElement* material = robot->FirstChildElement("material"); material; material = material->NextSiblingElement("material")) {
     const char* mat_name = material->Attribute("name");
     if(!mat_name) continue;
+    if(mujoco->has_material(mat_name)) continue;
 
     auto mjcf_material  = std::make_shared<Material>();
     mjcf_material->name = mat_name;
@@ -103,6 +104,7 @@ bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_p
         }
       }
     }
+        printf("[mjcf::ho] Adding material %s \n", mat_name);
     mujoco->add_asset(mjcf_material);
   }
 
@@ -252,10 +254,7 @@ bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_p
               }
             }
 
-            // Add mesh to assets
             mujoco->add_asset(mesh_asset);
-
-            // Reference the mesh in the geom
             geom->mesh = mesh_name;
           }
           geometry_found = true;
@@ -274,37 +273,23 @@ bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_p
       XMLElement* material = visual->FirstChildElement("material");
       if(material) {
         const char* mat_name = material->Attribute("name");
-        if(mat_name) {
-          // Assign the material name to the geometry
-          geom->material = mat_name;
-          
-          // Check if this material has an inline color definition
-          XMLElement* color = material->FirstChildElement("color");
-          if(color) {
-            // This is an inline material definition - create a material asset
-            const char* rgba = color->Attribute("rgba");
-            if(rgba) {
-              auto mjcf_material  = std::make_shared<Material>();
-              mjcf_material->name = mat_name;
-              
-              auto rgba_values = parse_space_separated_values(rgba);
-              if(rgba_values.size() >= 3) {
-                // URDF color can be RGB or RGBA
-                mjcf_material->rgba = {
-                  rgba_values[0], 
-                  rgba_values[1], 
-                  rgba_values[2], 
-                  rgba_values.size() > 3 ? rgba_values[3] : 1.0
-                };
-              }
-              
-              // Add the material to assets (only if not already present)
-              mujoco->add_asset(mjcf_material);
-            }
-          }
-          // If there's no inline color, it's a reference to a global material
-          // which should have already been processed at the robot level
-        }
+        if(mat_name == nullptr) continue;
+        geom->material    = mat_name;
+
+        if(mujoco->has_material(mat_name)) continue;
+        printf("[mjcf::parse_urdf_to_mjcf] Adding material %s \n", mat_name);
+
+        XMLElement* color = material->FirstChildElement("color");
+        if(color == nullptr) continue;
+        const char* rgba = color->Attribute("rgba");
+        if(rgba == nullptr) continue;
+        auto mjcf_material  = std::make_shared<Material>();
+        mjcf_material->name = mat_name;
+
+        auto rgba_values = parse_space_separated_values(rgba);
+        if(rgba_values.size() >= 3) //
+          mjcf_material->rgba = {rgba_values[0], rgba_values[1], rgba_values[2], rgba_values.size() > 3 ? rgba_values[3] : 1.0};
+        mujoco->add_asset(mjcf_material);
       }
     }
 #if 0
