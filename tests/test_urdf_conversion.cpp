@@ -3,6 +3,7 @@
 #include "mjcf/mjcf.hpp"
 #include <filesystem>
 #include <fstream>
+#include <iostream>
 #include <map>
 
 std::map<std::string, mjcf::JointMetadata> parse_joint_metadata_xml(const std::string& xml_path) {
@@ -281,6 +282,148 @@ TEST_SUITE("URDF Conversion Tests") {
     CHECK(mjcf_content.find("base_link") != std::string::npos);
     CHECK(mjcf_content.find("test_material") != std::string::npos);
     CHECK(mjcf_content.find("box") != std::string::npos);
+  }
+
+  TEST_CASE("URDF with inline material definitions") {
+    // Create a URDF with inline material definitions
+    std::string inline_material_urdf = R"(<?xml version="1.0"?>
+<robot name="material_test_robot">
+  <link name="base_link">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="1.0"/>
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.2 0.2 0.2"/>
+      </geometry>
+      <material name="inline_blue">
+        <color rgba="0.0 0.0 1.0 1.0"/>
+      </material>
+    </visual>
+  </link>
+  
+  <link name="link_with_inline_material_rgb">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="1.0"/>
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <sphere radius="0.1"/>
+      </geometry>
+      <material name="inline_green">
+        <color rgba="0.0 1.0 0.0"/>
+      </material>
+    </visual>
+  </link>
+  
+  <joint name="joint1" type="fixed">
+    <parent link="base_link"/>
+    <child link="link_with_inline_material_rgb"/>
+    <origin xyz="0 0 0.5" rpy="0 0 0"/>
+  </joint>
+</robot>)";
+
+    std::string temp_urdf = "inline_material_test.urdf";
+    std::ofstream urdf_file(temp_urdf);
+    urdf_file << inline_material_urdf;
+    urdf_file.close();
+
+    auto mujoco  = std::make_shared<mjcf::Mujoco>();
+    bool success = mujoco->add_urdf(temp_urdf);
+
+    CHECK(success);
+
+    std::string xml_content = mujoco->get_xml_text();
+    
+    // Check that inline materials were created in the asset section
+    CHECK(xml_content.find("<material") != std::string::npos);
+    CHECK(xml_content.find("inline_blue") != std::string::npos);
+    CHECK(xml_content.find("inline_green") != std::string::npos);
+    
+    // Check that the materials have correct RGBA values
+    CHECK(xml_content.find("0 0 1 1") != std::string::npos);  // Blue color
+    CHECK(xml_content.find("0 1 0 1") != std::string::npos);  // Green color (alpha defaulted to 1)
+    
+    // Check that geometries reference the materials
+    CHECK(xml_content.find("material=\"inline_blue\"") != std::string::npos);
+    CHECK(xml_content.find("material=\"inline_green\"") != std::string::npos);
+  }
+
+  TEST_CASE("URDF with global and referenced materials") {
+    // Create a URDF with global materials and references
+    std::string global_material_urdf = R"(<?xml version="1.0"?>
+<robot name="global_material_robot">
+  <material name="global_red">
+    <color rgba="1.0 0.0 0.0 1.0"/>
+  </material>
+  
+  <material name="global_yellow">
+    <color rgba="1.0 1.0 0.0 1.0"/>
+  </material>
+  
+  <link name="link1">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="1.0"/>
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.1 0.1 0.1"/>
+      </geometry>
+      <material name="global_red"/>
+    </visual>
+  </link>
+  
+  <link name="link2">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="1.0"/>
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.05" length="0.3"/>
+      </geometry>
+      <material name="global_yellow"/>
+    </visual>
+  </link>
+  
+  <joint name="joint1" type="fixed">
+    <parent link="link1"/>
+    <child link="link2"/>
+    <origin xyz="0 0 0.3" rpy="0 0 0"/>
+  </joint>
+</robot>)";
+
+    std::string temp_urdf = "global_material_test.urdf";
+    std::ofstream urdf_file(temp_urdf);
+    urdf_file << global_material_urdf;
+    urdf_file.close();
+
+    auto mujoco  = std::make_shared<mjcf::Mujoco>();
+    bool success = mujoco->add_urdf(temp_urdf);
+
+    CHECK(success);
+
+    std::string xml_content = mujoco->get_xml_text();
+    
+    // Check that global materials were created in the asset section
+    CHECK(xml_content.find("<material") != std::string::npos);
+    CHECK(xml_content.find("global_red") != std::string::npos);
+    CHECK(xml_content.find("global_yellow") != std::string::npos);
+    
+    // Check that geometries reference the materials
+    CHECK(xml_content.find("material=\"global_red\"") != std::string::npos);
+    CHECK(xml_content.find("material=\"global_yellow\"") != std::string::npos);
   }
 
   TEST_CASE("URDF with mesh geometry support") {
