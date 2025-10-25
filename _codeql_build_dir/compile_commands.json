@@ -1,0 +1,134 @@
+[
+{
+  "directory": "/home/runner/work/mjcf-creator/mjcf-creator/_codeql_build_dir",
+  "command": "/home/runner/work/mjcf-creator/.codeql-scratch/dbs/cpp/working/autobuild/bin/c++  -I/home/runner/work/mjcf-creator/mjcf-creator/src -I/home/runner/work/mjcf-creator/mjcf-creator/src/ext  -fdiagnostics-color=always -O3 -DNDEBUG -std=gnu++17 -o CMakeFiles/demo.dir/demo.cpp.o -c /home/runner/work/mjcf-creator/mjcf-creator/demo.cpp",
+  "file": "/home/runner/work/mjcf-creator/mjcf-creator/demo.cpp",
+  "output": "CMakeFiles/demo.dir/demo.cpp.o"
+},
+{
+  "directory": "/home/runner/work/mjcf-creator/mjcf-creator/_codeql_build_dir/src",
+  "command": "/home/runner/work/mjcf-creator/.codeql-scratch/dbs/cpp/working/autobuild/bin/c++  -I/home/runner/work/mjcf-creator/mjcf-creator/src -I/home/runner/work/mjcf-creator/mjcf-creator/src/ext  -fdiagnostics-color=always -O3 -DNDEBUG -std=gnu++17 -o CMakeFiles/mjcf.dir/mjcf/element.cpp.o -c /home/runner/work/mjcf-creator/mjcf-creator/src/mjcf/element.cpp",
+  "file": "/home/runner/work/mjcf-creator/mjcf-creator/src/mjcf/element.cpp",
+  "output": "src/CMakeFiles/mjcf.dir/mjcf/element.cpp.o"
+},
+{
+  "directory": "/home/runner/work/mjcf-creator/mjcf-creator/_codeql_build_dir/src",
+  "command": "/home/runner/work/mjcf-creator/.codeql-scratch/dbs/cpp/working/autobuild/bin/c++  -I/home/runner/work/mjcf-creator/mjcf-creator/src -I/home/runner/work/mjcf-creator/mjcf-creator/src/ext  -fdiagnostics-color=always -O3 -DNDEBUG -std=gnu++17 -o CMakeFiles/mjcf.dir/mjcf/enums.cpp.o -c /home/runner/work/mjcf-creator/mjcf-creator/src/mjcf/enums.cpp",
+  "file": "/home/runner/work/mjcf-creator/mjcf-creator/src/mjcf/enums.cpp",
+  "output": "src/CMakeFiles/mjcf.dir/mjcf/enums.cpp.o"
+},
+{
+  "directory": "/home/runner/work/mjcf-creator/mjcf-creator/_codeql_build_dir/src",
+  "command": "/home/runner/work/mjcf-creator/.codeql-scratch/dbs/cpp/working/autobuild/bin/c++  -I/home/runner/work/mjcf-creator/mjcf-creator/src -I/home/runner/work/mjcf-creator/mjcf-creator/src/ext  -fdiagnostics-color=always -O3 -DNDEBUG -std=gnu++17 -o CMakeFiles/mjcf.dir/mjcf/core_elements.cpp.o -c /home/runner/work/mjcf-creator/mjcf-creator/src/mjcf/core_elements.cpp",
+  "file": "/home/runner/work/mjcf-creator/mjcf-creator/src/mjcf/core_elements.cpp",
+  "output": "src/CMakeFiles/mjcf.dir/mjcf/core_elements.cpp.o"
+},
+{
+  "directory": "/home/runner/work/mjcf-creator/mjcf-creator/_codeql_build_dir/src",
+  "command": "/home/runner/work/mjcf-creator/.codeql-scratch/dbs/cpp/working/autobuild/bin/c++  -I/home/runner/work/mjcf-creator/mjcf-creator/src -I/home/runner/work/mjcf-creator/mjcf-creator/src/ext  -fdiagnostics-color=always -O3 -DNDEBUG -std=gnu++17 -o CMakeFiles/mjcf.dir/mjcf/asset_elements.cpp.o -c /home/runner/work/mjcf-creator/mjcf-creator/src/mjcf/asset_elements.cpp",
+  "file": "/home/runner/work/mjcf-creator/mjcf-creator/src/mjcf/asset_elements.cpp",
+  "output": "src/CMakeFiles/mjcf.dir/mjcf/asset_elements.cpp.o"
+},
+{
+  "directory": "/home/runner/work/mjcf-creator/mjcf-creator/_codeql_build_dir/src",
+  "command": "/home/runner/work/mjcf-creator/.codeql-scratch/dbs/cpp/working/autobuild/bin/c++  -I/home/runner/work/mjcf-creator/mjcf-creator/src -I/home/runner/work/mjcf-creator/mjcf-creator/src/ext  -fdiagnostics-color=always -O3 -DNDEBUG -std=gnu++17 -o CMakeFiles/mjcf.dir/mjcf/body_elements.cpp.o -c /home/runner/work/mjcf-creator/mjcf-creator/src/mjcf/body_elements.cpp",
+  "file": "/home/runner/work/mjcf-creator/mjcf-creator/src/mjcf/body_elements.cpp",
+  "output": "src/CMakeFiles/mjcf.dir/mjcf/body_elements.cpp.o"
+},
+{
+  "directory": "/home/runner/work/mjcf-creator/mjcf-creator/_codeql_build_dir/src",
+  "command": "/home/runner/work/mjcf-creator/.codeql-scratch/dbs/cpp/working/autobuild/bin/c++  -I/home/runner/work/mjcf-creator/mjcf-creator/src -I/home/runner/work/mjcf-creator/mjcf-creator/src/ext  -fdiagnostics-color=always -O3 -DNDEBUG -std=gnu++17 -o CMakeFiles/mjcf.dir/mjcf/actuator_elements.cpp.o -c /home/runner/work/mjcf-creator/mjcf-creator/src/mjcf/actuator_elements.cpp",
+  "file": "/home/runner/work/mjcf-creator/mjcf-creator/src/mjcf/actuator_elements.cpp",
+  "output": "src/CMakeFiles/mjcf.dir/mjcf/actuator_elements.cpp.o"
+},
+{
+  "directory": "/home/runner/work/mjcf-creator/mjcf-creator/_codeql_build_dir/src",
+  "command": "/home/runner/work/mjcf-creator/.codeql-scratch/dbs/cpp/working/autobuild/bin/c++  -I/home/runner/work/mjcf-creator/mjcf-creator/src -I/home/runner/work/mjcf-creator/mjcf-creator/src/ext  -fdiagnostics-color=always -O3 -DNDEBUG -std=gnu++17 -o CMakeFiles/mjcf.dir/mjcf/sensor_elements.cpp.o -c /home/runner/work/mjcf-creator/mjcf-creator/src/mjcf/sensor_elements.cpp",
+  "file": "/home/runner/work/mjcf-creator/mjcf-creator/src/mjcf/sensor_elements.cpp",
+  "output": "src/CMakeFiles/mjcf.dir/mjcf/sensor_elements.cpp.o"
+},
+{
+  "directory": "/home/runner/work/mjcf-creator/mjcf-creator/_codeql_build_dir/src",
+  "command": "/home/runner/work/mjcf-creator/.codeql-scratch/dbs/cpp/working/autobuild/bin/c++  -I/home/runner/work/mjcf-creator/mjcf-creator/src -I/home/runner/work/mjcf-creator/mjcf-creator/src/ext  -fdiagnostics-color=always -O3 -DNDEBUG -std=gnu++17 -o CMakeFiles/mjcf.dir/mjcf/urdf_converter.cpp.o -c /home/runner/work/mjcf-creator/mjcf-creator/src/mjcf/urdf_converter.cpp",
+  "file": "/home/runner/work/mjcf-creator/mjcf-creator/src/mjcf/urdf_converter.cpp",
+  "output": "src/CMakeFiles/mjcf.dir/mjcf/urdf_converter.cpp.o"
+},
+{
+  "directory": "/home/runner/work/mjcf-creator/mjcf-creator/_codeql_build_dir/src",
+  "command": "/home/runner/work/mjcf-creator/.codeql-scratch/dbs/cpp/working/autobuild/bin/c++  -I/home/runner/work/mjcf-creator/mjcf-creator/src -I/home/runner/work/mjcf-creator/mjcf-creator/src/ext  -fdiagnostics-color=always -O3 -DNDEBUG -std=gnu++17 -o CMakeFiles/mjcf.dir/ext/tinyxml2.cpp.o -c /home/runner/work/mjcf-creator/mjcf-creator/src/ext/tinyxml2.cpp",
+  "file": "/home/runner/work/mjcf-creator/mjcf-creator/src/ext/tinyxml2.cpp",
+  "output": "src/CMakeFiles/mjcf.dir/ext/tinyxml2.cpp.o"
+},
+{
+  "directory": "/home/runner/work/mjcf-creator/mjcf-creator/_codeql_build_dir/tests",
+  "command": "/home/runner/work/mjcf-creator/.codeql-scratch/dbs/cpp/working/autobuild/bin/c++  -I/home/runner/work/mjcf-creator/mjcf-creator/src -I/home/runner/work/mjcf-creator/mjcf-creator/tests/. -I/home/runner/work/mjcf-creator/mjcf-creator/src/ext  -fdiagnostics-color=always -O3 -DNDEBUG -std=gnu++17 -o CMakeFiles/tests.dir/test_main.cpp.o -c /home/runner/work/mjcf-creator/mjcf-creator/tests/test_main.cpp",
+  "file": "/home/runner/work/mjcf-creator/mjcf-creator/tests/test_main.cpp",
+  "output": "tests/CMakeFiles/tests.dir/test_main.cpp.o"
+},
+{
+  "directory": "/home/runner/work/mjcf-creator/mjcf-creator/_codeql_build_dir/tests",
+  "command": "/home/runner/work/mjcf-creator/.codeql-scratch/dbs/cpp/working/autobuild/bin/c++  -I/home/runner/work/mjcf-creator/mjcf-creator/src -I/home/runner/work/mjcf-creator/mjcf-creator/tests/. -I/home/runner/work/mjcf-creator/mjcf-creator/src/ext  -fdiagnostics-color=always -O3 -DNDEBUG -std=gnu++17 -o CMakeFiles/tests.dir/test_element.cpp.o -c /home/runner/work/mjcf-creator/mjcf-creator/tests/test_element.cpp",
+  "file": "/home/runner/work/mjcf-creator/mjcf-creator/tests/test_element.cpp",
+  "output": "tests/CMakeFiles/tests.dir/test_element.cpp.o"
+},
+{
+  "directory": "/home/runner/work/mjcf-creator/mjcf-creator/_codeql_build_dir/tests",
+  "command": "/home/runner/work/mjcf-creator/.codeql-scratch/dbs/cpp/working/autobuild/bin/c++  -I/home/runner/work/mjcf-creator/mjcf-creator/src -I/home/runner/work/mjcf-creator/mjcf-creator/tests/. -I/home/runner/work/mjcf-creator/mjcf-creator/src/ext  -fdiagnostics-color=always -O3 -DNDEBUG -std=gnu++17 -o CMakeFiles/tests.dir/test_core_elements.cpp.o -c /home/runner/work/mjcf-creator/mjcf-creator/tests/test_core_elements.cpp",
+  "file": "/home/runner/work/mjcf-creator/mjcf-creator/tests/test_core_elements.cpp",
+  "output": "tests/CMakeFiles/tests.dir/test_core_elements.cpp.o"
+},
+{
+  "directory": "/home/runner/work/mjcf-creator/mjcf-creator/_codeql_build_dir/tests",
+  "command": "/home/runner/work/mjcf-creator/.codeql-scratch/dbs/cpp/working/autobuild/bin/c++  -I/home/runner/work/mjcf-creator/mjcf-creator/src -I/home/runner/work/mjcf-creator/mjcf-creator/tests/. -I/home/runner/work/mjcf-creator/mjcf-creator/src/ext  -fdiagnostics-color=always -O3 -DNDEBUG -std=gnu++17 -o CMakeFiles/tests.dir/test_asset_elements.cpp.o -c /home/runner/work/mjcf-creator/mjcf-creator/tests/test_asset_elements.cpp",
+  "file": "/home/runner/work/mjcf-creator/mjcf-creator/tests/test_asset_elements.cpp",
+  "output": "tests/CMakeFiles/tests.dir/test_asset_elements.cpp.o"
+},
+{
+  "directory": "/home/runner/work/mjcf-creator/mjcf-creator/_codeql_build_dir/tests",
+  "command": "/home/runner/work/mjcf-creator/.codeql-scratch/dbs/cpp/working/autobuild/bin/c++  -I/home/runner/work/mjcf-creator/mjcf-creator/src -I/home/runner/work/mjcf-creator/mjcf-creator/tests/. -I/home/runner/work/mjcf-creator/mjcf-creator/src/ext  -fdiagnostics-color=always -O3 -DNDEBUG -std=gnu++17 -o CMakeFiles/tests.dir/test_body_elements.cpp.o -c /home/runner/work/mjcf-creator/mjcf-creator/tests/test_body_elements.cpp",
+  "file": "/home/runner/work/mjcf-creator/mjcf-creator/tests/test_body_elements.cpp",
+  "output": "tests/CMakeFiles/tests.dir/test_body_elements.cpp.o"
+},
+{
+  "directory": "/home/runner/work/mjcf-creator/mjcf-creator/_codeql_build_dir/tests",
+  "command": "/home/runner/work/mjcf-creator/.codeql-scratch/dbs/cpp/working/autobuild/bin/c++  -I/home/runner/work/mjcf-creator/mjcf-creator/src -I/home/runner/work/mjcf-creator/mjcf-creator/tests/. -I/home/runner/work/mjcf-creator/mjcf-creator/src/ext  -fdiagnostics-color=always -O3 -DNDEBUG -std=gnu++17 -o CMakeFiles/tests.dir/test_integration.cpp.o -c /home/runner/work/mjcf-creator/mjcf-creator/tests/test_integration.cpp",
+  "file": "/home/runner/work/mjcf-creator/mjcf-creator/tests/test_integration.cpp",
+  "output": "tests/CMakeFiles/tests.dir/test_integration.cpp.o"
+},
+{
+  "directory": "/home/runner/work/mjcf-creator/mjcf-creator/_codeql_build_dir/tests",
+  "command": "/home/runner/work/mjcf-creator/.codeql-scratch/dbs/cpp/working/autobuild/bin/c++  -I/home/runner/work/mjcf-creator/mjcf-creator/src -I/home/runner/work/mjcf-creator/mjcf-creator/tests/. -I/home/runner/work/mjcf-creator/mjcf-creator/src/ext  -fdiagnostics-color=always -O3 -DNDEBUG -std=gnu++17 -o CMakeFiles/tests.dir/test_urdf_conversion.cpp.o -c /home/runner/work/mjcf-creator/mjcf-creator/tests/test_urdf_conversion.cpp",
+  "file": "/home/runner/work/mjcf-creator/mjcf-creator/tests/test_urdf_conversion.cpp",
+  "output": "tests/CMakeFiles/tests.dir/test_urdf_conversion.cpp.o"
+},
+{
+  "directory": "/home/runner/work/mjcf-creator/mjcf-creator/_codeql_build_dir/tests",
+  "command": "/home/runner/work/mjcf-creator/.codeql-scratch/dbs/cpp/working/autobuild/bin/c++  -I/home/runner/work/mjcf-creator/mjcf-creator/src -I/home/runner/work/mjcf-creator/mjcf-creator/tests/. -I/home/runner/work/mjcf-creator/mjcf-creator/src/ext  -fdiagnostics-color=always -O3 -DNDEBUG -std=gnu++17 -o CMakeFiles/tests.dir/test_actuator_sensor.cpp.o -c /home/runner/work/mjcf-creator/mjcf-creator/tests/test_actuator_sensor.cpp",
+  "file": "/home/runner/work/mjcf-creator/mjcf-creator/tests/test_actuator_sensor.cpp",
+  "output": "tests/CMakeFiles/tests.dir/test_actuator_sensor.cpp.o"
+},
+{
+  "directory": "/home/runner/work/mjcf-creator/mjcf-creator/_codeql_build_dir/examples",
+  "command": "/home/runner/work/mjcf-creator/.codeql-scratch/dbs/cpp/working/autobuild/bin/c++  -I/home/runner/work/mjcf-creator/mjcf-creator/src -I/home/runner/work/mjcf-creator/mjcf-creator/src/ext  -fdiagnostics-color=always -O3 -DNDEBUG -std=gnu++17 -o CMakeFiles/comprehensive_robot_demo.dir/comprehensive_robot_demo.cpp.o -c /home/runner/work/mjcf-creator/mjcf-creator/examples/comprehensive_robot_demo.cpp",
+  "file": "/home/runner/work/mjcf-creator/mjcf-creator/examples/comprehensive_robot_demo.cpp",
+  "output": "examples/CMakeFiles/comprehensive_robot_demo.dir/comprehensive_robot_demo.cpp.o"
+},
+{
+  "directory": "/home/runner/work/mjcf-creator/mjcf-creator/_codeql_build_dir/examples",
+  "command": "/home/runner/work/mjcf-creator/.codeql-scratch/dbs/cpp/working/autobuild/bin/c++  -I/home/runner/work/mjcf-creator/mjcf-creator/src -I/home/runner/work/mjcf-creator/mjcf-creator/src/ext  -fdiagnostics-color=always -O3 -DNDEBUG -std=gnu++17 -o CMakeFiles/constructor_demo.dir/constructor_demo.cpp.o -c /home/runner/work/mjcf-creator/mjcf-creator/examples/constructor_demo.cpp",
+  "file": "/home/runner/work/mjcf-creator/mjcf-creator/examples/constructor_demo.cpp",
+  "output": "examples/CMakeFiles/constructor_demo.dir/constructor_demo.cpp.o"
+},
+{
+  "directory": "/home/runner/work/mjcf-creator/mjcf-creator/_codeql_build_dir/examples",
+  "command": "/home/runner/work/mjcf-creator/.codeql-scratch/dbs/cpp/working/autobuild/bin/c++  -I/home/runner/work/mjcf-creator/mjcf-creator/src -I/home/runner/work/mjcf-creator/mjcf-creator/src/ext  -fdiagnostics-color=always -O3 -DNDEBUG -std=gnu++17 -o CMakeFiles/generate_samples.dir/generate_samples.cpp.o -c /home/runner/work/mjcf-creator/mjcf-creator/examples/generate_samples.cpp",
+  "file": "/home/runner/work/mjcf-creator/mjcf-creator/examples/generate_samples.cpp",
+  "output": "examples/CMakeFiles/generate_samples.dir/generate_samples.cpp.o"
+},
+{
+  "directory": "/home/runner/work/mjcf-creator/mjcf-creator/_codeql_build_dir/examples",
+  "command": "/home/runner/work/mjcf-creator/.codeql-scratch/dbs/cpp/working/autobuild/bin/c++  -I/home/runner/work/mjcf-creator/mjcf-creator/src -I/home/runner/work/mjcf-creator/mjcf-creator/src/ext  -fdiagnostics-color=always -O3 -DNDEBUG -std=gnu++17 -o CMakeFiles/multi_urdf_example.dir/multi_urdf_example.cpp.o -c /home/runner/work/mjcf-creator/mjcf-creator/examples/multi_urdf_example.cpp",
+  "file": "/home/runner/work/mjcf-creator/mjcf-creator/examples/multi_urdf_example.cpp",
+  "output": "examples/CMakeFiles/multi_urdf_example.dir/multi_urdf_example.cpp.o"
+}
+]
