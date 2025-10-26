@@ -89,6 +89,7 @@ bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_p
   for(XMLElement* material = robot->FirstChildElement("material"); material; material = material->NextSiblingElement("material")) {
     const char* mat_name = material->Attribute("name");
     if(!mat_name) continue;
+    if(std::string(mat_name) == "") continue;
     if(mujoco->has_material(mat_name)) continue;
 
     auto mjcf_material  = std::make_shared<Material>();
@@ -268,11 +269,11 @@ bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_p
         continue;
       }
 
-      // Process material element if present
       XMLElement* material = visual->FirstChildElement("material");
       if(material) {
         const char* mat_name = material->Attribute("name");
         if(mat_name == nullptr) continue;
+        if(std::string(mat_name) == "") continue;
         geom->material = mat_name;
 
         if(mujoco->has_material(mat_name)) continue;
@@ -369,9 +370,7 @@ bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_p
       const char* xyz = origin->Attribute("xyz");
       if(xyz) {
         auto pos = parse_space_separated_values(xyz);
-        if(pos.size() >= 3) {
-          child_body->pos = {pos[0], pos[1], pos[2]};
-        }
+        if(pos.size() >= 3) child_body->pos = {pos[0], pos[1], pos[2]};
       }
 
       const char* rpy = origin->Attribute("rpy");
@@ -386,9 +385,10 @@ bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_p
       }
     }
 
-    auto mjcf_joint = std::make_shared<Joint>();
+    parent_body->add_child(child_body);
 
     if(joint_type != "fixed") {
+      auto mjcf_joint  = std::make_shared<Joint>();
       mjcf_joint->name = joint_name;
 
       if(joint_type == "revolute" || joint_type == "continuous") {
@@ -424,7 +424,6 @@ bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_p
         mujoco->actuator_->add_child(ac);
       }
     }
-    parent_body->add_child(child_body);
   }
   return true;
 }

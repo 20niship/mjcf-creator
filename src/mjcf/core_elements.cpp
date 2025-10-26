@@ -1,7 +1,6 @@
 #include "core_elements.hpp"
 #include "urdf_converter.hpp"
 #include <filesystem>
-#include <fstream>
 
 namespace mjcf {
 
@@ -88,9 +87,6 @@ bool Size::from_xml([[maybe_unused]] const std::string& xml_str) { return false;
 bool Size::is_default_value([[maybe_unused]] const std::string& name, [[maybe_unused]] const AttributeValue& value) const {
   return false; // サイズパラメータは通常明示的に設定される
 }
-
-Visual::Visual()       = default;
-Statistic::Statistic() = default;
 
 Default::Default(const std::string& class_name) : class_(class_name) {}
 

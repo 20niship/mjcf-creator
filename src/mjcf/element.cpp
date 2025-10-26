@@ -108,9 +108,9 @@ void* Element::write_xml_element_base(void* doc_ptr, void* parent_ptr) const {
   auto doc    = static_cast<tinyxml2::XMLDocument*>(doc_ptr);
   auto parent = static_cast<tinyxml2::XMLElement*>(parent_ptr);
 
-  tinyxml2::XMLElement* element;
   this->set_xml_attrib();
 
+  tinyxml2::XMLElement* element;
   if(parent) {
     element = doc->NewElement(element_name().c_str());
     parent->InsertEndChild(element);
@@ -119,12 +119,8 @@ void* Element::write_xml_element_base(void* doc_ptr, void* parent_ptr) const {
     doc->InsertFirstChild(element);
   }
 
-  // Set attributes
-  for(const auto& [name, value] : attributes_) {
-    // Note: Default value filtering is handled in set_xml_attrib() methods
-    // is_default_value() check is not used here to avoid inconsistencies
+  for(const auto& [name, value] : attributes_) //
     element->SetAttribute(name.c_str(), stringify_value(value).c_str());
-  }
 
   for(const auto& child : children_)
     if(child) child->write_xml_element(doc, element);

@@ -212,7 +212,7 @@ protected:
  */
 class Visual : public Element {
 public:
-  Visual();
+  Visual() = default; 
 
   [[nodiscard]] std::string element_name() const override { return "visual"; }
 };
@@ -222,7 +222,7 @@ public:
  */
 class Statistic : public Element {
 public:
-  Statistic();
+  Statistic() = default;
 
   [[nodiscard]] std::string element_name() const override { return "statistic"; }
 };

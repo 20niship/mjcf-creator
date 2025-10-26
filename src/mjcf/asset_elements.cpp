@@ -12,9 +12,9 @@ Texture::Texture(const std::string& name_, TextureBuiltin builtin_, TextureType 
   this->builtin = builtin_;
   this->type    = type_;
   this->rgb1    = rgb1_;
-  this->rgb2    = rgb2_;    
+  this->rgb2    = rgb2_;
   this->width   = width_;
-  this->height  = height_;  
+  this->height  = height_;
 }
 
 Texture Texture::CheckerTexture(const std::string& name, const std::array<double, 3>& rgb1, const std::array<double, 3>& rgb2, int width, int height) { return Texture(name, TextureBuiltin::Checker, TextureType::TwoD, rgb1, rgb2, width, height); }
@@ -58,8 +58,8 @@ Material::Material(const std::string& name_, const std::array<double, 4>& rgba_)
 Material::Material(const std::string& name_, const std::string& texture_, const std::array<double, 2>& texrepeat_) : name(name_), texture(texture_), texrepeat(texrepeat_) {}
 
 void Material::set_xml_attrib() const {
+  if(name == "") return;
 
-  // Only set non-default values
   if(!name.empty()) this->set_attribute("name", name);
   if(!texture.empty()) this->set_attribute("texture", texture);
 
