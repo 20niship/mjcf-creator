@@ -419,8 +419,9 @@ bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_p
         auto ac         = Position::Create(joint_name);
         ac->name        = joint_name;
         ac->ctrllimited = false;
-        ac->kp          = 2.0;
-        ac->kv          = 0.0;
+        ac->kp          = 100.0;
+        ac->kv          = 10.0;
+        ac->gear        = {100, 0, 0, 0, 0, 0};
         mujoco->actuator_->add_child(ac);
       }
     }

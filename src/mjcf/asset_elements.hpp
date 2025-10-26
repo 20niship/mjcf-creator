@@ -6,9 +6,6 @@
 
 namespace mjcf {
 
-/**
- * @brief Texture asset element
- */
 class Texture : public Element {
 public:
   // Public member variables - use empty strings/zeros as sentinels

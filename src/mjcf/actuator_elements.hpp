@@ -19,7 +19,7 @@ public:
   std::array<double, 2> ctrlrange   = {0.0, 0.0};
   std::array<double, 2> forcerange  = {0.0, 0.0};
   std::array<double, 2> lengthrange = {0.0, 0.0};
-  std::array<double, 6> gear        = {};
+  std::array<double, 6> gear        = {1, 0, 0, 0, 0, 0};
   double cranklength                = 0.0;
   std::string joint;
   std::string jointinparent;

@@ -404,10 +404,12 @@ void create_vehicle_scene() {
 
   auto actuator = mujoco->actuator_;
   for(const auto& wheel_info : wheel_positions) {
-    auto motor       = std::make_shared<mjcf::Motor>();
+    auto motor       = std::make_shared<mjcf::Position>();
     motor->name      = wheel_info.name + "_motor";
     motor->joint     = wheel_info.name + "_joint";
     motor->gear      = {100, 0, 0, 0, 0, 0};
+    motor->kp        = 100;
+    motor->kv        = 10;
     motor->ctrlrange = {-1, 1};
     actuator->add_child(motor);
   }
