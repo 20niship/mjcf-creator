@@ -20,7 +20,8 @@ void BaseActuator::set_xml_attrib() const {
   }
   if(forcerange != std::array<double, 2>{0.0, 0.0}) this->set_attribute("forcerange", std::vector<double>(forcerange.begin(), forcerange.end()));
   if(lengthrange != std::array<double, 2>{0.0, 0.0}) this->set_attribute("lengthrange", std::vector<double>(lengthrange.begin(), lengthrange.end()));
-  // if(gear.size() > 0) this->set_attribute("gear", std::vector<double>(gear.begin(), gear.end()));
+  if(gear != std::array<double, 6>{1, 0, 0, 0, 0, 0}) //
+    this->set_attribute("gear", std::vector<double>(gear.begin(), gear.end()));
 
   if(cranklength != 0.0) this->set_attribute("cranklength", cranklength);
   if(!joint.empty()) this->set_attribute("joint", joint);
@@ -55,9 +56,7 @@ void Position::set_xml_attrib() const {
   this->set_attribute("kv", kv);
 }
 
-bool Position::from_xml(const std::string& xml_str) {
-  return false;
-}
+bool Position::from_xml(const std::string& xml_str) { return false; }
 
 bool Position::is_default_value(const std::string& name, const AttributeValue& value) const {
   if(name == "kp" && std::get<double>(value) == 0.0) return true;

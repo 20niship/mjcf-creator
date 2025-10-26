@@ -40,9 +40,7 @@ private:
   std::string element_name_;
 };
 
-/**
- * @brief Motor actuator element
- */
+
 class Motor : public BaseActuator {
 public:
   Motor();
@@ -53,9 +51,7 @@ protected:
   bool is_default_value(const std::string& name, const AttributeValue& value) const override;
 };
 
-/**
- * @brief Position actuator element
- */
+
 class Position : public BaseActuator {
 public:
   double kp = 1.0;  // Position feedback gain (1 means not set)

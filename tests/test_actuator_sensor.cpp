@@ -6,13 +6,13 @@ TEST_CASE("motor") {
   motor.name      = "motor1";
   motor.joint     = "joint1";
   motor.ctrlrange = {-10.0, 10.0};
-  motor.gear      = {1.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+  motor.gear      = {10.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 
   std::string xml = motor.get_xml_text();
   CHECK(xml.find("name=\"motor1\"") != std::string::npos);
   CHECK(xml.find("joint=\"joint1\"") != std::string::npos);
   CHECK(xml.find("ctrlrange=\"-10 10\"") != std::string::npos);
-  CHECK(xml.find("gear=\"1 0 0 0 0 0\"") != std::string::npos);
+  CHECK(xml.find("gear=\"10 0 0 0 0 0\"") != std::string::npos);
 }
 
 TEST_CASE("position-actuator") {
