@@ -423,6 +423,20 @@ bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_p
         ac->kv          = 10.0;
         // ac->gear        = {100, 0, 0, 0, 0, 0};
         mujoco->actuator_->add_child(ac);
+      } else if(mjcf_joint->type == JointType::Slide) {
+        auto ac         = Position::Create(joint_name);
+        ac->name        = joint_name;
+        ac->ctrllimited = false;
+        ac->kp          = 1000.0; // Higher gain for prismatic joints
+        ac->kv          = 100.0;
+        mujoco->actuator_->add_child(ac);
+      } else if(mjcf_joint->type == JointType::Ball) {
+        auto ac         = Position::Create(joint_name);
+        ac->name        = joint_name;
+        ac->ctrllimited = false;
+        ac->kp          = 100.0;
+        ac->kv          = 10.0;
+        mujoco->actuator_->add_child(ac);
       }
     }
   }
