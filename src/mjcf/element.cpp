@@ -1,5 +1,5 @@
 #include "element.hpp"
-#include "../ext/tinyxml2.h"
+#include <tinyxml2.h>
 #include <iomanip>
 #include <sstream>
 

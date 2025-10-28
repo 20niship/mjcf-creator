@@ -1,4 +1,4 @@
-#include "../src/ext/tinyxml2.h"
+#include <tinyxml2.h>
 #include "doctest.h"
 #include "mjcf/mjcf.hpp"
 #include <filesystem>

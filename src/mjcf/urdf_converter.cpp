@@ -1,5 +1,5 @@
 #include "urdf_converter.hpp"
-#include "../ext/tinyxml2.h"
+#include <tinyxml2.h>
 #include "actuator_elements.hpp"
 #include "asset_elements.hpp"
 #include "body_elements.hpp"
