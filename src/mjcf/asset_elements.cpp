@@ -89,9 +89,6 @@ bool Material::is_default_value(const std::string& name, const AttributeValue& v
   return false;
 }
 
-// Mesh implementation
-Mesh::Mesh() = default;
-
 void Mesh::set_xml_attrib() const {
 
   // Only set non-default values

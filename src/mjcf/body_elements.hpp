@@ -143,6 +143,14 @@ public:
     return geom;
   }
 
+  static std::shared_ptr<Geom> Create(const std::string& name, const Arr3& pos = {0.0, 0.0, 0.0}, const std::array<double, 4>& quat = {1.0, 0.0, 0.0, 0.0}) {
+    auto geom  = std::make_shared<Geom>();
+    geom->name = name;
+    geom->pos  = pos;
+    geom->quat = quat;
+    return geom;
+  }
+
   void set_xml_attrib() const override;
   bool from_xml(const std::string& xml_str) override;
 

@@ -79,7 +79,15 @@ public:
   std::vector<double> normal;          // Keep as vector for variable length
   std::vector<int> face;               // Keep as vector for variable length
 
-  Mesh();
+  Mesh() = default;
+  static std::shared_ptr<Mesh> Create(const std::string& name, const std::string& file, const Arr3& scale = {1.0, 1.0, 1.0}){
+    auto mesh         = std::make_shared<Mesh>();
+    mesh->name        = name;
+    mesh->file        = file;
+    mesh->scale       = scale;
+    mesh->smoothnormal = true;
+    return mesh;
+  }
 
   std::string element_name() const override { return "mesh"; }
 

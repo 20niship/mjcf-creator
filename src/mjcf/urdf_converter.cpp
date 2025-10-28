@@ -387,7 +387,9 @@ bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_p
 
     parent_body->add_child(child_body);
 
-    if(joint_type != "fixed") {
+    if(joint_type != "fixed" and joint_type != "floating" and joint_type != "planar") {
+      if(joint_type == "prismatic") continue;
+
       auto mjcf_joint  = std::make_shared<Joint>();
       mjcf_joint->name = joint_name;
 
@@ -424,12 +426,12 @@ bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_p
         // ac->gear        = {100, 0, 0, 0, 0, 0};
         mujoco->actuator_->add_child(ac);
       } else if(mjcf_joint->type == JointType::Slide) {
-        auto ac         = Position::Create(joint_name);
-        ac->name        = joint_name;
-        ac->ctrllimited = false;
-        ac->kp          = 1000.0; // Higher gain for prismatic joints
-        ac->kv          = 100.0;
-        mujoco->actuator_->add_child(ac);
+        // auto ac         = Position::Create(joint_name);
+        // ac->name        = joint_name;
+        // ac->ctrllimited = false;
+        // ac->kp          = 1000.0; // Higher gain for prismatic joints
+        // ac->kv          = 100.0;
+        // mujoco->actuator_->add_child(ac);
       } else if(mjcf_joint->type == JointType::Ball) {
         auto ac         = Position::Create(joint_name);
         ac->name        = joint_name;
