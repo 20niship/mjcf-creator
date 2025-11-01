@@ -3,11 +3,11 @@
 #include <memory>
 #include <set>
 #include <string>
-
-#include "actuator_elements.hpp"
+#include <unordered_map>
 
 namespace mjcf {
 
+class BaseActuator;
 class Element;
 class Mujoco;
 namespace detail {
@@ -19,10 +19,10 @@ class UrdfConverter {
 public:
   static bool parse_urdf_to_mjcf( //
     Mujoco* mujoco,
-    const std::string& urdf_path,                                                  //
+    const std::string& urdf_path,                                                            //
     const std::unordered_map<std::string, std::shared_ptr<BaseActuator>>& actuator_metadata, //
-    bool copy_meshes              = false,                                         //
-    const std::string& output_dir = ""                                             //
+    bool copy_meshes              = false,                                                   //
+    const std::string& output_dir = ""                                                       //
   );
 
   static void merge_asset_elements(const detail::Asset& source_asset, detail::Asset& target_asset, const std::string& name_prefix);

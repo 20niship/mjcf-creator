@@ -1,6 +1,7 @@
 #include "urdf_converter.hpp"
 #include "actuator_elements.hpp"
 #include "asset_elements.hpp"
+#include "actuator_elements.hpp"
 #include "body_elements.hpp"
 #include "core_elements.hpp"
 #include <cmath>

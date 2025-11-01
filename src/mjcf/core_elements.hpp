@@ -3,6 +3,7 @@
 #include "asset_elements.hpp"
 #include "element.hpp"
 #include "enums.hpp"
+#include <unordered_map>
 #include <array>
 #include <cassert>
 #include <string>

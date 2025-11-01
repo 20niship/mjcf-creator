@@ -31,21 +31,7 @@ int main() {
 
   if(std::filesystem::exists(robot1_urdf)) {
     std::cout << "Adding first robot with prefix 'robot1'..." << std::endl;
-
-    // Add joint metadata for better control
-    std::map<std::string, mjcf::JointMetadata> joint_metadata;
-    mjcf::JointMetadata joint_meta;
-    joint_meta.actuator_type     = "motor";
-    joint_meta.kp                = 40.0;
-    joint_meta.kd                = 2.0;
-    joint_meta.soft_torque_limit = 10.0;
-
-    // Add metadata for key joints
-    joint_metadata["RLEG_HIP_R"] = joint_meta;
-    joint_metadata["LLEG_HIP_R"] = joint_meta;
-    joint_metadata["CHEST"]      = joint_meta;
-
-    bool success = scene->add_urdf(robot1_urdf, "robot1", false, joint_metadata);
+    bool success = scene->add_urdf(robot1_urdf, "robot1", false, {});
     if(success) {
       std::cout << "✓ Successfully added first robot with prefix 'robot1_'" << std::endl;
     } else {
