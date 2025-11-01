@@ -5,14 +5,11 @@
 #include "enums.hpp"
 #include <array>
 #include <cassert>
-#include <map>
 #include <string>
 
 namespace mjcf {
 
-// Forward declarations for URDF converter metadata
-struct JointMetadata;
-struct ActuatorMetadata;
+class BaseActuator;
 
 namespace detail {
 
@@ -130,7 +127,7 @@ public:
    * @param actuator_metadata Map of actuator type to actuator metadata
    * @return true if addition was successful, false otherwise
    */
-  bool add_urdf(const std::string& urdf_path, const std::string& name_prefix = "", bool copy_meshes = false, const std::map<std::string, JointMetadata>& joint_metadata = {}, const std::map<std::string, ActuatorMetadata>& actuator_metadata = {});
+  bool add_urdf(const std::string& urdf_path, const std::string& name_prefix = "", bool copy_meshes = false, const std::unordered_map<std::string, std::shared_ptr<BaseActuator>>& actuator_metadata = {});
 
   [[nodiscard]] std::string element_name() const override { return "mujoco"; }
 
@@ -212,7 +209,7 @@ protected:
  */
 class Visual : public Element {
 public:
-  Visual() = default; 
+  Visual() = default;
 
   [[nodiscard]] std::string element_name() const override { return "visual"; }
 };
@@ -227,12 +224,9 @@ public:
   [[nodiscard]] std::string element_name() const override { return "statistic"; }
 };
 
-/**
- * @brief デフォルト設定要素
- */
 class Default : public Element {
 public:
-  std::string class_ = "";
+  std::string class_;
 
   Default(const std::string& class_name = "");
 

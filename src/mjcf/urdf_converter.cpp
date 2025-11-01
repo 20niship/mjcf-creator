@@ -1,5 +1,4 @@
 #include "urdf_converter.hpp"
-#include <tinyxml2.h>
 #include "actuator_elements.hpp"
 #include "asset_elements.hpp"
 #include "body_elements.hpp"
@@ -11,6 +10,7 @@
 #include <iostream>
 #include <set>
 #include <sstream>
+#include <tinyxml2.h>
 
 namespace mjcf {
 
@@ -66,7 +66,7 @@ std::vector<double> rpy_to_quat(const std::vector<double>& rpy) {
   return {w, x, y, z};
 }
 
-bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_path, const std::map<std::string, JointMetadata>& joint_metadata, const std::map<std::string, ActuatorMetadata>& actuator_metadata, bool copy_meshes, const std::string& output_dir) {
+bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_path, const std::unordered_map<std::string, std::shared_ptr<BaseActuator>>& actuator_metadata, bool copy_meshes, const std::string& output_dir) {
 
   const std::string urdf_content = read_file(urdf_path);
   XMLDocument doc;
@@ -82,13 +82,12 @@ bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_p
     return false;
   }
 
-  // Get robot name
   const char* robot_name = robot->Attribute("name");
-  std::string model_name = robot_name ? robot_name : "converted_robot";
+  std::string model_name = (robot_name != nullptr) ? robot_name : "converted_robot";
 
   for(XMLElement* material = robot->FirstChildElement("material"); material; material = material->NextSiblingElement("material")) {
     const char* mat_name = material->Attribute("name");
-    if(!mat_name) continue;
+    if(mat_name == nullptr) continue;
     if(std::string(mat_name) == "") continue;
     if(mujoco->has_material(mat_name)) continue;
 
@@ -96,13 +95,12 @@ bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_p
     mjcf_material->name = mat_name;
 
     XMLElement* color = material->FirstChildElement("color");
-    if(color) {
+    if(color != nullptr) {
       const char* rgba = color->Attribute("rgba");
-      if(rgba) {
+      if(rgba != nullptr) {
         auto rgba_values = parse_space_separated_values(rgba);
-        if(rgba_values.size() >= 3) {
+        if(rgba_values.size() >= 3) //
           mjcf_material->rgba = {rgba_values[0], rgba_values[1], rgba_values[2], rgba_values.size() > 3 ? rgba_values[3] : 1.0};
-        }
       }
     }
     mujoco->add_asset(mjcf_material);
@@ -417,28 +415,37 @@ bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_p
 
       child_body->add_child(mjcf_joint);
 
-      if(mjcf_joint->type == JointType::Hinge) {
-        auto ac         = Position::Create(joint_name);
-        ac->name        = joint_name;
-        ac->ctrllimited = false;
-        ac->kp          = 300.0;
-        ac->kv          = 30.0;
-        // ac->gear        = {100, 0, 0, 0, 0, 0};
-        mujoco->actuator_->add_child(ac);
-      } else if(mjcf_joint->type == JointType::Slide) {
-        // auto ac         = Position::Create(joint_name);
-        // ac->name        = joint_name;
-        // ac->ctrllimited = false;
-        // ac->kp          = 1000.0; // Higher gain for prismatic joints
-        // ac->kv          = 100.0;
-        // mujoco->actuator_->add_child(ac);
-      } else if(mjcf_joint->type == JointType::Ball) {
-        auto ac         = Position::Create(joint_name);
-        ac->name        = joint_name;
-        ac->ctrllimited = false;
-        ac->kp          = 300.0;
-        ac->kv          = 30.0;
-        mujoco->actuator_->add_child(ac);
+      if(actuator_metadata.contains(joint_name) && actuator_metadata.at(joint_name) != nullptr) {
+        auto actuator_info = actuator_metadata.at(joint_name);
+        mujoco->actuator_->add_child(actuator_info);
+      } else if(actuator_metadata.contains("") && actuator_metadata.at("") != nullptr) {
+        auto actuator_info = actuator_metadata.at("");
+        mujoco->actuator_->add_child(actuator_info);
+      } else {
+
+        if(mjcf_joint->type == JointType::Hinge) {
+          auto ac         = Position::Create(joint_name);
+          ac->name        = joint_name;
+          ac->ctrllimited = false;
+          ac->kp          = 120.0;
+          ac->kv          = 10.0;
+          // ac->gear        = {100, 0, 0, 0, 0, 0};
+          mujoco->actuator_->add_child(ac);
+        } else if(mjcf_joint->type == JointType::Slide) {
+          // auto ac         = Position::Create(joint_name);
+          // ac->name        = joint_name;
+          // ac->ctrllimited = false;
+          // ac->kp          = 1000.0; // Higher gain for prismatic joints
+          // ac->kv          = 100.0;
+          // mujoco->actuator_->add_child(ac);
+        } else if(mjcf_joint->type == JointType::Ball) {
+          auto ac         = Position::Create(joint_name);
+          ac->name        = joint_name;
+          ac->ctrllimited = false;
+          ac->kp          = 100.0;
+          ac->kv          = 10.0;
+          mujoco->actuator_->add_child(ac);
+        }
       }
     }
   }
@@ -538,7 +545,6 @@ std::shared_ptr<Element> UrdfConverter::clone_element_with_prefix(const std::sha
     return cloned;
   }
 
-  // For unknown types, return nullptr
   return nullptr;
 }
 
@@ -581,11 +587,7 @@ std::string UrdfConverter::generate_hash_filename(const std::string& original_pa
   if(hash_str.length() > 5) {
     hash_str = hash_str.substr(0, 5);
   }
-
-  // Get original filename and extension
   std::string filename = path.filename().string();
-
-  // Combine hash prefix with original filename
   return hash_str + "_" + filename;
 }
 
