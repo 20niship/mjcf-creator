@@ -1,9 +1,10 @@
 <?xml version="1.0"?>
-<robot name="robot_with_mesh">
-  <material name="blue_material">
-    <color rgba="0.0 0.0 1.0 1.0"/>
+<robot name="robot_with_collision">
+  <material name="red_material">
+    <color rgba="1.0 0.0 0.0 1.0"/>
   </material>
   
+  <!-- Link with mesh in visual and box primitive in collision -->
   <link name="base_link">
     <inertial>
       <origin xyz="0 0 0" rpy="0 0 0"/>
@@ -15,16 +16,17 @@
       <geometry>
         <mesh filename="package://robot_description/meshes/base.stl" scale="1.0 1.0 1.0"/>
       </geometry>
-      <material name="blue_material"/>
+      <material name="red_material"/>
     </visual>
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://robot_description/meshes/base.stl" scale="1.0 1.0 1.0"/>
+        <box size="0.2 0.2 0.2"/>
       </geometry>
     </collision>
   </link>
   
+  <!-- Link with mesh in visual and cylinder primitive in collision -->
   <link name="link1">
     <inertial>
       <origin xyz="0 0 0.5" rpy="0 0 0"/>
@@ -40,11 +42,12 @@
     <collision>
       <origin xyz="0 0 0.5" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="meshes/link1.obj" scale="0.5 0.5 0.5"/>
+        <cylinder radius="0.05" length="0.4"/>
       </geometry>
     </collision>
   </link>
   
+  <!-- Link with mesh in visual and sphere primitive in collision -->
   <link name="link2">
     <inertial>
       <origin xyz="0 0 0" rpy="0 0 0"/>
@@ -54,13 +57,34 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <box size="0.1 0.1 0.1"/>
+        <mesh filename="meshes/link2.obj"/>
       </geometry>
     </visual>
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <box size="0.1 0.1 0.1"/>
+        <sphere radius="0.1"/>
+      </geometry>
+    </collision>
+  </link>
+  
+  <!-- Link with box in visual and box in collision (both primitives) -->
+  <link name="link3">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="0.3"/>
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.15 0.15 0.15"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.15 0.15 0.15"/>
       </geometry>
     </collision>
   </link>
@@ -79,5 +103,13 @@
     <origin xyz="0 0 1.0" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
     <limit lower="-1.57" upper="1.57" effort="5.0" velocity="1.0"/>
+  </joint>
+  
+  <joint name="joint3" type="revolute">
+    <parent link="link2"/>
+    <child link="link3"/>
+    <origin xyz="0 0 0.2" rpy="0 0 0"/>
+    <axis xyz="1 0 0"/>
+    <limit lower="-1.57" upper="1.57" effort="3.0" velocity="1.0"/>
   </joint>
 </robot>
