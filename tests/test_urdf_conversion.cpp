@@ -607,4 +607,251 @@ TEST_SUITE("URDF Conversion Tests") {
     // Visual mesh should not be added (collision takes precedence)
     CHECK(xml_content.find("visual_mesh.obj") == std::string::npos);
   }
+
+  TEST_CASE("URDF with Gazebo friction parameters") {
+    std::string gazebo_friction_urdf = R"(<?xml version="1.0"?>
+<robot name="friction_test_robot">
+  <gazebo reference="ball_link">
+    <material>Gazebo/Gray</material>
+    <mu1 value="0.5" />
+    <mu2 value="0.8" />
+  </gazebo>
+  
+  <gazebo reference="box_link">
+    <mu1 value="1.2" />
+  </gazebo>
+  
+  <link name="ball_link">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="1.0"/>
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+    </inertial>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <sphere radius="0.1"/>
+      </geometry>
+    </collision>
+  </link>
+  
+  <link name="box_link">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="2.0"/>
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+    </inertial>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.2 0.2 0.2"/>
+      </geometry>
+    </collision>
+  </link>
+  
+  <joint name="ball_to_box" type="fixed">
+    <parent link="ball_link"/>
+    <child link="box_link"/>
+    <origin xyz="0 0 0.2" rpy="0 0 0"/>
+  </joint>
+</robot>)";
+
+    std::string temp_urdf = "gazebo_friction_test.urdf";
+    std::ofstream urdf_file(temp_urdf);
+    urdf_file << gazebo_friction_urdf;
+    urdf_file.close();
+
+    auto mujoco  = std::make_shared<mjcf::Mujoco>();
+    bool success = mujoco->add_urdf(temp_urdf);
+
+    CHECK(success);
+
+    std::string xml_content = mujoco->get_xml_text();
+
+    // Check basic structure
+    CHECK(xml_content.find("<mujoco") != std::string::npos);
+    CHECK(xml_content.find("ball_link") != std::string::npos);
+    CHECK(xml_content.find("box_link") != std::string::npos);
+
+    // Check that friction parameters are present
+    // MJCF friction format is "sliding torsional rolling"
+    // ball_link should have friction="0.5 0.8 ..."
+    CHECK(xml_content.find("friction=\"0.5 0.8") != std::string::npos);
+    
+    // box_link should have friction="1.2 ..." (only mu1 specified)
+    CHECK(xml_content.find("friction=\"1.2") != std::string::npos);
+  }
+
+  TEST_CASE("URDF with joint dynamics (damping and friction)") {
+    std::string dynamics_urdf = R"(<?xml version="1.0"?>
+<robot name="dynamics_test_robot">
+  <link name="base_link">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="5.0"/>
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+    </inertial>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.5 0.5 0.5"/>
+      </geometry>
+    </collision>
+  </link>
+  
+  <link name="link1">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="1.0"/>
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+    </inertial>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.05" length="0.3"/>
+      </geometry>
+    </collision>
+  </link>
+  
+  <link name="link2">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="0.5"/>
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+    </inertial>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <sphere radius="0.08"/>
+      </geometry>
+    </collision>
+  </link>
+  
+  <joint name="joint1" type="revolute">
+    <parent link="base_link"/>
+    <child link="link1"/>
+    <origin xyz="0 0 0.3" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-3.14" upper="3.14" effort="10.0" velocity="1.0"/>
+    <dynamics damping="0.5" friction="0.1"/>
+  </joint>
+  
+  <joint name="joint2" type="revolute">
+    <parent link="link1"/>
+    <child link="link2"/>
+    <origin xyz="0 0 0.3" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-1.57" upper="1.57" effort="5.0" velocity="2.0"/>
+    <dynamics damping="1.0" friction="0.05"/>
+  </joint>
+  
+  <joint name="joint3" type="prismatic">
+    <parent link="link1"/>
+    <child link="link2"/>
+    <origin xyz="0.1 0 0" rpy="0 0 0"/>
+    <axis xyz="1 0 0"/>
+    <limit lower="0" upper="0.5" effort="100.0" velocity="0.5"/>
+    <dynamics damping="2.0" friction="0.2"/>
+  </joint>
+</robot>)";
+
+    std::string temp_urdf = "dynamics_test.urdf";
+    std::ofstream urdf_file(temp_urdf);
+    urdf_file << dynamics_urdf;
+    urdf_file.close();
+
+    auto mujoco  = std::make_shared<mjcf::Mujoco>();
+    bool success = mujoco->add_urdf(temp_urdf);
+
+    CHECK(success);
+
+    std::string xml_content = mujoco->get_xml_text();
+
+    // Check basic structure
+    CHECK(xml_content.find("<mujoco") != std::string::npos);
+    CHECK(xml_content.find("joint1") != std::string::npos);
+    CHECK(xml_content.find("joint2") != std::string::npos);
+    CHECK(xml_content.find("joint3") != std::string::npos);
+
+    // Check that damping values are present
+    CHECK(xml_content.find("damping=\"0.5\"") != std::string::npos);
+    CHECK(xml_content.find("damping=\"1\"") != std::string::npos);
+    CHECK(xml_content.find("damping=\"2\"") != std::string::npos);
+
+    // Check that frictionloss values are present
+    CHECK(xml_content.find("frictionloss=\"0.1\"") != std::string::npos);
+    CHECK(xml_content.find("frictionloss=\"0.05\"") != std::string::npos);
+    CHECK(xml_content.find("frictionloss=\"0.2\"") != std::string::npos);
+  }
+
+  TEST_CASE("URDF with combined Gazebo friction and joint dynamics") {
+    std::string combined_urdf = R"(<?xml version="1.0"?>
+<robot name="combined_test_robot">
+  <gazebo reference="moving_link">
+    <mu1 value="0.9" />
+    <mu2 value="0.7" />
+  </gazebo>
+  
+  <link name="base_link">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="10.0"/>
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+    </inertial>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="1.0 1.0 0.1"/>
+      </geometry>
+    </collision>
+  </link>
+  
+  <link name="moving_link">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="1.0"/>
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+    </inertial>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.2 0.2 0.2"/>
+      </geometry>
+    </collision>
+  </link>
+  
+  <joint name="slider_joint" type="prismatic">
+    <parent link="base_link"/>
+    <child link="moving_link"/>
+    <origin xyz="0 0 0.15" rpy="0 0 0"/>
+    <axis xyz="1 0 0"/>
+    <limit lower="-0.5" upper="0.5" effort="50.0" velocity="1.0"/>
+    <dynamics damping="0.3" friction="0.15"/>
+  </joint>
+</robot>)";
+
+    std::string temp_urdf = "combined_test.urdf";
+    std::ofstream urdf_file(temp_urdf);
+    urdf_file << combined_urdf;
+    urdf_file.close();
+
+    auto mujoco  = std::make_shared<mjcf::Mujoco>();
+    bool success = mujoco->add_urdf(temp_urdf);
+
+    CHECK(success);
+
+    std::string xml_content = mujoco->get_xml_text();
+
+    // Check basic structure
+    CHECK(xml_content.find("<mujoco") != std::string::npos);
+    CHECK(xml_content.find("moving_link") != std::string::npos);
+    CHECK(xml_content.find("slider_joint") != std::string::npos);
+
+    // Check that Gazebo friction is applied to moving_link geometry
+    CHECK(xml_content.find("friction=\"0.9 0.7") != std::string::npos);
+
+    // Check that joint dynamics are applied
+    CHECK(xml_content.find("damping=\"0.3\"") != std::string::npos);
+    CHECK(xml_content.find("frictionloss=\"0.15\"") != std::string::npos);
+  }
 }
