@@ -727,6 +727,20 @@ TEST_SUITE("URDF Conversion Tests") {
     </collision>
   </link>
   
+  <link name="link3">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="0.3"/>
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+    </inertial>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.1 0.1 0.1"/>
+      </geometry>
+    </collision>
+  </link>
+  
   <joint name="joint1" type="revolute">
     <parent link="base_link"/>
     <child link="link1"/>
@@ -746,8 +760,8 @@ TEST_SUITE("URDF Conversion Tests") {
   </joint>
   
   <joint name="joint3" type="prismatic">
-    <parent link="link1"/>
-    <child link="link2"/>
+    <parent link="link2"/>
+    <child link="link3"/>
     <origin xyz="0.1 0 0" rpy="0 0 0"/>
     <axis xyz="1 0 0"/>
     <limit lower="0" upper="0.5" effort="100.0" velocity="0.5"/>

@@ -18,6 +18,9 @@ using namespace detail;
 
 using namespace tinyxml2;
 
+// Sentinel value for invalid/unset friction and dynamics parameters
+constexpr double INVALID_VALUE = -1.0;
+
 inline std::string read_file(const std::string& filepath) {
   std::ifstream file(filepath);
   if(!file.is_open()) {
@@ -113,16 +116,16 @@ bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_p
     const char* reference = gazebo->Attribute("reference");
     if(reference == nullptr) continue;
 
-    double mu1 = -1.0, mu2 = -1.0;
+    double mu1 = INVALID_VALUE, mu2 = INVALID_VALUE;
 
     XMLElement* mu1_elem = gazebo->FirstChildElement("mu1");
     if(mu1_elem) {
-      mu1 = mu1_elem->DoubleAttribute("value", -1.0);
+      mu1 = mu1_elem->DoubleAttribute("value", INVALID_VALUE);
     }
 
     XMLElement* mu2_elem = gazebo->FirstChildElement("mu2");
     if(mu2_elem) {
-      mu2 = mu2_elem->DoubleAttribute("value", -1.0);
+      mu2 = mu2_elem->DoubleAttribute("value", INVALID_VALUE);
     }
 
     if(mu1 >= 0.0 || mu2 >= 0.0) {
@@ -434,8 +437,8 @@ bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_p
       // Parse joint dynamics for damping and friction
       XMLElement* dynamics = joint->FirstChildElement("dynamics");
       if(dynamics) {
-        double damping = dynamics->DoubleAttribute("damping", -1.0);
-        double friction = dynamics->DoubleAttribute("friction", -1.0);
+        double damping = dynamics->DoubleAttribute("damping", INVALID_VALUE);
+        double friction = dynamics->DoubleAttribute("friction", INVALID_VALUE);
         
         if(damping >= 0.0) {
           mjcf_joint->damping = damping;
