@@ -252,4 +252,77 @@ TEST_SUITE("Integration Tests") {
     CHECK(xml.find("name=\"world_geom\"") != std::string::npos);
     CHECK(xml.find("name=\"normal_geom\"") != std::string::npos);
   }
+
+  TEST_CASE("Add MJCF file to existing model") {
+    // Create a test MJCF file
+    std::string test_mjcf_path = "/tmp/test_add_mjcf.xml";
+    std::ofstream mjcf_file(test_mjcf_path);
+    mjcf_file << R"(<?xml version="1.0"?>
+<mujoco model="test_model">
+  <asset>
+    <texture name="grid" type="2d" builtin="checker"/>
+    <material name="grid_mat" texture="grid"/>
+  </asset>
+  <worldbody>
+    <body name="added_body" pos="1 0 1">
+      <geom name="added_geom" type="sphere" size="0.5"/>
+    </body>
+  </worldbody>
+  <actuator>
+    <motor name="added_motor"/>
+  </actuator>
+  <sensor>
+    <touch name="added_touch"/>
+  </sensor>
+</mujoco>)";
+    mjcf_file.close();
+
+    // Create a base model
+    auto mujoco = std::make_shared<mjcf::Mujoco>("base_model");
+    
+    // Add some initial content
+    auto base_body = std::make_shared<mjcf::Body>();
+    base_body->name = "base_body";
+    base_body->pos = {0.0, 0.0, 0.5};
+    
+    auto base_geom = std::make_shared<mjcf::Geom>();
+    base_geom->name = "base_geom";
+    base_geom->type = mjcf::GeomType::Box;
+    base_geom->size = {0.2, 0.2, 0.2};
+    
+    base_body->add_child(base_geom);
+    mujoco->worldbody_->add_child(base_body);
+
+    // Test 1: Add MJCF without prefix
+    bool success = mujoco->add_mjcf(test_mjcf_path, "");
+    CHECK(success == true);
+    
+    std::string xml = mujoco->get_xml_text();
+    
+    // Verify base elements are still present
+    CHECK(xml.find("base_body") != std::string::npos);
+    CHECK(xml.find("base_geom") != std::string::npos);
+    
+    // Verify added elements are present
+    CHECK(xml.find("added_body") != std::string::npos);
+    CHECK(xml.find("added_geom") != std::string::npos);
+    CHECK(xml.find("grid_mat") != std::string::npos);
+
+    // Test 2: Add the same MJCF with a prefix
+    auto mujoco2 = std::make_shared<mjcf::Mujoco>("base_model2");
+    mujoco2->worldbody_->add_child(base_body);
+    
+    success = mujoco2->add_mjcf(test_mjcf_path, "prefixed");
+    CHECK(success == true);
+    
+    xml = mujoco2->get_xml_text();
+    
+    // Verify elements have the prefix
+    CHECK(xml.find("prefixed_added_body") != std::string::npos);
+    CHECK(xml.find("prefixed_added_geom") != std::string::npos);
+    CHECK(xml.find("prefixed_grid_mat") != std::string::npos);
+
+    // Clean up
+    std::remove(test_mjcf_path.c_str());
+  }
 }

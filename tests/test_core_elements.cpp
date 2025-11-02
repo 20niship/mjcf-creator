@@ -54,7 +54,7 @@ TEST_SUITE("core-elements-tests") {
     CHECK(xml.find("nuserdata=\"100\"") != std::string::npos);
   }
   TEST_CASE("default-element") {
-    mjcf::Default default_elem;
+    mjcf::detail::Default default_elem;
     CHECK(default_elem.element_name() == "default");
     default_elem.class_ = "dynamic_class";
     std::string xml     = default_elem.get_xml_text();
@@ -63,14 +63,14 @@ TEST_SUITE("core-elements-tests") {
   TEST_CASE("container-elements") {
     mjcf::Visual visual;
     mjcf::Statistic statistic;
-    Custom custom;
-    Asset asset;
-    Worldbody worldbody;
-    Actuator actuator;
-    Sensor sensor;
-    Contact contact;
-    Equality equality;
-    Tendon tendon;
+    mjcf::detail::Custom custom;
+    mjcf::detail::Asset asset;
+    mjcf::detail::Worldbody worldbody;
+    mjcf::detail::Actuator actuator;
+    mjcf::detail::Sensor sensor;
+    mjcf::detail::Contact contact;
+    mjcf::detail::Equality equality;
+    mjcf::detail::Tendon tendon;
     CHECK(visual.element_name() == "visual");
     CHECK(statistic.element_name() == "statistic");
     CHECK(custom.element_name() == "custom");
