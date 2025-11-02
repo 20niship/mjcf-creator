@@ -120,7 +120,6 @@ bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_p
     if(mu1_elem) mu1 = mu1_elem->DoubleAttribute("value", -1.0);
     if(mu2_elem) mu2 = mu2_elem->DoubleAttribute("value", -1.0);
     if(mu1 >= 0.0 || mu2 >= 0.0) gazebo_friction_map[reference] = {mu1, mu2};
-    printf("Gazebo friction for link %s: mu1=%.3f, mu2=%.3f\n", reference, mu1, mu2);
   }
 
   std::map<std::string, std::shared_ptr<Body>> link_to_body;
