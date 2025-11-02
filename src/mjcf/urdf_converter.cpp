@@ -138,12 +138,18 @@ bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_p
       body->add_child(inertial_elem);
     }
 
-    // Process collision elements to create geometry
-    // When collision has primitives, use those for MJCF geometry
-    for(XMLElement* collision = link->FirstChildElement("collision"); collision; collision = collision->NextSiblingElement("collision")) {
+    // Check if collision elements exist
+    XMLElement* first_collision = link->FirstChildElement("collision");
+    bool has_collision = (first_collision != nullptr);
+
+    // Process collision elements if they exist, otherwise fallback to visual
+    XMLElement* geom_source = has_collision ? first_collision : link->FirstChildElement("visual");
+    const char* source_type = has_collision ? "collision" : "visual";
+
+    for(XMLElement* elem = geom_source; elem; elem = elem->NextSiblingElement(source_type)) {
       auto geom = std::make_shared<Geom>();
 
-      XMLElement* origin = collision->FirstChildElement("origin");
+      XMLElement* origin = elem->FirstChildElement("origin");
       if(origin) {
         const char* xyz = origin->Attribute("xyz");
         if(xyz) {
@@ -161,7 +167,7 @@ bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_p
         }
       }
 
-      XMLElement* geometry = collision->FirstChildElement("geometry");
+      XMLElement* geometry = elem->FirstChildElement("geometry");
       if(geometry) {
         XMLElement* box      = geometry->FirstChildElement("box");
         XMLElement* cylinder = geometry->FirstChildElement("cylinder");
@@ -192,7 +198,6 @@ bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_p
           geom->size     = {radius, 0.001, 0.001};
           geometry_found = true;
         } else if(mesh) {
-          // Collision mesh - treat similarly to visual mesh
           geom->type = GeomType::Mesh;
 
           const char* filename = mesh->Attribute("filename");
@@ -269,28 +274,27 @@ bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_p
         continue;
       }
 
-      // Process material from collision element if present
-      XMLElement* material = collision->FirstChildElement("material");
-      if(material) {
-        const char* mat_name = material->Attribute("name");
-        if(mat_name != nullptr && std::string(mat_name) != "") {
+      // Process material only from visual elements (not collision)
+      if(!has_collision) {
+        XMLElement* material = elem->FirstChildElement("material");
+        if(material) {
+          const char* mat_name = material->Attribute("name");
+          if(mat_name == nullptr) continue;
+          if(std::string(mat_name) == "") continue;
           geom->material = mat_name;
 
-          if(!mujoco->has_material(mat_name)) {
-            XMLElement* color = material->FirstChildElement("color");
-            if(color != nullptr) {
-              const char* rgba = color->Attribute("rgba");
-              if(rgba != nullptr) {
-                auto mjcf_material  = std::make_shared<Material>();
-                mjcf_material->name = mat_name;
+          if(mujoco->has_material(mat_name)) continue;
+          XMLElement* color = material->FirstChildElement("color");
+          if(color == nullptr) continue;
+          const char* rgba = color->Attribute("rgba");
+          if(rgba == nullptr) continue;
+          auto mjcf_material  = std::make_shared<Material>();
+          mjcf_material->name = mat_name;
 
-                auto rgba_values = parse_space_separated_values(rgba);
-                if(rgba_values.size() >= 3) //
-                  mjcf_material->rgba = {rgba_values[0], rgba_values[1], rgba_values[2], rgba_values.size() > 3 ? rgba_values[3] : 1.0};
-                mujoco->add_asset(mjcf_material);
-              }
-            }
-          }
+          auto rgba_values = parse_space_separated_values(rgba);
+          if(rgba_values.size() >= 3) //
+            mjcf_material->rgba = {rgba_values[0], rgba_values[1], rgba_values[2], rgba_values.size() > 3 ? rgba_values[3] : 1.0};
+          mujoco->add_asset(mjcf_material);
         }
       }
     }

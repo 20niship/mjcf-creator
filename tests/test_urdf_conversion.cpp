@@ -131,7 +131,7 @@ TEST_SUITE("URDF Conversion Tests") {
   }
 
   TEST_CASE("URDF with inline material definitions") {
-    // Create a URDF with inline material definitions
+    // Create a URDF with inline material definitions (no collision, so visual is used)
     std::string inline_material_urdf = R"(<?xml version="1.0"?>
 <robot name="material_test_robot">
   <link name="base_link">
@@ -149,15 +149,6 @@ TEST_SUITE("URDF Conversion Tests") {
         <color rgba="0.0 0.0 1.0 1.0"/>
       </material>
     </visual>
-    <collision>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
-      <geometry>
-        <box size="0.2 0.2 0.2"/>
-      </geometry>
-      <material name="inline_blue">
-        <color rgba="0.0 0.0 1.0 1.0"/>
-      </material>
-    </collision>
   </link>
   
   <link name="link_with_inline_material_rgb">
@@ -175,15 +166,6 @@ TEST_SUITE("URDF Conversion Tests") {
         <color rgba="0.0 1.0 0.0"/>
       </material>
     </visual>
-    <collision>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
-      <geometry>
-        <sphere radius="0.1"/>
-      </geometry>
-      <material name="inline_green">
-        <color rgba="0.0 1.0 0.0"/>
-      </material>
-    </collision>
   </link>
   
   <joint name="joint1" type="fixed">
