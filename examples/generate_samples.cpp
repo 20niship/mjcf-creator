@@ -184,7 +184,7 @@ void create_double_pendulum_scene() {
   asset->add_children({texture, floor_mat});
 
   // Default settings
-  auto default_elem       = std::make_shared<mjcf::Default>();
+  auto default_elem       = std::make_shared<mjcf::detail::Default>();
   auto default_joint      = std::make_shared<mjcf::Joint>();
   default_joint->damping  = 0.1;
   default_joint->armature = 0.01;
@@ -323,7 +323,7 @@ void create_vehicle_scene() {
 
   asset->add_children({texture, ground_mat});
 
-  auto default_elem       = std::make_shared<mjcf::Default>();
+  auto default_elem       = std::make_shared<mjcf::detail::Default>();
   auto default_joint      = std::make_shared<mjcf::Joint>();
   default_joint->damping  = 0.5;
   default_joint->armature = 0.1;

@@ -3,6 +3,7 @@
 #include "asset_elements.hpp"
 #include "body_elements.hpp"
 #include "core_elements.hpp"
+#include "sensor_elements.hpp"
 #include <cmath>
 #include <filesystem>
 #include <fstream>
@@ -567,6 +568,38 @@ std::shared_ptr<Element> UrdfConverter::clone_element_with_prefix(const std::sha
   } else if(auto inertial = std::dynamic_pointer_cast<Inertial>(element)) {
     auto cloned = std::make_shared<Inertial>();
     clone_element_attributes(*inertial, *cloned, ""); // Don't prefix inertial
+    return cloned;
+  } else if(auto mesh = std::dynamic_pointer_cast<Mesh>(element)) {
+    auto cloned = std::make_shared<Mesh>();
+    clone_element_attributes(*mesh, *cloned, name_prefix);
+    return cloned;
+  } else if(auto light = std::dynamic_pointer_cast<Light>(element)) {
+    auto cloned = std::make_shared<Light>();
+    clone_element_attributes(*light, *cloned, name_prefix);
+    return cloned;
+  } else if(auto motor = std::dynamic_pointer_cast<Motor>(element)) {
+    auto cloned = std::make_shared<Motor>();
+    clone_element_attributes(*motor, *cloned, name_prefix);
+    return cloned;
+  } else if(auto position = std::dynamic_pointer_cast<Position>(element)) {
+    auto cloned = std::make_shared<Position>();
+    clone_element_attributes(*position, *cloned, name_prefix);
+    return cloned;
+  } else if(auto velocity = std::dynamic_pointer_cast<Velocity>(element)) {
+    auto cloned = std::make_shared<Velocity>();
+    clone_element_attributes(*velocity, *cloned, name_prefix);
+    return cloned;
+  } else if(auto force = std::dynamic_pointer_cast<Force>(element)) {
+    auto cloned = std::make_shared<Force>();
+    clone_element_attributes(*force, *cloned, name_prefix);
+    return cloned;
+  } else if(auto torque = std::dynamic_pointer_cast<Torque>(element)) {
+    auto cloned = std::make_shared<Torque>();
+    clone_element_attributes(*torque, *cloned, name_prefix);
+    return cloned;
+  } else if(auto touch = std::dynamic_pointer_cast<Touch>(element)) {
+    auto cloned = std::make_shared<Touch>();
+    clone_element_attributes(*touch, *cloned, name_prefix);
     return cloned;
   }
 

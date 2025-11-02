@@ -147,6 +147,15 @@ public:
    */
   bool add_urdf(const std::string& urdf_path, const std::string& name_prefix = "", bool copy_meshes = false, const std::unordered_map<std::string, std::shared_ptr<BaseActuator>>& actuator_metadata = {}, const Arr3& pos = {0.0, 0.0, 0.0});
 
+  /**
+   * @brief Add MJCF content from another MJCF file to this MJCF model
+   *
+   * @param mjcf_path Path to input MJCF file
+   * @param name_prefix Prefix to avoid naming conflicts (optional)
+   * @return true if addition was successful, false otherwise
+   */
+  bool add_mjcf(const std::string& mjcf_path, const std::string& name_prefix = "");
+
   [[nodiscard]] std::string element_name() const override { return "mujoco"; }
 
   void set_xml_attrib() const override;
