@@ -23,16 +23,17 @@
  *
  * int main() {
  *     auto mujoco = std::make_shared<mjcf::Mujoco>("empty");
- *     auto option = std::make_shared<mjcf::Option>();
- *     option->set_integrator("RK4");
- *     option->set_timestep(0.01);
+ *     mujoco->option_->integrator = mjcf::IntegratorType::RK4;
+ *     mujoco->option_->timestep = 0.01;
  *
- *     auto asset = std::make_shared<mjcf::Asset>();
- *     auto worldbody = std::make_shared<mjcf::Worldbody>();
+ *     auto asset = mujoco->asset_;
+ *     auto worldbody = mujoco->worldbody_;
  *
- *     mujoco->add_children({option, asset, worldbody});
+ *     auto geom = std::make_shared<mjcf::Geom>();
+ *     geom->type = mjcf::GeomType::Box;
+ *     worldbody->add_child(geom);
  *
- *     std::cout << mujoco->xml() << std::endl;
+ *     std::cout << mujoco->get_xml_text() << std::endl;
  *     return 0;
  * }
  * ```

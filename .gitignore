@@ -63,3 +63,6 @@ collision_mesh_test.urdf
 inline_material_test.urdf
 minimal_test.urdf
 global_material_test.urdf
+# CodeQL build directory
+_codeql_build_dir/
+_codeql_detected_source_root
