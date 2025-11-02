@@ -100,6 +100,12 @@ TEST_SUITE("URDF Conversion Tests") {
       </geometry>
       <material name="test_material"/>
     </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.1 0.1 0.1"/>
+      </geometry>
+    </collision>
   </link>
 </robot>)";
 
@@ -125,7 +131,7 @@ TEST_SUITE("URDF Conversion Tests") {
   }
 
   TEST_CASE("URDF with inline material definitions") {
-    // Create a URDF with inline material definitions
+    // Create a URDF with inline material definitions (no collision, so visual is used)
     std::string inline_material_urdf = R"(<?xml version="1.0"?>
 <robot name="material_test_robot">
   <link name="base_link">
@@ -220,6 +226,12 @@ TEST_SUITE("URDF Conversion Tests") {
       </geometry>
       <material name="global_red"/>
     </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.1 0.1 0.1"/>
+      </geometry>
+    </collision>
   </link>
   
   <link name="link2">
@@ -235,6 +247,12 @@ TEST_SUITE("URDF Conversion Tests") {
       </geometry>
       <material name="global_yellow"/>
     </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.05" length="0.3"/>
+      </geometry>
+    </collision>
   </link>
   
   <joint name="joint1" type="fixed">
@@ -261,9 +279,8 @@ TEST_SUITE("URDF Conversion Tests") {
     CHECK(xml_content.find("global_red") != std::string::npos);
     CHECK(xml_content.find("global_yellow") != std::string::npos);
 
-    // Check that geometries reference the materials
-    CHECK(xml_content.find("material=\"global_red\"") != std::string::npos);
-    CHECK(xml_content.find("material=\"global_yellow\"") != std::string::npos);
+    // Note: Materials are not added to collision geometries in standard URDF
+    // So we just check that the global materials exist in the asset section
   }
 
   TEST_CASE("URDF with mesh geometry support") {
@@ -399,4 +416,195 @@ TEST_SUITE("URDF Conversion Tests") {
   //   CHECK(xml_content.find("robot1_base_link") != std::string::npos);
   //   CHECK(xml_content.find("robot2_base_link") != std::string::npos);
   // }
+
+  TEST_CASE("URDF with collision geometry - primitives replace mesh visuals") {
+    std::string urdf_path = "../tests/robot_with_collision.urdf";
+
+    // Check if test file exists
+    if(!std::filesystem::exists(urdf_path)) {
+      MESSAGE("Skipping collision test - test file not found");
+      return;
+    }
+
+    auto mujoco  = std::make_shared<mjcf::Mujoco>();
+    bool success = mujoco->add_urdf(urdf_path);
+
+    CHECK(success);
+
+    std::string xml_content = mujoco->get_xml_text();
+
+    // Check for basic MJCF structure
+    CHECK(xml_content.find("<mujoco") != std::string::npos);
+    CHECK(xml_content.find("<asset") != std::string::npos);
+    CHECK(xml_content.find("<worldbody") != std::string::npos);
+
+    // Verify that collision primitives are used, NOT visual meshes
+    // base_link: collision has box, visual has mesh -> should use box
+    CHECK(xml_content.find("type=\"box\"") != std::string::npos);
+    
+    // link1: collision has cylinder, visual has mesh -> should use cylinder
+    CHECK(xml_content.find("type=\"cylinder\"") != std::string::npos);
+    
+    // link2: collision has sphere, visual has mesh -> should use sphere
+    CHECK(xml_content.find("type=\"sphere\"") != std::string::npos);
+    
+    // link3: collision has box, visual has box -> should use box
+    // (already checked above)
+
+    // Count geometry types to ensure visual meshes are NOT added
+    size_t mesh_count   = 0;
+    size_t box_count    = 0;
+    size_t cylinder_count = 0;
+    size_t sphere_count = 0;
+
+    size_t pos = 0;
+    while((pos = xml_content.find("type=\"mesh\"", pos)) != std::string::npos) {
+      mesh_count++;
+      pos += 11;
+    }
+
+    pos = 0;
+    while((pos = xml_content.find("type=\"box\"", pos)) != std::string::npos) {
+      box_count++;
+      pos += 10;
+    }
+
+    pos = 0;
+    while((pos = xml_content.find("type=\"cylinder\"", pos)) != std::string::npos) {
+      cylinder_count++;
+      pos += 15;
+    }
+
+    pos = 0;
+    while((pos = xml_content.find("type=\"sphere\"", pos)) != std::string::npos) {
+      sphere_count++;
+      pos += 13;
+    }
+
+    // We expect NO mesh geoms (visual meshes should be ignored)
+    // We expect 2 box geoms (base_link and link3), 1 cylinder (link1), 1 sphere (link2)
+    CHECK(mesh_count == 0);
+    CHECK(box_count == 2);
+    CHECK(cylinder_count == 1);
+    CHECK(sphere_count == 1);
+
+    // Verify that mesh assets are NOT created
+    CHECK(xml_content.find("<mesh") == std::string::npos);
+    CHECK(xml_content.find("base.stl") == std::string::npos);
+    CHECK(xml_content.find("link1.obj") == std::string::npos);
+  }
+
+  TEST_CASE("URDF with only collision elements - no visual") {
+    std::string collision_only_urdf = R"(<?xml version="1.0"?>
+<robot name="collision_only_robot">
+  <material name="test_material">
+    <color rgba="0.0 1.0 0.0 1.0"/>
+  </material>
+  
+  <link name="base_link">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="1.0"/>
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+    </inertial>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.3 0.3 0.3"/>
+      </geometry>
+    </collision>
+  </link>
+  
+  <link name="link1">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="0.5"/>
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+    </inertial>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.1" length="0.5"/>
+      </geometry>
+    </collision>
+  </link>
+  
+  <joint name="joint1" type="revolute">
+    <parent link="base_link"/>
+    <child link="link1"/>
+    <origin xyz="0 0 0.3" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-3.14" upper="3.14" effort="10.0" velocity="1.0"/>
+  </joint>
+</robot>)";
+
+    std::string temp_urdf = "collision_only_test.urdf";
+    std::ofstream urdf_file(temp_urdf);
+    urdf_file << collision_only_urdf;
+    urdf_file.close();
+
+    auto mujoco  = std::make_shared<mjcf::Mujoco>();
+    bool success = mujoco->add_urdf(temp_urdf);
+
+    CHECK(success);
+
+    std::string xml_content = mujoco->get_xml_text();
+
+    // Check basic structure
+    CHECK(xml_content.find("<mujoco") != std::string::npos);
+    CHECK(xml_content.find("base_link") != std::string::npos);
+    CHECK(xml_content.find("link1") != std::string::npos);
+
+    // Verify collision geometries are present
+    CHECK(xml_content.find("type=\"box\"") != std::string::npos);
+    CHECK(xml_content.find("type=\"cylinder\"") != std::string::npos);
+    
+    // Verify no mesh elements
+    CHECK(xml_content.find("type=\"mesh\"") == std::string::npos);
+  }
+
+  TEST_CASE("URDF with collision mesh") {
+    std::string collision_mesh_urdf = R"(<?xml version="1.0"?>
+<robot name="collision_mesh_robot">
+  <link name="base_link">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="1.0"/>
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="visual_mesh.obj"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="collision_mesh.obj" scale="1.0 1.0 1.0"/>
+      </geometry>
+    </collision>
+  </link>
+</robot>)";
+
+    std::string temp_urdf = "collision_mesh_test.urdf";
+    std::ofstream urdf_file(temp_urdf);
+    urdf_file << collision_mesh_urdf;
+    urdf_file.close();
+
+    auto mujoco  = std::make_shared<mjcf::Mujoco>();
+    bool success = mujoco->add_urdf(temp_urdf);
+
+    CHECK(success);
+
+    std::string xml_content = mujoco->get_xml_text();
+
+    // When collision also has a mesh, it should be added
+    CHECK(xml_content.find("type=\"mesh\"") != std::string::npos);
+    CHECK(xml_content.find("<mesh") != std::string::npos);
+    CHECK(xml_content.find("collision_mesh.obj") != std::string::npos);
+    
+    // Visual mesh should not be added (collision takes precedence)
+    CHECK(xml_content.find("visual_mesh.obj") == std::string::npos);
+  }
 }

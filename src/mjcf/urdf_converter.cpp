@@ -138,10 +138,18 @@ bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_p
       body->add_child(inertial_elem);
     }
 
-    for(XMLElement* visual = link->FirstChildElement("visual"); visual; visual = visual->NextSiblingElement("visual")) {
+    // Check if collision elements exist
+    XMLElement* first_collision = link->FirstChildElement("collision");
+    bool has_collision = (first_collision != nullptr);
+
+    // Process collision elements if they exist, otherwise fallback to visual
+    XMLElement* geom_source = has_collision ? first_collision : link->FirstChildElement("visual");
+    const char* source_type = has_collision ? "collision" : "visual";
+
+    for(XMLElement* elem = geom_source; elem; elem = elem->NextSiblingElement(source_type)) {
       auto geom = std::make_shared<Geom>();
 
-      XMLElement* origin = visual->FirstChildElement("origin");
+      XMLElement* origin = elem->FirstChildElement("origin");
       if(origin) {
         const char* xyz = origin->Attribute("xyz");
         if(xyz) {
@@ -159,7 +167,7 @@ bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_p
         }
       }
 
-      XMLElement* geometry = visual->FirstChildElement("geometry");
+      XMLElement* geometry = elem->FirstChildElement("geometry");
       if(geometry) {
         XMLElement* box      = geometry->FirstChildElement("box");
         XMLElement* cylinder = geometry->FirstChildElement("cylinder");
@@ -266,59 +274,30 @@ bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_p
         continue;
       }
 
-      XMLElement* material = visual->FirstChildElement("material");
-      if(material) {
-        const char* mat_name = material->Attribute("name");
-        if(mat_name == nullptr) continue;
-        if(std::string(mat_name) == "") continue;
-        geom->material = mat_name;
+      // Process material only from visual elements (not collision)
+      if(!has_collision) {
+        XMLElement* material = elem->FirstChildElement("material");
+        if(material) {
+          const char* mat_name = material->Attribute("name");
+          if(mat_name == nullptr) continue;
+          if(std::string(mat_name) == "") continue;
+          geom->material = mat_name;
 
-        if(mujoco->has_material(mat_name)) continue;
-        XMLElement* color = material->FirstChildElement("color");
-        if(color == nullptr) continue;
-        const char* rgba = color->Attribute("rgba");
-        if(rgba == nullptr) continue;
-        auto mjcf_material  = std::make_shared<Material>();
-        mjcf_material->name = mat_name;
+          if(mujoco->has_material(mat_name)) continue;
+          XMLElement* color = material->FirstChildElement("color");
+          if(color == nullptr) continue;
+          const char* rgba = color->Attribute("rgba");
+          if(rgba == nullptr) continue;
+          auto mjcf_material  = std::make_shared<Material>();
+          mjcf_material->name = mat_name;
 
-        auto rgba_values = parse_space_separated_values(rgba);
-        if(rgba_values.size() >= 3) //
-          mjcf_material->rgba = {rgba_values[0], rgba_values[1], rgba_values[2], rgba_values.size() > 3 ? rgba_values[3] : 1.0};
-        mujoco->add_asset(mjcf_material);
-      }
-    }
-#if 0
-    for(XMLElement* collision = link->FirstChildElement("collision"); collision; collision = collision->NextSiblingElement("collision")) {
-      auto geom         = std::make_shared<Geom>();
-      geom->contype     = 1;
-      geom->conaffinity = 1;
-      XMLElement* origin = collision->FirstChildElement("origin");
-      if(origin) {
-        const char* xyz = origin->Attribute("xyz");
-        if(xyz) {
-          auto pos = parse_space_separated_values(xyz);
-          if(pos.size() >= 3) {
-            geom->pos = {pos[0], pos[1], pos[2]};
-          }
+          auto rgba_values = parse_space_separated_values(rgba);
+          if(rgba_values.size() >= 3) //
+            mjcf_material->rgba = {rgba_values[0], rgba_values[1], rgba_values[2], rgba_values.size() > 3 ? rgba_values[3] : 1.0};
+          mujoco->add_asset(mjcf_material);
         }
       }
-      XMLElement* geometry = collision->FirstChildElement("geometry");
-      if(geometry) {
-        XMLElement* box = geometry->FirstChildElement("box");
-        if(box) {
-          geom->type       = GeomType::Box;
-          const char* size = box->Attribute("size");
-          if(size) {
-            auto sizes = parse_space_separated_values(size);
-            if(sizes.size() >= 3) {
-              geom->size = {sizes[0] / 2, sizes[1] / 2, sizes[2] / 2};
-            }
-          }
-        }
-      }
-      body->add_child(geom);
     }
-#endif
     link_to_body[link_name] = body;
   }
 
