@@ -5,9 +5,9 @@ A C++17/20 library for creating MuJoCo MJCF (MuJoCo Modeling Language) XML files
 ## Features
 
 - **Complete MJCF Element Support**: All major MJCF elements (Mujoco, Option, Asset, Worldbody, Geom, Light, etc.)
-- **Type-Safe API**: Strong typing with proper C++17/20 features
+- **Type-Safe API**: Strong typing with proper C++17/20 features and enum types
 - **XML Generation**: Automatic XML serialization using TinyXML2
-- **Factory Pattern**: Convenient factory methods for creating elements
+- **Smart Pointer Management**: Clean memory management using `std::shared_ptr`
 - **Comprehensive Testing**: Full test coverage using Doctest framework
 - **CMake Integration**: Modern CMake build system with configurable options
 
