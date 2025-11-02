@@ -128,7 +128,7 @@ bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_p
       mu2 = mu2_elem->DoubleAttribute("value", INVALID_VALUE);
     }
 
-    if(mu1 >= 0.0 || mu2 >= 0.0) {
+    if(mu1 != INVALID_VALUE || mu2 != INVALID_VALUE) {
       gazebo_friction_map[reference] = {mu1, mu2};
     }
   }
@@ -301,11 +301,11 @@ bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_p
             
             // MJCF friction is [sliding, torsional, rolling]
             // Gazebo mu1 is sliding friction, mu2 is torsional friction
-            if(mu1 >= 0.0 && mu2 >= 0.0) {
+            if(mu1 != INVALID_VALUE && mu2 != INVALID_VALUE) {
               geom->friction = {mu1, mu2, geom->friction[2]};
-            } else if(mu1 >= 0.0) {
+            } else if(mu1 != INVALID_VALUE) {
               geom->friction = {mu1, geom->friction[1], geom->friction[2]};
-            } else if(mu2 >= 0.0) {
+            } else if(mu2 != INVALID_VALUE) {
               geom->friction = {geom->friction[0], mu2, geom->friction[2]};
             }
           }
@@ -440,10 +440,10 @@ bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_p
         double damping = dynamics->DoubleAttribute("damping", INVALID_VALUE);
         double friction = dynamics->DoubleAttribute("friction", INVALID_VALUE);
         
-        if(damping >= 0.0) {
+        if(damping != INVALID_VALUE) {
           mjcf_joint->damping = damping;
         }
-        if(friction >= 0.0) {
+        if(friction != INVALID_VALUE) {
           mjcf_joint->frictionloss = friction;
         }
       }

@@ -868,4 +868,79 @@ TEST_SUITE("URDF Conversion Tests") {
     CHECK(xml_content.find("damping=\"0.3\"") != std::string::npos);
     CHECK(xml_content.find("frictionloss=\"0.15\"") != std::string::npos);
   }
+
+  TEST_CASE("URDF with zero-valued friction and dynamics") {
+    std::string zero_values_urdf = R"(<?xml version="1.0"?>
+<robot name="zero_values_robot">
+  <gazebo reference="frictionless_link">
+    <mu1 value="0.0" />
+    <mu2 value="0.0" />
+  </gazebo>
+  
+  <link name="base_link">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="5.0"/>
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+    </inertial>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.5 0.5 0.1"/>
+      </geometry>
+    </collision>
+  </link>
+  
+  <link name="frictionless_link">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="1.0"/>
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+    </inertial>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.2 0.2 0.2"/>
+      </geometry>
+    </collision>
+  </link>
+  
+  <joint name="frictionless_joint" type="revolute">
+    <parent link="base_link"/>
+    <child link="frictionless_link"/>
+    <origin xyz="0 0 0.15" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-3.14" upper="3.14" effort="10.0" velocity="1.0"/>
+    <dynamics damping="0.0" friction="0.0"/>
+  </joint>
+</robot>)";
+
+    std::string temp_urdf = "zero_values_test.urdf";
+    std::ofstream urdf_file(temp_urdf);
+    urdf_file << zero_values_urdf;
+    urdf_file.close();
+
+    auto mujoco  = std::make_shared<mjcf::Mujoco>();
+    bool success = mujoco->add_urdf(temp_urdf);
+
+    CHECK(success);
+
+    std::string xml_content = mujoco->get_xml_text();
+
+    // Check basic structure
+    CHECK(xml_content.find("<mujoco") != std::string::npos);
+    CHECK(xml_content.find("frictionless_link") != std::string::npos);
+    CHECK(xml_content.find("frictionless_joint") != std::string::npos);
+
+    // Check that zero-valued Gazebo friction is applied (explicitly set to 0.0)
+    CHECK(xml_content.find("friction=\"0 0") != std::string::npos);
+
+    // Check that zero-valued joint dynamics are handled correctly
+    // Note: Since both damping=0.0 and frictionloss=0.0 are the MJCF defaults,
+    // they will be omitted from the output. This is correct behavior.
+    // The important thing is that explicitly setting them to 0.0 in URDF doesn't cause errors.
+    // We verify the joint exists and has the correct structure
+    CHECK(xml_content.find("frictionless_joint") != std::string::npos);
+    CHECK(xml_content.find("type=\"hinge\"") != std::string::npos);
+  }
 }
