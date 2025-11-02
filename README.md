@@ -138,10 +138,19 @@ The library provides classes for all major MJCF elements:
 Use `std::make_shared<>` to create MJCF elements:
 
 ```cpp
+// Create the root model
 auto model = std::make_shared<mjcf::Mujoco>("robot");
-auto option = std::make_shared<mjcf::Option>();
+
+// Access built-in containers
+auto option = model->option_;        // Option settings
+auto asset = model->asset_;          // Asset definitions
+auto worldbody = model->worldbody_;  // World body container
+
+// Create individual elements
 auto body = std::make_shared<mjcf::Body>();
 auto geom = std::make_shared<mjcf::Geom>();
+auto texture = std::make_shared<mjcf::Texture>();
+auto material = std::make_shared<mjcf::Material>();
 // ... etc
 ```
 
@@ -167,14 +176,16 @@ light->directional = true;
 Use `add_child()` and `add_children()` to build element hierarchies:
 
 ```cpp
+// Create a body with geometry and a joint
 auto body = std::make_shared<mjcf::Body>();
 auto geom = std::make_shared<mjcf::Geom>();
 auto joint = std::make_shared<mjcf::Joint>();
 
 body->add_children({geom, joint});
 
-auto worldbody = std::make_shared<mjcf::Worldbody>();
-worldbody->add_child(body);
+// Add the body to the world
+auto mujoco = std::make_shared<mjcf::Mujoco>("model");
+mujoco->worldbody_->add_child(body);
 ```
 
 ## Architecture
