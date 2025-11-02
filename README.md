@@ -5,9 +5,9 @@ A C++17/20 library for creating MuJoCo MJCF (MuJoCo Modeling Language) XML files
 ## Features
 
 - **Complete MJCF Element Support**: All major MJCF elements (Mujoco, Option, Asset, Worldbody, Geom, Light, etc.)
-- **Type-Safe API**: Strong typing with proper C++17/20 features
+- **Type-Safe API**: Strong typing with proper C++17/20 features and enum types
 - **XML Generation**: Automatic XML serialization using TinyXML2
-- **Factory Pattern**: Convenient factory methods for creating elements
+- **Smart Pointer Management**: Clean memory management using `std::shared_ptr`
 - **Comprehensive Testing**: Full test coverage using Doctest framework
 - **CMake Integration**: Modern CMake build system with configurable options
 
@@ -52,47 +52,44 @@ make -j
 
 int main() {
     // Create main model
-    auto mujoco = mjcf::Elements::mujoco("my_model");
+    auto mujoco = std::make_shared<mjcf::Mujoco>("my_model");
     
-    // Add simulation options
-    auto option = mjcf::Elements::option();
-    option->set_integrator("RK4");
-    option->set_timestep(0.01);
+    // Configure simulation options
+    mujoco->option_->integrator = mjcf::IntegratorType::RK4;
+    mujoco->option_->timestep = 0.01;
     
-    // Create asset container
-    auto asset = mjcf::Elements::asset();
-    
-    // Create world body
-    auto worldbody = mjcf::Elements::worldbody();
-    
-    // Add to model
-    mujoco->add_children({option, asset, worldbody});
+    // Access built-in asset and worldbody containers
+    auto asset = mujoco->asset_;
+    auto worldbody = mujoco->worldbody_;
     
     // Create a texture
-    auto texture = mjcf::Elements::texture();
-    texture->set_builtin("checker");
-    texture->set_name("grid");
-    texture->set_rgb1({1.0, 1.0, 1.0});
-    texture->set_rgb2({0.0, 0.0, 0.0});
+    auto texture = std::make_shared<mjcf::Texture>();
+    texture->builtin = mjcf::TextureBuiltin::Checker;
+    texture->name = "grid";
+    texture->rgb1 = {1.0, 1.0, 1.0};
+    texture->rgb2 = {0.0, 0.0, 0.0};
+    texture->width = 100;
+    texture->height = 100;
+    texture->type = mjcf::TextureType::TwoD;
     
     // Create a material
-    auto material = mjcf::Elements::material();
-    material->set_name("grid_mat");
-    material->set_texture("grid");
+    auto material = std::make_shared<mjcf::Material>();
+    material->name = "grid_mat";
+    material->texture = "grid";
     
     asset->add_children({texture, material});
     
     // Create a floor
-    auto floor_geom = mjcf::Elements::geom();
-    floor_geom->set_name("floor");
-    floor_geom->set_type("plane");
-    floor_geom->set_material("grid_mat");
-    floor_geom->set_size({10.0, 10.0, 0.1});
+    auto floor_geom = std::make_shared<mjcf::Geom>();
+    floor_geom->name = "floor";
+    floor_geom->type = mjcf::GeomType::Plane;
+    floor_geom->material = "grid_mat";
+    floor_geom->size = {10.0, 10.0, 0.1};
     
     worldbody->add_child(floor_geom);
     
     // Generate XML
-    std::string xml = mujoco->xml();
+    std::string xml = mujoco->get_xml_text();
     
     // Save to file
     std::ofstream file("model.xml");
@@ -136,33 +133,42 @@ The library provides classes for all major MJCF elements:
 - `Joint`: Joint definitions
 - `Inertial`: Inertial properties
 
-### Factory Methods
+### Creating Elements
 
-Use the `mjcf::Elements` factory class for convenient object creation:
+Use `std::make_shared<>` to create MJCF elements:
 
 ```cpp
-auto model = mjcf::Elements::mujoco("robot");
-auto option = mjcf::Elements::option();
-auto body = mjcf::Elements::body();
-auto geom = mjcf::Elements::geom();
+// Create the root model
+auto model = std::make_shared<mjcf::Mujoco>("robot");
+
+// Access built-in containers
+auto option = model->option_;        // Option settings
+auto asset = model->asset_;          // Asset definitions
+auto worldbody = model->worldbody_;  // World body container
+
+// Create individual elements
+auto body = std::make_shared<mjcf::Body>();
+auto geom = std::make_shared<mjcf::Geom>();
+auto texture = std::make_shared<mjcf::Texture>();
+auto material = std::make_shared<mjcf::Material>();
 // ... etc
 ```
 
 ### Setting Attributes
 
-All elements provide setter methods for their attributes:
+All elements provide public member variables for their attributes:
 
 ```cpp
 // String attributes
-geom->set_name("my_geom");
-geom->set_type("box");
+geom->name = "my_geom";
+geom->type = mjcf::GeomType::Box;
 
 // Numeric attributes  
-geom->set_size({1.0, 2.0, 3.0});  // Vector of doubles
-option->set_timestep(0.01);        // Single double
+geom->size = {1.0, 2.0, 3.0};  // std::array or std::vector
+option->timestep = 0.01;        // Single double
 
 // Boolean attributes
-light->set_directional(true);
+light->directional = true;
 ```
 
 ### Building Hierarchies
@@ -170,14 +176,16 @@ light->set_directional(true);
 Use `add_child()` and `add_children()` to build element hierarchies:
 
 ```cpp
-auto body = mjcf::Elements::body();
-auto geom = mjcf::Elements::geom();
-auto joint = mjcf::Elements::joint();
+// Create a body with geometry and a joint
+auto body = std::make_shared<mjcf::Body>();
+auto geom = std::make_shared<mjcf::Geom>();
+auto joint = std::make_shared<mjcf::Joint>();
 
 body->add_children({geom, joint});
 
-auto worldbody = mjcf::Elements::worldbody();
-worldbody->add_child(body);
+// Add the body to the world
+auto mujoco = std::make_shared<mjcf::Mujoco>("model");
+mujoco->worldbody_->add_child(body);
 ```
 
 ## Architecture
@@ -217,15 +225,18 @@ The C++ library closely mirrors the Python API from `misc/tmp/mjcf/`:
 
 | Python | C++ |
 |--------|-----|
-| `e.Mujoco(model="test")` | `mjcf::Elements::mujoco("test")` |
+| `e.Mujoco(model="test")` | `std::make_shared<mjcf::Mujoco>("test")` |
 | `element.add_children([...])` | `element->add_children({...})` |
-| `element.xml()` | `element->xml()` |
+| `element.xml()` | `element->get_xml_text()` |
+| `option.set_timestep(0.01)` | `option->timestep = 0.01` |
+| `geom.set_type("box")` | `geom->type = mjcf::GeomType::Box` |
 
 Key differences:
 - Use smart pointers (`std::shared_ptr`) for element management
 - Method calls use `->` instead of `.`
-- Vector initialization uses `{...}` syntax
-- Factory methods provide convenient object creation
+- Vector initialization uses `{...}` syntax for `std::array`
+- Attributes are accessed as public member variables, not setter methods
+- Enum types are used for type-safe attribute values (e.g., `GeomType::Box`, `IntegratorType::RK4`)
 
 ## Demo Program
 
