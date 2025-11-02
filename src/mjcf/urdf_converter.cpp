@@ -140,7 +140,7 @@ bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_p
 
     // Check if collision elements exist
     XMLElement* first_collision = link->FirstChildElement("collision");
-    bool has_collision = (first_collision != nullptr);
+    bool has_collision          = (first_collision != nullptr);
 
     // Process collision elements if they exist, otherwise fallback to visual
     XMLElement* geom_source = has_collision ? first_collision : link->FirstChildElement("visual");
@@ -394,10 +394,15 @@ bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_p
       child_body->add_child(mjcf_joint);
 
       if(actuator_metadata.contains(joint_name) && actuator_metadata.at(joint_name) != nullptr) {
-        auto actuator_info = actuator_metadata.at(joint_name);
+        auto actuator_info   = actuator_metadata.at(joint_name);
+        actuator_info->name  = joint_name;
+        actuator_info->joint = joint_name;
+
         mujoco->actuator_->add_child(actuator_info);
       } else if(actuator_metadata.contains("") && actuator_metadata.at("") != nullptr) {
-        auto actuator_info = actuator_metadata.at("");
+        auto actuator_info   = actuator_metadata.at("");
+        actuator_info->name  = joint_name;
+        actuator_info->joint = joint_name;
         mujoco->actuator_->add_child(actuator_info);
       } else {
 
