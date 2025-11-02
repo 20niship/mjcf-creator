@@ -61,6 +61,7 @@ void Option::set_xml_attrib() const {
   if(timestep != 0.002) this->set_attribute("timestep", timestep);
   this->set_attribute("gravity", std::vector<double>(gravity.begin(), gravity.end()));
   if(viscosity != 0.0) this->set_attribute("viscosity", viscosity);
+  if(cone != "pyramidal") this->set_attribute("cone", cone);
 }
 
 bool Option::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }

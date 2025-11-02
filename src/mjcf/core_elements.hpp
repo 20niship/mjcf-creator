@@ -84,10 +84,11 @@ protected:
 
 class Option : public Element {
 public:
-  IntegratorType integrator     = IntegratorType::Euler; // MuJoCo default
-  double timestep               = 0.002;                 // MuJoCo default
-  std::array<double, 3> gravity = {0.0, 0.0, -9.81};     // MuJoCo default
-  double viscosity              = 0.0;                   // MuJoCo default
+  IntegratorType integrator = IntegratorType::Euler; // MuJoCo default
+  double timestep           = 0.002;                 // MuJoCo default
+  Arr3 gravity              = {0.0, 0.0, -9.81};     // MuJoCo default
+  double viscosity          = 0.0;                   // MuJoCo default
+  std::string cone          = "pyramidal";           // MuJoCo default pyramidal or elliptic
 
   Option() = default;
 

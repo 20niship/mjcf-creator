@@ -54,10 +54,10 @@ public:
   int condim                      = 3; // MuJoCo default
   int group                       = 0;
   int priority                    = 0;
-  Arr3 friction                   = {1.0, 0.005, 0.0001};         // MuJoCo default
-  double solmix                   = 1.0;                          // MuJoCo default
-  std::array<double, 2> solref    = {0.02, 1.0};                  // MuJoCo default
-  std::array<double, 5> solimp    = {0.9, 0.95, 0.001, 0.5, 2.0}; // MuJoCo default
+  Arr3 friction                   = {1.0, 0.005, 0.0001}; // MuJoCo default
+  double solmix                   = 1.0;                  // MuJoCo default
+  std::array<double, 2> solref    = {0.02, 1.0};          // MuJoCo default
+  Arr3 solimp                     = {0.9, 0.95, 0.001};
   double margin                   = 0.0;
   double gap                      = 0.0;
   std::array<double, 6> fromto    = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
@@ -272,8 +272,8 @@ public:
   double armature                        = 0.0;
   double damping                         = 0.0;
   double frictionloss                    = 0.0;
+  Arr3 solimplimit                       = {0.9, 0.95, 0.001};           // MuJoCo default
   std::array<double, 2> solreflimit      = {0.02, 1.0};                  // MuJoCo default
-  std::array<double, 5> solimplimit      = {0.9, 0.95, 0.001, 0.5, 2.0}; // MuJoCo default
   std::array<double, 2> solreffriction   = {0.02, 1.0};                  // MuJoCo default
   std::array<double, 5> solimpfriction   = {0.9, 0.95, 0.001, 0.5, 2.0}; // MuJoCo default
   double stiffness                       = 0.0;
