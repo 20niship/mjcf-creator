@@ -66,8 +66,7 @@ std::vector<double> rpy_to_quat(const std::vector<double>& rpy) {
   return {w, x, y, z};
 }
 
-bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_path, const std::unordered_map<std::string, std::shared_ptr<BaseActuator>>& actuator_metadata, bool copy_meshes, const std::string& output_dir) {
-
+bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_path, const Arr3& pos, const std::unordered_map<std::string, std::shared_ptr<BaseActuator>>& actuator_metadata, bool copy_meshes, const std::string& output_dir) {
   const std::string urdf_content = read_file(urdf_path);
   XMLDocument doc;
   if(doc.Parse(urdf_content.c_str()) != XML_SUCCESS) {
@@ -337,7 +336,7 @@ bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_p
   // Add root body to worldbody
   for(const auto& [link_name, body] : link_to_body) {
     if(child_links.find(link_name) == child_links.end()) {
-      // This is a root link
+      body->pos = pos;
       worldbody->add_child(body);
       break; // For simplicity, take the first root link
     }

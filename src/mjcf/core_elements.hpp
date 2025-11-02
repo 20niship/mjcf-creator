@@ -3,10 +3,10 @@
 #include "asset_elements.hpp"
 #include "element.hpp"
 #include "enums.hpp"
-#include <unordered_map>
 #include <array>
 #include <cassert>
 #include <string>
+#include <unordered_map>
 
 namespace mjcf {
 
@@ -128,7 +128,7 @@ public:
    * @param actuator_metadata Map of actuator type to actuator metadata
    * @return true if addition was successful, false otherwise
    */
-  bool add_urdf(const std::string& urdf_path, const std::string& name_prefix = "", bool copy_meshes = false, const std::unordered_map<std::string, std::shared_ptr<BaseActuator>>& actuator_metadata = {});
+  bool add_urdf(const std::string& urdf_path, const std::string& name_prefix = "", bool copy_meshes = false, const std::unordered_map<std::string, std::shared_ptr<BaseActuator>>& actuator_metadata = {}, const Arr3& pos = {0.0, 0.0, 0.0});
 
   [[nodiscard]] std::string element_name() const override { return "mujoco"; }
 
