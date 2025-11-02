@@ -22,6 +22,7 @@ void* Mujoco::write_xml_element(void* doc_ptr, void* parent_ptr) const {
   contact_->write_xml_element(doc_ptr, elm);
   equality_->write_xml_element(doc_ptr, elm);
   tendon_->write_xml_element(doc_ptr, elm);
+  default_->write_xml_element(doc_ptr, elm);
   for(const auto& child : this->get_children())
     if(child) child->write_xml_element(doc_ptr, elm);
   return elm;
@@ -70,6 +71,19 @@ bool Option::is_default_value(const std::string& name, const AttributeValue& val
   if(name == "viscosity" && std::get<double>(value) == 0.0) return true;
   return false;
 }
+
+Default::Default(const std::string& class_name) : class_(class_name) {}
+
+void Default::set_xml_attrib() const {
+  if(!class_.empty()) this->set_attribute("class", class_);
+}
+
+bool Default::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
+
+bool Default::is_default_value([[maybe_unused]] const std::string& name, [[maybe_unused]] const AttributeValue& value) const {
+  return false; // 設定されている場合はclassを常に含める
+}
+
 } // namespace detail
 
 Size::Size() = default;
@@ -86,18 +100,6 @@ bool Size::from_xml([[maybe_unused]] const std::string& xml_str) { return false;
 
 bool Size::is_default_value([[maybe_unused]] const std::string& name, [[maybe_unused]] const AttributeValue& value) const {
   return false; // サイズパラメータは通常明示的に設定される
-}
-
-Default::Default(const std::string& class_name) : class_(class_name) {}
-
-void Default::set_xml_attrib() const {
-  if(!class_.empty()) this->set_attribute("class", class_);
-}
-
-bool Default::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
-
-bool Default::is_default_value([[maybe_unused]] const std::string& name, [[maybe_unused]] const AttributeValue& value) const {
-  return false; // 設定されている場合はclassを常に含める
 }
 
 } // namespace mjcf

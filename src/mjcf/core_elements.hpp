@@ -99,6 +99,21 @@ public:
 protected:
   [[nodiscard]] bool is_default_value(const std::string& name, const AttributeValue& value) const override;
 };
+
+class Default : public Element {
+public:
+  std::string class_;
+
+  Default(const std::string& class_name = "");
+
+  [[nodiscard]] std::string element_name() const override { return "default"; }
+
+  void set_xml_attrib() const override;
+  bool from_xml(const std::string& xml_str) override;
+
+protected:
+  [[nodiscard]] bool is_default_value(const std::string& name, const AttributeValue& value) const override;
+};
 } // namespace detail
 
 class Mujoco : public Element {
@@ -116,6 +131,7 @@ public:
     this->contact_   = std::make_shared<detail::Contact>();
     this->equality_  = std::make_shared<detail::Equality>();
     this->tendon_    = std::make_shared<detail::Tendon>();
+    this->default_   = std::make_shared<detail::Default>();
   }
 
   /**
@@ -146,6 +162,7 @@ public:
   std::shared_ptr<detail::Contact> contact_     = nullptr;
   std::shared_ptr<detail::Equality> equality_   = nullptr;
   std::shared_ptr<detail::Tendon> tendon_       = nullptr;
+  std::shared_ptr<detail::Default> default_     = nullptr;
 
   [[nodiscard]] bool has_material(const std::string& material_name) const {
     if(!asset_) return false;
@@ -225,18 +242,4 @@ public:
   [[nodiscard]] std::string element_name() const override { return "statistic"; }
 };
 
-class Default : public Element {
-public:
-  std::string class_;
-
-  Default(const std::string& class_name = "");
-
-  [[nodiscard]] std::string element_name() const override { return "default"; }
-
-  void set_xml_attrib() const override;
-  bool from_xml(const std::string& xml_str) override;
-
-protected:
-  [[nodiscard]] bool is_default_value(const std::string& name, const AttributeValue& value) const override;
-};
 } // namespace mjcf
