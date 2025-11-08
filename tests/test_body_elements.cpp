@@ -35,7 +35,7 @@ TEST_SUITE("body-elements-tests") {
     geom.priority   = 3;
     geom.friction   = {2.0, 0.005, 0.0001};
     geom.solref     = {0.02, 1.0};
-    geom.solimp     = {0.9, 0.95, 0.001, 0.5, 2.0};
+    geom.solimp     = {0.9, 0.95, 0.001};
     geom.solmix     = 1.0;
     geom.mesh       = "mymesh";
     geom.fitscale   = 1.5;

@@ -54,7 +54,7 @@ TEST_SUITE("core-elements-tests") {
     CHECK(xml.find("nuserdata=\"100\"") != std::string::npos);
   }
   TEST_CASE("default-element") {
-    mjcf::Default default_elem;
+    Default default_elem;
     CHECK(default_elem.element_name() == "default");
     default_elem.class_ = "dynamic_class";
     std::string xml     = default_elem.get_xml_text();
