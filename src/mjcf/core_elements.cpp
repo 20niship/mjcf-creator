@@ -56,12 +56,24 @@ bool Compiler::is_default_value(const std::string& name, const AttributeValue& v
   return false;
 }
 
+struct Flag final : Element {
+  Flag() = default;
+  [[nodiscard]] std::string element_name() const override { return "flag"; }
+};
+
+
 void Option::set_xml_attrib() const {
   if(integrator != IntegratorType::Euler) this->set_attribute("integrator", to_string(integrator));
   if(timestep != 0.002) this->set_attribute("timestep", timestep);
   this->set_attribute("gravity", std::vector<double>(gravity.begin(), gravity.end()));
   if(viscosity != 0.0) this->set_attribute("viscosity", viscosity);
   if(cone != "pyramidal") this->set_attribute("cone", cone);
+  if(multi_ccd) {
+    auto f = std::make_shared<Flag>();
+    f->set_attribute_public("multiccd", "enable");
+    auto c = const_cast<Option*>(this);
+    c->add_child(f);
+  }
 }
 
 bool Option::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
