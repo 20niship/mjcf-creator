@@ -196,9 +196,7 @@ bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_p
           const char* size = box->Attribute("size");
           if(size) {
             auto sizes = parse_space_separated_values(size);
-            if(sizes.size() >= 3) {
-              geom->size = {sizes[0] / 2, sizes[1] / 2, sizes[2] / 2}; // MJCF uses half-sizes
-            }
+            if(sizes.size() >= 3) geom->size = {sizes[0] / 2, sizes[1] / 2, sizes[2] / 2}; // MJCF uses half-sizes
           }
           geometry_found = true;
         } else if(cylinder) {
