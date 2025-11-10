@@ -66,7 +66,7 @@ std::vector<double> rpy_to_quat(const std::vector<double>& rpy) {
   return {w, x, y, z};
 }
 
-bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_path, const Arr3& pos, const std::unordered_map<std::string, std::shared_ptr<BaseActuator>>& actuator_metadata, bool copy_meshes, const std::string& output_dir) {
+bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_path, const Arr3& pos, const std::vector<std::shared_ptr<BaseActuator>>& actuator_metadata, bool copy_meshes, const std::string& output_dir) {
   const std::string urdf_content = read_file(urdf_path);
   XMLDocument doc;
   if(doc.Parse(urdf_content.c_str()) != XML_SUCCESS) {
@@ -433,14 +433,24 @@ bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_p
 
       child_body->add_child(mjcf_joint);
 
-      if(actuator_metadata.contains(joint_name) && actuator_metadata.at(joint_name) != nullptr) {
-        auto actuator_info   = actuator_metadata.at(joint_name);
+      auto filtered_ = std::find_if(actuator_metadata.begin(), actuator_metadata.end(),            //
+                                    [&joint_name](const std::shared_ptr<BaseActuator>& actuator) { //
+                                      return actuator->joint == joint_name;
+                                    });
+
+      auto empty_ = std::find_if(actuator_metadata.begin(), actuator_metadata.end(), //
+                                 [](const std::shared_ptr<BaseActuator>& actuator) { //
+                                   return actuator->joint == "";
+                                 });
+
+      if(filtered_ != actuator_metadata.end()) {
+        auto actuator_info   = *filtered_;
         actuator_info->name  = joint_name;
         actuator_info->joint = joint_name;
 
         mujoco->actuator_->add_child(actuator_info);
-      } else if(actuator_metadata.contains("") && actuator_metadata.at("") != nullptr) {
-        auto actuator_info   = actuator_metadata.at("");
+      } else if(empty_ != actuator_metadata.end()) {
+        auto actuator_info   = *empty_;
         actuator_info->name  = joint_name;
         actuator_info->joint = joint_name;
         mujoco->actuator_->add_child(actuator_info);

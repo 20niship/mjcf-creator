@@ -76,13 +76,13 @@ void Geom::set_xml_attrib() const {
   if(friction != Arr3{1.0, 0.005, 0.0001}) {
     this->set_attribute("friction", std::vector<double>(friction.begin(), friction.end()));
   }
-  if(solmix != 1.0) this->set_attribute("solmix", solmix);
-  if(solref != std::array<double, 2>{0.02, 1.0}) {
-    this->set_attribute("solref", std::vector<double>(solref.begin(), solref.end()));
-  }
-  if(solimp != std::array<double, 3>{0.9, 0.95, 0.001}) { 
-    this->set_attribute("solimp", std::vector<double>(solimp.begin(), solimp.end()));
-  }
+  // if(solmix != 1.0) this->set_attribute("solmix", solmix);
+  // if(solref != std::array<double, 2>{0.02, 1.0}) {
+  //   this->set_attribute("solref", std::vector<double>(solref.begin(), solref.end()));
+  // }
+  // if(solimp != std::array<double, 3>{0.9, 0.95, 0.001}) { 
+  //   this->set_attribute("solimp", std::vector<double>(solimp.begin(), solimp.end()));
+  // }
   if(margin != 0.0) this->set_attribute("margin", margin);
   if(gap != 0.0) this->set_attribute("gap", gap);
   if(fromto != std::array<double, 6>{0.0, 0.0, 0.0, 0.0, 0.0, 0.0}) {

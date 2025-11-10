@@ -28,7 +28,7 @@ void* Mujoco::write_xml_element(void* doc_ptr, void* parent_ptr) const {
   return elm;
 }
 
-bool Mujoco::add_urdf(const std::string& urdf_path, const std::string& name_prefix, bool copy_meshes, const std::unordered_map<std::string, std::shared_ptr<BaseActuator>>& actuator_metadata, const Arr3& pos) {
+bool Mujoco::add_urdf(const std::string& urdf_path, const std::string& name_prefix, bool copy_meshes, const std::vector<std::shared_ptr<BaseActuator>>& actuator_metadata, const Arr3& pos) {
   if(!std::filesystem::exists(urdf_path)) {
     printf("URDF file does not exist: %s\n", urdf_path.c_str());
     return false;
@@ -74,6 +74,12 @@ void Option::set_xml_attrib() const {
     auto c = const_cast<Option*>(this);
     c->add_child(f);
   }
+  if(solver != SolverType::Newton) this->set_attribute("solver", to_string(solver));
+  if(iterations != 100) this->set_attribute("iterations", iterations);
+  if(noslip_iterations > 0) this->set_attribute("noslip_iterations", noslip_iterations);
+  if(noslip_tolerance > 0) this->set_attribute("noslip_tolerance", noslip_tolerance);
+  if(impratio != 5.0) this->set_attribute("impratio", impratio);
+  if(tolerance != 1e-8) this->set_attribute("tolerance", tolerance);
 }
 
 bool Option::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }

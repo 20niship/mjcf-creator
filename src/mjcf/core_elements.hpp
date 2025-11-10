@@ -85,10 +85,16 @@ protected:
 class Option : public Element {
 public:
   IntegratorType integrator = IntegratorType::Euler;
+  SolverType solver         = SolverType::Newton;
   double timestep           = 0.002;
   Arr3 gravity              = {0.0, 0.0, -9.81};
   double viscosity          = 0.0;
   bool multi_ccd            = false;
+  int iterations            = 100;
+  int noslip_iterations     = 5;
+  float noslip_tolerance    = 1e-6;
+  double impratio           = 5.0;
+  double tolerance          = 1e-8;
   std::string cone          = "pyramidal";
 
   Option() = default;
@@ -146,7 +152,7 @@ public:
    * @param actuator_metadata Map of actuator type to actuator metadata
    * @return true if addition was successful, false otherwise
    */
-  bool add_urdf(const std::string& urdf_path, const std::string& name_prefix = "", bool copy_meshes = false, const std::unordered_map<std::string, std::shared_ptr<BaseActuator>>& actuator_metadata = {}, const Arr3& pos = {0.0, 0.0, 0.0});
+  bool add_urdf(const std::string& urdf_path, const std::string& name_prefix = "", bool copy_meshes = false, const std::vector<std::shared_ptr<BaseActuator>>& actuator_metadata = {}, const Arr3& pos = {0.0, 0.0, 0.0});
 
   [[nodiscard]] std::string element_name() const override { return "mujoco"; }
 

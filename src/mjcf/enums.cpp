@@ -102,7 +102,15 @@ CameraMode camera_mode_from_string(const std::string& str) {
   throw std::invalid_argument("Invalid camera mode string: " + str);
 }
 
-// IntegratorType conversions
+std::string to_string(SolverType type) {
+  switch(type) {
+    case SolverType::Newton: return "Newton";
+    case SolverType::PGS: return "PGS";
+    case SolverType::CG: return "CG";
+  }
+  throw std::invalid_argument("Invalid CameraType");
+}
+
 std::string to_string(IntegratorType type) {
   switch(type) {
     case IntegratorType::Euler: return "Euler";
