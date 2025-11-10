@@ -80,7 +80,7 @@ void Geom::set_xml_attrib() const {
   // if(solref != std::array<double, 2>{0.02, 1.0}) {
   //   this->set_attribute("solref", std::vector<double>(solref.begin(), solref.end()));
   // }
-  // if(solimp != std::array<double, 3>{0.9, 0.95, 0.001}) { 
+  // if(solimp != std::array<double, 3>{0.9, 0.95, 0.001}) {
   //   this->set_attribute("solimp", std::vector<double>(solimp.begin(), solimp.end()));
   // }
   if(margin != 0.0) this->set_attribute("margin", margin);
@@ -141,9 +141,7 @@ void Light::set_xml_attrib() const {
   if(ambient != Arr3{0.0, 0.0, 0.0}) {
     this->set_attribute("ambient", std::vector<double>(ambient.begin(), ambient.end()));
   }
-  if(diffuse != Arr3{0.7, 0.7, 0.7}) {
-    this->set_attribute("diffuse", std::vector<double>(diffuse.begin(), diffuse.end()));
-  }
+  this->set_attribute("diffuse", std::vector<double>(diffuse.begin(), diffuse.end()));
   if(specular != Arr3{0.3, 0.3, 0.3}) {
     this->set_attribute("specular", std::vector<double>(specular.begin(), specular.end()));
   }

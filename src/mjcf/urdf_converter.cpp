@@ -410,9 +410,11 @@ bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_p
       }
 
       XMLElement* limit = joint->FirstChildElement("limit");
+      double lower      = 0.0f;
+      double upper      = 0.0f;
       if(limit) {
-        double lower      = limit->DoubleAttribute("lower");
-        double upper      = limit->DoubleAttribute("upper");
+        lower             = limit->DoubleAttribute("lower");
+        upper             = limit->DoubleAttribute("upper");
         mjcf_joint->range = {lower, upper};
       }
 
@@ -423,12 +425,8 @@ bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_p
         double friction = dynamics->DoubleAttribute("friction", -1.0);
 
         // Only apply non-negative values (damping and friction cannot be negative)
-        if(damping >= 0.0) {
-          mjcf_joint->damping = damping;
-        }
-        if(friction >= 0.0) {
-          mjcf_joint->frictionloss = friction;
-        }
+        if(damping >= 0.0) mjcf_joint->damping = damping;
+        if(friction >= 0.0) mjcf_joint->frictionloss = friction;
       }
 
       child_body->add_child(mjcf_joint);
@@ -444,11 +442,9 @@ bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_p
                                  });
 
       if(filtered_ != actuator_metadata.end()) {
-        auto actuator_info   = *filtered_;
-        actuator_info->name  = joint_name;
-        actuator_info->joint = joint_name;
-
-        mujoco->actuator_->add_child(actuator_info);
+        for(const auto& child : actuator_metadata) {
+          if(child->joint == joint_name) mujoco->actuator_->add_child(child);
+        }
       } else if(empty_ != actuator_metadata.end()) {
         auto actuator_info   = *empty_;
         actuator_info->name  = joint_name;
@@ -462,6 +458,10 @@ bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_p
           ac->ctrllimited = false;
           ac->kp          = 100.0;
           ac->kv          = 10.0;
+          if(limit != nullptr) {
+            ac->ctrlrange = {lower, upper};
+            ac->ctrllimited = true;
+          }
           // ac->gear        = {100, 0, 0, 0, 0, 0};
           mujoco->actuator_->add_child(ac);
         } else if(mjcf_joint->type == JointType::Slide) {
