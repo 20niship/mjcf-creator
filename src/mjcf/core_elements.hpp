@@ -76,7 +76,6 @@ public:
   [[nodiscard]] std::string element_name() const override { return "compiler"; }
 
   void set_xml_attrib() const override;
-  bool from_xml(const std::string& xml_str) override;
 
 protected:
   [[nodiscard]] bool is_default_value(const std::string& name, const AttributeValue& value) const override;
@@ -102,7 +101,6 @@ public:
   [[nodiscard]] std::string element_name() const override { return "option"; }
 
   void set_xml_attrib() const override;
-  bool from_xml(const std::string& xml_str) override;
 
 protected:
   [[nodiscard]] bool is_default_value(const std::string& name, const AttributeValue& value) const override;
@@ -117,7 +115,6 @@ public:
   [[nodiscard]] std::string element_name() const override { return "default"; }
 
   void set_xml_attrib() const override;
-  bool from_xml(const std::string& xml_str) override;
 
 protected:
   [[nodiscard]] bool is_default_value(const std::string& name, const AttributeValue& value) const override;
@@ -157,7 +154,6 @@ public:
   [[nodiscard]] std::string element_name() const override { return "mujoco"; }
 
   void set_xml_attrib() const override;
-  bool from_xml(const std::string& xml_str) override;
 
   void add_child([[maybe_unused]] std::shared_ptr<Element> child) override { assert(false && "Unsupported child element type for Mujoco"); }
 
@@ -224,7 +220,6 @@ public:
   [[nodiscard]] std::string element_name() const override { return "size"; }
 
   void set_xml_attrib() const override;
-  bool from_xml(const std::string& xml_str) override;
 
 protected:
   [[nodiscard]] bool is_default_value(const std::string& name, const AttributeValue& value) const override;

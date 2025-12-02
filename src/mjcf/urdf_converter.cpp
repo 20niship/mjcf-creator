@@ -486,13 +486,6 @@ bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_p
 }
 
 void UrdfConverter::merge_asset_elements(const Asset& source_asset, Asset& target_asset, const std::string& name_prefix) {
-  auto add_prefix = [&name_prefix](const std::string& name) -> std::string {
-    if(name_prefix.empty()) {
-      return name;
-    }
-    return name_prefix + "_" + name;
-  };
-
   // Get existing names to avoid conflicts
   std::set<std::string> existing_names;
   for(const auto& child : target_asset.get_children()) {

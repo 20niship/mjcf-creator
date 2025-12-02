@@ -9,8 +9,6 @@ void Mujoco::set_xml_attrib() const {
   if(!model.empty()) this->set_attribute("model", model);
 }
 
-bool Mujoco::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
-
 void* Mujoco::write_xml_element(void* doc_ptr, void* parent_ptr) const {
   auto elm = this->write_xml_element_base(doc_ptr, parent_ptr);
   compiler_->write_xml_element(doc_ptr, elm);
@@ -28,7 +26,7 @@ void* Mujoco::write_xml_element(void* doc_ptr, void* parent_ptr) const {
   return elm;
 }
 
-bool Mujoco::add_urdf(const std::string& urdf_path, const std::string& name_prefix, bool copy_meshes, const std::vector<std::shared_ptr<BaseActuator>>& actuator_metadata, const Arr3& pos) {
+bool Mujoco::add_urdf(const std::string& urdf_path, [[maybe_unused]] const std::string& name_prefix, bool copy_meshes, const std::vector<std::shared_ptr<BaseActuator>>& actuator_metadata, const Arr3& pos) {
   if(!std::filesystem::exists(urdf_path)) {
     printf("URDF file does not exist: %s\n", urdf_path.c_str());
     return false;
@@ -45,8 +43,6 @@ void Compiler::set_xml_attrib() const {
   if(inertiafromgeom) this->set_attribute("inertiafromgeom", inertiafromgeom);
   if(autolimits) this->set_attribute("autolimits", autolimits);
 }
-
-bool Compiler::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
 
 bool Compiler::is_default_value(const std::string& name, const AttributeValue& value) const {
   if(name == "angle" && std::get<std::string>(value) == to_string(AngleUnit::Degree)) return true;
@@ -82,8 +78,6 @@ void Option::set_xml_attrib() const {
   if(tolerance != 1e-8) this->set_attribute("tolerance", tolerance);
 }
 
-bool Option::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
-
 bool Option::is_default_value(const std::string& name, const AttributeValue& value) const {
   if(name == "integrator" && std::get<std::string>(value) == to_string(IntegratorType::Euler)) return true;
   if(name == "timestep" && std::get<double>(value) == 0.002) return true;
@@ -96,8 +90,6 @@ Default::Default(const std::string& class_name) : class_(class_name) {}
 void Default::set_xml_attrib() const {
   if(!class_.empty()) this->set_attribute("class", class_);
 }
-
-bool Default::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
 
 bool Default::is_default_value([[maybe_unused]] const std::string& name, [[maybe_unused]] const AttributeValue& value) const {
   return false; // 設定されている場合はclassを常に含める
@@ -114,8 +106,6 @@ void Size::set_xml_attrib() const {
   if(nstack != 0) this->set_attribute("nstack", nstack);
   if(nuserdata != 0) this->set_attribute("nuserdata", nuserdata);
 }
-
-bool Size::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
 
 bool Size::is_default_value([[maybe_unused]] const std::string& name, [[maybe_unused]] const AttributeValue& value) const {
   return false; // サイズパラメータは通常明示的に設定される

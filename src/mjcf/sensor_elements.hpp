@@ -16,7 +16,6 @@ public:
   BaseSensor(const std::string& element_name);
 
   void set_xml_attrib() const override;
-  bool from_xml(const std::string& xml_str) override;
 
 protected:
   bool is_default_value(const std::string& name, const AttributeValue& value) const override;
@@ -36,7 +35,6 @@ public:
   std::string element_name() const override { return "jointpos"; }
 
   void set_xml_attrib() const override;
-  bool from_xml(const std::string& xml_str) override;
 
 protected:
   bool is_default_value(const std::string& name, const AttributeValue& value) const override;
@@ -54,7 +52,6 @@ public:
   std::string element_name() const override { return "jointvel"; }
 
   void set_xml_attrib() const override;
-  bool from_xml(const std::string& xml_str) override;
 
 protected:
   bool is_default_value(const std::string& name, const AttributeValue& value) const override;
@@ -72,7 +69,6 @@ public:
   std::string element_name() const override { return "tendonpos"; }
 
   void set_xml_attrib() const override;
-  bool from_xml(const std::string& xml_str) override;
 
 protected:
   bool is_default_value(const std::string& name, const AttributeValue& value) const override;
@@ -90,7 +86,6 @@ public:
   std::string element_name() const override { return "tendonvel"; }
 
   void set_xml_attrib() const override;
-  bool from_xml(const std::string& xml_str) override;
 
 protected:
   bool is_default_value(const std::string& name, const AttributeValue& value) const override;
@@ -108,7 +103,6 @@ public:
   std::string element_name() const override { return "actuatorpos"; }
 
   void set_xml_attrib() const override;
-  bool from_xml(const std::string& xml_str) override;
 
 protected:
   bool is_default_value(const std::string& name, const AttributeValue& value) const override;
@@ -126,7 +120,6 @@ public:
   std::string element_name() const override { return "actuatorvel"; }
 
   void set_xml_attrib() const override;
-  bool from_xml(const std::string& xml_str) override;
 
 protected:
   bool is_default_value(const std::string& name, const AttributeValue& value) const override;
@@ -144,7 +137,6 @@ public:
   std::string element_name() const override { return "actuatorfrc"; }
 
   void set_xml_attrib() const override;
-  bool from_xml(const std::string& xml_str) override;
 
 protected:
   bool is_default_value(const std::string& name, const AttributeValue& value) const override;
@@ -162,7 +154,6 @@ public:
   std::string element_name() const override { return "ballquat"; }
 
   void set_xml_attrib() const override;
-  bool from_xml(const std::string& xml_str) override;
 
 protected:
   bool is_default_value(const std::string& name, const AttributeValue& value) const override;
@@ -180,7 +171,6 @@ public:
   std::string element_name() const override { return "ballangvel"; }
 
   void set_xml_attrib() const override;
-  bool from_xml(const std::string& xml_str) override;
 
 protected:
   bool is_default_value(const std::string& name, const AttributeValue& value) const override;
@@ -200,7 +190,6 @@ public:
   std::string element_name() const override { return "framepos"; }
 
   void set_xml_attrib() const override;
-  bool from_xml(const std::string& xml_str) override;
 
 protected:
   bool is_default_value(const std::string& name, const AttributeValue& value) const override;
@@ -220,7 +209,6 @@ public:
   std::string element_name() const override { return "framequat"; }
 
   void set_xml_attrib() const override;
-  bool from_xml(const std::string& xml_str) override;
 
 protected:
   bool is_default_value(const std::string& name, const AttributeValue& value) const override;
@@ -240,7 +228,6 @@ public:
   std::string element_name() const override { return "framelinvel"; }
 
   void set_xml_attrib() const override;
-  bool from_xml(const std::string& xml_str) override;
 
 protected:
   bool is_default_value(const std::string& name, const AttributeValue& value) const override;
@@ -260,7 +247,6 @@ public:
   std::string element_name() const override { return "frameangvel"; }
 
   void set_xml_attrib() const override;
-  bool from_xml(const std::string& xml_str) override;
 
 protected:
   bool is_default_value(const std::string& name, const AttributeValue& value) const override;
@@ -278,7 +264,6 @@ public:
   std::string element_name() const override { return "subtreecom"; }
 
   void set_xml_attrib() const override;
-  bool from_xml(const std::string& xml_str) override;
 
 protected:
   bool is_default_value(const std::string& name, const AttributeValue& value) const override;
@@ -296,7 +281,6 @@ public:
   std::string element_name() const override { return "subtreelinvel"; }
 
   void set_xml_attrib() const override;
-  bool from_xml(const std::string& xml_str) override;
 
 protected:
   bool is_default_value(const std::string& name, const AttributeValue& value) const override;
@@ -314,7 +298,6 @@ public:
   std::string element_name() const override { return "subtreeangmom"; }
 
   void set_xml_attrib() const override;
-  bool from_xml(const std::string& xml_str) override;
 
 protected:
   bool is_default_value(const std::string& name, const AttributeValue& value) const override;
@@ -332,7 +315,6 @@ public:
   std::string element_name() const override { return "gyro"; }
 
   void set_xml_attrib() const override;
-  bool from_xml(const std::string& xml_str) override;
 
 protected:
   bool is_default_value(const std::string& name, const AttributeValue& value) const override;
@@ -350,7 +332,6 @@ public:
   std::string element_name() const override { return "accelerometer"; }
 
   void set_xml_attrib() const override;
-  bool from_xml(const std::string& xml_str) override;
 
 protected:
   bool is_default_value(const std::string& name, const AttributeValue& value) const override;
@@ -368,7 +349,6 @@ public:
   std::string element_name() const override { return "magnetometer"; }
 
   void set_xml_attrib() const override;
-  bool from_xml(const std::string& xml_str) override;
 
 protected:
   bool is_default_value(const std::string& name, const AttributeValue& value) const override;
@@ -386,7 +366,6 @@ public:
   std::string element_name() const override { return "rangefinder"; }
 
   void set_xml_attrib() const override;
-  bool from_xml(const std::string& xml_str) override;
 
 protected:
   bool is_default_value(const std::string& name, const AttributeValue& value) const override;
@@ -404,7 +383,6 @@ public:
   std::string element_name() const override { return "force"; }
 
   void set_xml_attrib() const override;
-  bool from_xml(const std::string& xml_str) override;
 
 protected:
   bool is_default_value(const std::string& name, const AttributeValue& value) const override;
@@ -422,7 +400,6 @@ public:
   std::string element_name() const override { return "torque"; }
 
   void set_xml_attrib() const override;
-  bool from_xml(const std::string& xml_str) override;
 
 protected:
   bool is_default_value(const std::string& name, const AttributeValue& value) const override;
@@ -440,7 +417,6 @@ public:
   std::string element_name() const override { return "touch"; }
 
   void set_xml_attrib() const override;
-  bool from_xml(const std::string& xml_str) override;
 
 protected:
   bool is_default_value(const std::string& name, const AttributeValue& value) const override;

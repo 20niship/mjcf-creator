@@ -463,7 +463,7 @@ void print_usage() {
   std::cout << std::endl;
 }
 
-int main(int argc, char* argv[]) {
+int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
   if(!std::filesystem::exists("../output")) {
     std::filesystem::create_directory("../output");
   }

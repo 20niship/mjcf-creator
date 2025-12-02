@@ -90,14 +90,14 @@ std::string Element::stringify_value(const AttributeValue& value) const {
     value);
 }
 
-bool Element::is_default_value(const std::string& name, const AttributeValue& value) const {
+bool Element::is_default_value([[maybe_unused]] const std::string& name, [[maybe_unused]] const AttributeValue& value) const {
   // Default implementation - subclasses can override
   return false;
 }
 
 std::string Element::xml() const {
   tinyxml2::XMLDocument doc;
-  auto root = write_xml_element(&doc, nullptr);
+  write_xml_element(&doc, nullptr);
 
   tinyxml2::XMLPrinter printer;
   doc.Print(&printer);

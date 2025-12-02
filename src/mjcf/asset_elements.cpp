@@ -38,11 +38,6 @@ void Texture::set_xml_attrib() const {
   if(!gridlayout.empty()) this->set_attribute("gridlayout", gridlayout);
 }
 
-bool Texture::from_xml([[maybe_unused]] const std::string& xml_str) {
-  // Default implementation - could be extended to parse XML
-  return false;
-}
-
 bool Texture::is_default_value(const std::string& name, const AttributeValue& value) const {
   if(name == "type" && std::get<std::string>(value) == to_string(TextureType::TwoD)) return true;
   if(name == "builtin" && std::get<std::string>(value) == to_string(TextureBuiltin::None)) return true;
@@ -78,8 +73,6 @@ void Material::set_xml_attrib() const {
   }
 }
 
-bool Material::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
-
 bool Material::is_default_value(const std::string& name, const AttributeValue& value) const {
   if(name == "emission" && std::get<double>(value) == 0.0) return true;
   if(name == "specular" && std::get<double>(value) == 0.0) return true;
@@ -103,8 +96,6 @@ void Mesh::set_xml_attrib() const {
   if(!face.empty()) this->set_attribute("face", face);
 }
 
-bool Mesh::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
-
 bool Mesh::is_default_value(const std::string& name, const AttributeValue& value) const {
   if(name == "smoothnormal" && std::get<bool>(value)) return true;
   return false;
@@ -123,8 +114,6 @@ void Hfield::set_xml_attrib() const {
   if(ncol != 0) this->set_attribute("ncol", ncol);
 }
 
-bool Hfield::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
-
 bool Hfield::is_default_value([[maybe_unused]] const std::string& name, [[maybe_unused]] const AttributeValue& value) const { return false; }
 
 // Numeric implementation
@@ -137,8 +126,6 @@ void Numeric::set_xml_attrib() const {
   if(!data.empty()) this->set_attribute("data", data);
   if(size != 0) this->set_attribute("size", size);
 }
-
-bool Numeric::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
 
 bool Numeric::is_default_value(const std::string& name, const AttributeValue& value) const {
   if(name == "data" && std::get<std::string>(value) == "0 0 ...") return true;
@@ -154,8 +141,6 @@ void Text::set_xml_attrib() const {
   if(!data.empty()) this->set_attribute("data", data);
 }
 
-bool Text::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
-
 bool Text::is_default_value([[maybe_unused]] const std::string& name, [[maybe_unused]] const AttributeValue& value) const { return false; }
 
 // Tuple implementation
@@ -164,8 +149,6 @@ Tuple::Tuple() = default;
 void Tuple::set_xml_attrib() const {
   if(!name.empty()) this->set_attribute("name", name);
 }
-
-bool Tuple::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
 
 bool Tuple::is_default_value([[maybe_unused]] const std::string& name, [[maybe_unused]] const AttributeValue& value) const { return false; }
 
