@@ -15,7 +15,6 @@ void BaseSensor::set_xml_attrib() const {
   }
 }
 
-bool BaseSensor::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
 
 bool BaseSensor::is_default_value(const std::string& name, const AttributeValue& value) const {
   if(name == "noise" && std::get<double>(value) == 0.0) return true;
@@ -32,7 +31,6 @@ void JointPos::set_xml_attrib() const {
   if(!joint.empty()) this->set_attribute("joint", joint);
 }
 
-bool JointPos::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
 
 bool JointPos::is_default_value(const std::string& name, const AttributeValue& value) const { return BaseSensor::is_default_value(name, value); }
 
@@ -45,7 +43,6 @@ void JointVel::set_xml_attrib() const {
   if(!joint.empty()) this->set_attribute("joint", joint);
 }
 
-bool JointVel::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
 
 bool JointVel::is_default_value(const std::string& name, const AttributeValue& value) const { return BaseSensor::is_default_value(name, value); }
 
@@ -58,7 +55,6 @@ void TendonPos::set_xml_attrib() const {
   if(!tendon.empty()) this->set_attribute("tendon", tendon);
 }
 
-bool TendonPos::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
 
 bool TendonPos::is_default_value(const std::string& name, const AttributeValue& value) const { return BaseSensor::is_default_value(name, value); }
 
@@ -71,7 +67,6 @@ void TendonVel::set_xml_attrib() const {
   if(!tendon.empty()) this->set_attribute("tendon", tendon);
 }
 
-bool TendonVel::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
 
 bool TendonVel::is_default_value(const std::string& name, const AttributeValue& value) const { return BaseSensor::is_default_value(name, value); }
 
@@ -84,7 +79,6 @@ void ActuatorPos::set_xml_attrib() const {
   if(!actuator.empty()) this->set_attribute("actuator", actuator);
 }
 
-bool ActuatorPos::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
 
 bool ActuatorPos::is_default_value(const std::string& name, const AttributeValue& value) const { return BaseSensor::is_default_value(name, value); }
 
@@ -97,7 +91,6 @@ void ActuatorVel::set_xml_attrib() const {
   if(!actuator.empty()) this->set_attribute("actuator", actuator);
 }
 
-bool ActuatorVel::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
 
 bool ActuatorVel::is_default_value(const std::string& name, const AttributeValue& value) const { return BaseSensor::is_default_value(name, value); }
 
@@ -110,7 +103,6 @@ void ActuatorFrc::set_xml_attrib() const {
   if(!actuator.empty()) this->set_attribute("actuator", actuator);
 }
 
-bool ActuatorFrc::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
 
 bool ActuatorFrc::is_default_value(const std::string& name, const AttributeValue& value) const { return BaseSensor::is_default_value(name, value); }
 
@@ -123,7 +115,6 @@ void BallQuat::set_xml_attrib() const {
   if(!joint.empty()) this->set_attribute("joint", joint);
 }
 
-bool BallQuat::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
 
 bool BallQuat::is_default_value(const std::string& name, const AttributeValue& value) const { return BaseSensor::is_default_value(name, value); }
 
@@ -136,7 +127,6 @@ void BallAngVel::set_xml_attrib() const {
   if(!joint.empty()) this->set_attribute("joint", joint);
 }
 
-bool BallAngVel::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
 
 bool BallAngVel::is_default_value(const std::string& name, const AttributeValue& value) const { return BaseSensor::is_default_value(name, value); }
 
@@ -151,7 +141,6 @@ void SitePos::set_xml_attrib() const {
   if(!objname.empty()) this->set_attribute("objname", objname);
 }
 
-bool SitePos::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
 
 bool SitePos::is_default_value(const std::string& name, const AttributeValue& value) const {
   if(name == "reftype" && std::get<std::string>(value) == "body") return true;
@@ -170,7 +159,6 @@ void SiteQuat::set_xml_attrib() const {
   if(!objname.empty()) this->set_attribute("objname", objname);
 }
 
-bool SiteQuat::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
 
 bool SiteQuat::is_default_value(const std::string& name, const AttributeValue& value) const {
   if(name == "reftype" && std::get<std::string>(value) == "body") return true;
@@ -189,7 +177,6 @@ void SiteLinVel::set_xml_attrib() const {
   if(!objname.empty()) this->set_attribute("objname", objname);
 }
 
-bool SiteLinVel::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
 
 bool SiteLinVel::is_default_value(const std::string& name, const AttributeValue& value) const {
   if(name == "reftype" && std::get<std::string>(value) == "body") return true;
@@ -208,7 +195,6 @@ void SiteAngVel::set_xml_attrib() const {
   if(!objname.empty()) this->set_attribute("objname", objname);
 }
 
-bool SiteAngVel::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
 
 bool SiteAngVel::is_default_value(const std::string& name, const AttributeValue& value) const {
   if(name == "reftype" && std::get<std::string>(value) == "body") return true;
@@ -225,7 +211,6 @@ void SubtreeCom::set_xml_attrib() const {
   if(!body.empty()) this->set_attribute("body", body);
 }
 
-bool SubtreeCom::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
 
 bool SubtreeCom::is_default_value(const std::string& name, const AttributeValue& value) const { return BaseSensor::is_default_value(name, value); }
 
@@ -238,7 +223,6 @@ void SubtreeLinVel::set_xml_attrib() const {
   if(!body.empty()) this->set_attribute("body", body);
 }
 
-bool SubtreeLinVel::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
 
 bool SubtreeLinVel::is_default_value(const std::string& name, const AttributeValue& value) const { return BaseSensor::is_default_value(name, value); }
 
@@ -251,7 +235,6 @@ void SubtreeAngMom::set_xml_attrib() const {
   if(!body.empty()) this->set_attribute("body", body);
 }
 
-bool SubtreeAngMom::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
 
 bool SubtreeAngMom::is_default_value(const std::string& name, const AttributeValue& value) const { return BaseSensor::is_default_value(name, value); }
 
@@ -264,7 +247,6 @@ void Gyro::set_xml_attrib() const {
   if(!site.empty()) this->set_attribute("site", site);
 }
 
-bool Gyro::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
 
 bool Gyro::is_default_value(const std::string& name, const AttributeValue& value) const { return BaseSensor::is_default_value(name, value); }
 
@@ -277,7 +259,6 @@ void Accelerometer::set_xml_attrib() const {
   if(!site.empty()) this->set_attribute("site", site);
 }
 
-bool Accelerometer::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
 
 bool Accelerometer::is_default_value(const std::string& name, const AttributeValue& value) const { return BaseSensor::is_default_value(name, value); }
 
@@ -290,7 +271,6 @@ void Magnetometer::set_xml_attrib() const {
   if(!site.empty()) this->set_attribute("site", site);
 }
 
-bool Magnetometer::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
 
 bool Magnetometer::is_default_value(const std::string& name, const AttributeValue& value) const { return BaseSensor::is_default_value(name, value); }
 
@@ -303,7 +283,6 @@ void Rangefinder::set_xml_attrib() const {
   if(!site.empty()) this->set_attribute("site", site);
 }
 
-bool Rangefinder::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
 
 bool Rangefinder::is_default_value(const std::string& name, const AttributeValue& value) const { return BaseSensor::is_default_value(name, value); }
 
@@ -316,7 +295,6 @@ void Force::set_xml_attrib() const {
   if(!site.empty()) this->set_attribute("site", site);
 }
 
-bool Force::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
 
 bool Force::is_default_value(const std::string& name, const AttributeValue& value) const { return BaseSensor::is_default_value(name, value); }
 
@@ -329,7 +307,6 @@ void Torque::set_xml_attrib() const {
   if(!site.empty()) this->set_attribute("site", site);
 }
 
-bool Torque::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
 
 bool Torque::is_default_value(const std::string& name, const AttributeValue& value) const { return BaseSensor::is_default_value(name, value); }
 
@@ -342,7 +319,6 @@ void Touch::set_xml_attrib() const {
   if(!site.empty()) this->set_attribute("site", site);
 }
 
-bool Touch::from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
 
 bool Touch::is_default_value(const std::string& name, const AttributeValue& value) const { return BaseSensor::is_default_value(name, value); }
 

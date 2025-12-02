@@ -33,7 +33,6 @@ public:
   std::string element_name() const override { return "body"; }
 
   void set_xml_attrib() const override;
-  bool from_xml(const std::string& xml_str) override;
 
 protected:
   bool is_default_value(const std::string& name, const AttributeValue& value) const override;
@@ -152,7 +151,6 @@ public:
   }
 
   void set_xml_attrib() const override;
-  bool from_xml(const std::string& xml_str) override;
 
 protected:
   bool is_default_value(const std::string& name, const AttributeValue& value) const override;
@@ -187,7 +185,6 @@ public:
   std::string element_name() const override { return "light"; }
 
   void set_xml_attrib() const override;
-  bool from_xml(const std::string& xml_str) override;
 
 protected:
   bool is_default_value(const std::string& name, const AttributeValue& value) const override;
@@ -216,7 +213,6 @@ public:
   std::string element_name() const override { return "camera"; }
 
   void set_xml_attrib() const override;
-  bool from_xml(const std::string& xml_str) override;
 
 protected:
   bool is_default_value(const std::string& name, const AttributeValue& value) const override;
@@ -247,7 +243,6 @@ public:
   std::string element_name() const override { return "site"; }
 
   void set_xml_attrib() const override;
-  bool from_xml(const std::string& xml_str) override;
 
 protected:
   bool is_default_value(const std::string& name, const AttributeValue& value) const override;
@@ -314,7 +309,6 @@ public:
   std::string element_name() const override { return "joint"; }
 
   void set_xml_attrib() const override;
-  bool from_xml(const std::string& xml_str) override;
 
 protected:
   bool is_default_value(const std::string& name, const AttributeValue& value) const override;
@@ -333,7 +327,6 @@ public:
   std::string element_name() const override { return "inertial"; }
 
   void set_xml_attrib() const override;
-  bool from_xml(const std::string& xml_str) override;
 
 protected:
   bool is_default_value(const std::string& name, const AttributeValue& value) const override;

@@ -56,8 +56,6 @@ void Position::set_xml_attrib() const {
   this->set_attribute("kv", kv);
 }
 
-bool Position::from_xml(const std::string& xml_str) { return false; }
-
 bool Position::is_default_value(const std::string& name, const AttributeValue& value) const {
   if(name == "kp" && std::get<double>(value) == 0.0) return true;
   if(name == "kv" && std::get<double>(value) == 0.0) return true;
@@ -75,11 +73,6 @@ void Velocity::set_xml_attrib() const {
   if(kv != 0.0) {
     this->set_attribute("kv", kv);
   }
-}
-
-bool Velocity::from_xml(const std::string& xml_str) {
-  // Default implementation - could be extended to parse XML
-  return false;
 }
 
 bool Velocity::is_default_value(const std::string& name, const AttributeValue& value) const {
@@ -103,8 +96,6 @@ void Cylinder::set_xml_attrib() const {
     this->set_attribute("bias", std::vector<double>(bias.begin(), bias.end()));
   }
 }
-
-bool Cylinder::from_xml(const std::string& xml_str) { return false; }
 
 bool Cylinder::is_default_value(const std::string& name, const AttributeValue& value) const {
   if(name == "timeconst" && std::get<double>(value) == 0.0) return true;
@@ -136,8 +127,6 @@ void Muscle::set_xml_attrib() const {
   if(fpmax != 0.0) this->set_attribute("fpmax", fpmax);
   if(fvmax != 0.0) this->set_attribute("fvmax", fvmax);
 }
-
-bool Muscle::from_xml(const std::string& xml_str) { return false; }
 
 bool Muscle::is_default_value(const std::string& name, const AttributeValue& value) const {
   if(name == "force" && std::get<double>(value) == 0.0) return true;
@@ -184,11 +173,6 @@ void General::set_xml_attrib() const {
   if(biasprm != std::array<double, 10>{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}) {
     this->set_attribute("biasprm", std::vector<double>(biasprm.begin(), biasprm.end()));
   }
-}
-
-bool General::from_xml(const std::string& xml_str) {
-  // Default implementation - could be extended to parse XML
-  return false;
 }
 
 bool General::is_default_value(const std::string& name, const AttributeValue& value) const {

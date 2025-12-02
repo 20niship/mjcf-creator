@@ -42,14 +42,6 @@ public:
   virtual void set_xml_attrib() const {}
 
   /**
-   * @brief XMLからの変換（仮想関数）
-   * 各クラスで個別のデータ転送を可能にします
-   * @param xml_str XML文字列
-   * @return 変換成功時true
-   */
-  virtual bool from_xml([[maybe_unused]] const std::string& xml_str) { return false; }
-
-  /**
    * @brief 要素名を取得（クラス名から派生）
    * @return 小文字の要素名
    */

@@ -70,7 +70,6 @@ public:
   std::string element_name() const override { return "position"; }
 
   void set_xml_attrib() const override;
-  bool from_xml(const std::string& xml_str) override;
 
 protected:
   bool is_default_value(const std::string& name, const AttributeValue& value) const override;
@@ -88,7 +87,6 @@ public:
   std::string element_name() const override { return "velocity"; }
 
   void set_xml_attrib() const override;
-  bool from_xml(const std::string& xml_str) override;
 
 protected:
   bool is_default_value(const std::string& name, const AttributeValue& value) const override;
@@ -109,7 +107,6 @@ public:
   std::string element_name() const override { return "cylinder"; }
 
   void set_xml_attrib() const override;
-  bool from_xml(const std::string& xml_str) override;
 
 protected:
   bool is_default_value(const std::string& name, const AttributeValue& value) const override;
@@ -135,7 +132,6 @@ public:
   std::string element_name() const override { return "muscle"; }
 
   void set_xml_attrib() const override;
-  bool from_xml(const std::string& xml_str) override;
 
 protected:
   bool is_default_value(const std::string& name, const AttributeValue& value) const override;
@@ -173,7 +169,6 @@ public:
   std::string element_name() const override { return "general"; }
 
   void set_xml_attrib() const override;
-  bool from_xml(const std::string& xml_str) override;
 
 protected:
   bool is_default_value(const std::string& name, const AttributeValue& value) const override;

@@ -37,7 +37,6 @@ public:
   std::string element_name() const override { return "texture"; }
 
   void set_xml_attrib() const override;
-  bool from_xml(const std::string& xml_str) override;
 
 protected:
   bool is_default_value(const std::string& name, const AttributeValue& value) const override;
@@ -63,7 +62,6 @@ public:
   std::string element_name() const override { return "material"; }
 
   void set_xml_attrib() const override;
-  bool from_xml(const std::string& xml_str) override;
 
 protected:
   bool is_default_value(const std::string& name, const AttributeValue& value) const override;
@@ -92,7 +90,6 @@ public:
   std::string element_name() const override { return "mesh"; }
 
   void set_xml_attrib() const override;
-  bool from_xml(const std::string& xml_str) override;
 
 protected:
   bool is_default_value(const std::string& name, const AttributeValue& value) const override;
@@ -114,7 +111,6 @@ public:
   std::string element_name() const override { return "hfield"; }
 
   void set_xml_attrib() const override;
-  bool from_xml(const std::string& xml_str) override;
 
 protected:
   bool is_default_value(const std::string& name, const AttributeValue& value) const override;
@@ -134,7 +130,6 @@ public:
   std::string element_name() const override { return "numeric"; }
 
   void set_xml_attrib() const override;
-  bool from_xml(const std::string& xml_str) override;
 
 protected:
   bool is_default_value(const std::string& name, const AttributeValue& value) const override;
@@ -153,7 +148,6 @@ public:
   std::string element_name() const override { return "text"; }
 
   void set_xml_attrib() const override;
-  bool from_xml(const std::string& xml_str) override;
 
 protected:
   bool is_default_value(const std::string& name, const AttributeValue& value) const override;
@@ -175,7 +169,6 @@ public:
   std::string element_name() const override { return "tuple"; }
 
   void set_xml_attrib() const override;
-  bool from_xml(const std::string& xml_str) override;
 
 protected:
   bool is_default_value(const std::string& name, const AttributeValue& value) const override;
