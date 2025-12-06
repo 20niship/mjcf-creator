@@ -1,4 +1,5 @@
 #include "urdf_converter.hpp"
+#include <algorithm>
 #include "actuator_elements.hpp"
 #include "asset_elements.hpp"
 #include "body_elements.hpp"
