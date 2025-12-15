@@ -29,7 +29,7 @@ TEST_SUITE("Temporary File Tracking Tests") {
 </robot>)";
 
     // Create temporary test files
-    std::filesystem::path test_dir = "/tmp/mjcf_test_temp_files";
+    std::filesystem::path test_dir = std::filesystem::temp_directory_path() / "mjcf_test_temp_files";
     std::filesystem::create_directories(test_dir);
     
     std::string urdf_path = (test_dir / "test_robot.urdf").string();
@@ -145,7 +145,8 @@ TEST_SUITE("Temporary File Tracking Tests") {
     auto mujoco = std::make_shared<mjcf::Mujoco>("test_model");
     
     // Add a file path that doesn't exist
-    mujoco->add_temporary_file("/tmp/nonexistent_file_12345.xyz");
+    std::filesystem::path temp_dir = std::filesystem::temp_directory_path();
+    mujoco->add_temporary_file((temp_dir / "nonexistent_file_12345.xyz").string());
     
     // This should not crash
     size_t deleted = mujoco->clear_temporary_files();

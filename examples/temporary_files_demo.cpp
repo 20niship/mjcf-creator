@@ -38,7 +38,7 @@ int main() {
 </robot>)";
 
   // Create temporary test files
-  std::filesystem::path test_dir = "/tmp/mjcf_demo";
+  std::filesystem::path test_dir = std::filesystem::temp_directory_path() / "mjcf_demo";
   std::filesystem::create_directories(test_dir);
   
   std::string urdf_path = (test_dir / "demo_robot.urdf").string();
@@ -126,7 +126,7 @@ int main() {
     auto mujoco = std::make_shared<mjcf::Mujoco>("custom_model");
     
     // You can manually track files if you create them yourself
-    std::string custom_temp = "/tmp/mjcf_demo/my_custom_temp_file.txt";
+    std::string custom_temp = (test_dir / "my_custom_temp_file.txt").string();
     {
       std::ofstream temp_file(custom_temp);
       temp_file << "This is a manually tracked temporary file";
