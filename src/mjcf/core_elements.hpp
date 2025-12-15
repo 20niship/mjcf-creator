@@ -7,6 +7,7 @@
 #include <cassert>
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 namespace mjcf {
 
@@ -198,10 +199,47 @@ public:
     worldbody_->add_child(body_element);
   }
 
+  /**
+   * @brief Get list of temporary files created during MJCF generation
+   * 
+   * Returns a list of file paths for temporary files that were created
+   * during operations like copy_meshes in add_urdf(). These files can be
+   * deleted after the MJCF has been loaded into MuJoCo.
+   * 
+   * @return Vector of file paths for temporary files
+   */
+  [[nodiscard]] const std::vector<std::string>& get_temporary_files() const {
+    return temporary_files_;
+  }
+
+  /**
+   * @brief Clear all temporary files that were created
+   * 
+   * Deletes all temporary files tracked by this Mujoco instance and clears
+   * the internal list. Use this after loading the MJCF into MuJoCo to clean up.
+   * 
+   * @return Number of files successfully deleted
+   */
+  size_t clear_temporary_files();
+
+  /**
+   * @brief Add a temporary file to the tracking list
+   * 
+   * This is used internally during URDF conversion to track temporary files.
+   * 
+   * @param filepath Path to the temporary file
+   */
+  void add_temporary_file(const std::string& filepath) {
+    temporary_files_.push_back(filepath);
+  }
+
 protected:
   [[nodiscard]] bool is_default_value([[maybe_unused]] const std::string& name, [[maybe_unused]] const AttributeValue& value) const override { return false; }
 
   void* write_xml_element(void* doc_ptr, void* parent_ptr) const override;
+
+private:
+  std::vector<std::string> temporary_files_; ///< List of temporary files created during MJCF generation
 };
 
 /**
