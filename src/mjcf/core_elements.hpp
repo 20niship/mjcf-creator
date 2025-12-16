@@ -3,15 +3,15 @@
 #include "asset_elements.hpp"
 #include "element.hpp"
 #include "enums.hpp"
-#include <array>
 #include <cassert>
 #include <string>
-#include <unordered_map>
 #include <vector>
 
 namespace mjcf {
 
 class BaseActuator;
+class Body;
+class Joint;
 
 namespace detail {
 
@@ -148,9 +148,8 @@ public:
    * @param copy_meshes Whether to copy mesh files
    * @param joint_metadata Map of joint name to joint metadata
    * @param actuator_metadata Map of actuator type to actuator metadata
-   * @return true if addition was successful, false otherwise
    */
-  bool add_urdf(const std::string& urdf_path, const std::string& name_prefix = "", bool copy_meshes = false, const std::vector<std::shared_ptr<BaseActuator>>& actuator_metadata = {}, const Arr3& pos = {0.0, 0.0, 0.0});
+  std::tuple<std::shared_ptr<mjcf::Body>, std::shared_ptr<mjcf::Joint>> add_urdf(const std::string& urdf_path, const std::string& name_prefix = "", bool copy_meshes = false, const std::vector<std::shared_ptr<BaseActuator>>& actuator_metadata = {}, const Arr3& pos = {0.0, 0.0, 0.0});
 
   [[nodiscard]] std::string element_name() const override { return "mujoco"; }
 
@@ -202,18 +201,14 @@ public:
   /**
    * @brief Get list of temporary files created during MJCF generation
    */
-  [[nodiscard]] const std::vector<std::string>& get_temporary_files() const {
-    return temporary_files_;
-  }
+  [[nodiscard]] const std::vector<std::string>& get_temporary_files() const { return temporary_files_; }
 
   /**
    * @brief Clear all temporary files that were created
    */
   size_t clear_temporary_files();
 
-  void add_temporary_file(const std::string& filepath) {
-    temporary_files_.push_back(filepath);
-  }
+  void add_temporary_file(const std::string& filepath) { temporary_files_.push_back(filepath); }
 
 protected:
   [[nodiscard]] bool is_default_value([[maybe_unused]] const std::string& name, [[maybe_unused]] const AttributeValue& value) const override { return false; }

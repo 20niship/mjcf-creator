@@ -5,13 +5,14 @@
 #include <memory>
 #include <set>
 #include <string>
-#include <unordered_map>
 
 namespace mjcf {
 
 class BaseActuator;
 class Element;
 class Mujoco;
+class Body;
+class Joint;
 namespace detail {
 class Asset;
 class Worldbody;
@@ -19,7 +20,7 @@ class Worldbody;
 
 class UrdfConverter {
 public:
-  static bool parse_urdf_to_mjcf( //
+  static std::tuple<std::shared_ptr<mjcf::Body>, std::shared_ptr<mjcf::Joint>> parse_urdf_to_mjcf( //
     Mujoco* mujoco,
     const std::string& urdf_path,                                                         //
     const Arr3& pos, const std::vector<std::shared_ptr<BaseActuator>>& actuator_metadata, //

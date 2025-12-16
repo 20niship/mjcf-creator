@@ -1,9 +1,9 @@
 #include "urdf_converter.hpp"
-#include <algorithm>
 #include "actuator_elements.hpp"
 #include "asset_elements.hpp"
 #include "body_elements.hpp"
 #include "core_elements.hpp"
+#include <algorithm>
 #include <cmath>
 #include <filesystem>
 #include <fstream>
@@ -67,19 +67,19 @@ std::vector<double> rpy_to_quat(const std::vector<double>& rpy) {
   return {w, x, y, z};
 }
 
-bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_path, const Arr3& pos, const std::vector<std::shared_ptr<BaseActuator>>& actuator_metadata, bool copy_meshes, const std::string& output_dir) {
+std::tuple<std::shared_ptr<mjcf::Body>, std::shared_ptr<mjcf::Joint>> UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_path, const Arr3& pos, const std::vector<std::shared_ptr<BaseActuator>>& actuator_metadata, bool copy_meshes, const std::string& output_dir) {
   const std::string urdf_content = read_file(urdf_path);
   XMLDocument doc;
   if(doc.Parse(urdf_content.c_str()) != XML_SUCCESS) {
     printf("Failed to parse URDF file: %s\n", urdf_path.c_str());
-    return false;
+    return {nullptr, nullptr};
   }
 
   XMLElement* robot = doc.FirstChildElement("robot");
   if(!robot) {
     std::cerr << "No <robot> element found in URDF file: " << urdf_path << std::endl;
     printf("[mjcf::parse_urdf_to_mjcf] No <robot> element found in urdf file %s \n", urdf_path.c_str());
-    return false;
+    return {nullptr, nullptr};
   }
 
   const char* robot_name = robot->Attribute("name");
@@ -461,7 +461,7 @@ bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_p
           ac->kp          = 100.0;
           ac->kv          = 10.0;
           if(limit != nullptr) {
-            ac->ctrlrange = {lower, upper};
+            ac->ctrlrange   = {lower, upper};
             ac->ctrllimited = true;
           }
           // ac->gear        = {100, 0, 0, 0, 0, 0};
@@ -484,7 +484,22 @@ bool UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_p
       }
     }
   }
-  return true;
+
+  {
+    auto joints = robot->FirstChildElement("joint");
+    if(joints == nullptr) {
+      auto freejoint              = Joint::Free("free_" + model_name);
+      std::shared_ptr<Body> body_ = nullptr;
+      for(const auto& [link_name, body] : link_to_body) {
+        if(child_links.find(link_name) == child_links.end()) {
+          body->add_child(freejoint);
+          body_ = body;
+        }
+      }
+      return {body_, freejoint};
+    }
+  }
+  return {nullptr, nullptr};
 }
 
 void UrdfConverter::merge_asset_elements(const Asset& source_asset, Asset& target_asset, const std::string& name_prefix) {
