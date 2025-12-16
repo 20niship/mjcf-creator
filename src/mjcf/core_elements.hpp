@@ -201,12 +201,6 @@ public:
 
   /**
    * @brief Get list of temporary files created during MJCF generation
-   * 
-   * Returns a list of file paths for temporary files that were created
-   * during operations like copy_meshes in add_urdf(). These files can be
-   * deleted after the MJCF has been loaded into MuJoCo.
-   * 
-   * @return Vector of file paths for temporary files
    */
   [[nodiscard]] const std::vector<std::string>& get_temporary_files() const {
     return temporary_files_;
