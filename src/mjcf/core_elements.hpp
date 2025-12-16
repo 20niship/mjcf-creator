@@ -211,13 +211,6 @@ public:
    */
   size_t clear_temporary_files();
 
-  /**
-   * @brief Add a temporary file to the tracking list
-   * 
-   * This is used internally during URDF conversion to track temporary files.
-   * 
-   * @param filepath Path to the temporary file
-   */
   void add_temporary_file(const std::string& filepath) {
     temporary_files_.push_back(filepath);
   }
