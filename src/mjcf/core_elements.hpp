@@ -7,6 +7,7 @@
 #include <cassert>
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 namespace mjcf {
 
@@ -198,10 +199,29 @@ public:
     worldbody_->add_child(body_element);
   }
 
+  /**
+   * @brief Get list of temporary files created during MJCF generation
+   */
+  [[nodiscard]] const std::vector<std::string>& get_temporary_files() const {
+    return temporary_files_;
+  }
+
+  /**
+   * @brief Clear all temporary files that were created
+   */
+  size_t clear_temporary_files();
+
+  void add_temporary_file(const std::string& filepath) {
+    temporary_files_.push_back(filepath);
+  }
+
 protected:
   [[nodiscard]] bool is_default_value([[maybe_unused]] const std::string& name, [[maybe_unused]] const AttributeValue& value) const override { return false; }
 
   void* write_xml_element(void* doc_ptr, void* parent_ptr) const override;
+
+private:
+  std::vector<std::string> temporary_files_; ///< List of temporary files created during MJCF generation
 };
 
 /**

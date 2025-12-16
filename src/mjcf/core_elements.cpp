@@ -1,6 +1,7 @@
 #include "core_elements.hpp"
 #include "urdf_converter.hpp"
 #include <filesystem>
+#include <iostream>
 
 namespace mjcf {
 
@@ -33,6 +34,22 @@ bool Mujoco::add_urdf(const std::string& urdf_path, [[maybe_unused]] const std::
   }
 
   return UrdfConverter::parse_urdf_to_mjcf(this, urdf_path, pos, actuator_metadata, copy_meshes);
+}
+
+size_t Mujoco::clear_temporary_files() {
+  size_t deleted_count = 0;
+  for(const auto& filepath : temporary_files_) {
+    try {
+      if(std::filesystem::exists(filepath)) {
+        std::filesystem::remove(filepath);
+        deleted_count++;
+      }
+    } catch(const std::filesystem::filesystem_error& e) {
+      std::cerr << "Failed to delete temporary file: " << filepath << " - " << e.what() << std::endl;
+    }
+  }
+  temporary_files_.clear();
+  return deleted_count;
 }
 
 namespace detail {
