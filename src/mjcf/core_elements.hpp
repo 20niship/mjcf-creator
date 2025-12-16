@@ -208,11 +208,6 @@ public:
 
   /**
    * @brief Clear all temporary files that were created
-   * 
-   * Deletes all temporary files tracked by this Mujoco instance and clears
-   * the internal list. Use this after loading the MJCF into MuJoCo to clean up.
-   * 
-   * @return Number of files successfully deleted
    */
   size_t clear_temporary_files();
 
