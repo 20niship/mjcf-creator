@@ -4,6 +4,7 @@
 #include "element.hpp"
 #include "enums.hpp"
 #include <cassert>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -209,6 +210,66 @@ public:
   size_t clear_temporary_files();
 
   void add_temporary_file(const std::string& filepath) { temporary_files_.push_back(filepath); }
+
+  /**
+   * @brief Get all body names registered in the worldbody
+   * @return Set of body names
+   */
+  [[nodiscard]] std::set<std::string> get_body_names() const;
+
+  /**
+   * @brief Get all geom names registered in the worldbody
+   * @return Set of geom names
+   */
+  [[nodiscard]] std::set<std::string> get_geom_names() const;
+
+  /**
+   * @brief Get all joint names registered in the worldbody
+   * @return Set of joint names
+   */
+  [[nodiscard]] std::set<std::string> get_joint_names() const;
+
+  /**
+   * @brief Get all site names registered in the worldbody
+   * @return Set of site names
+   */
+  [[nodiscard]] std::set<std::string> get_site_names() const;
+
+  /**
+   * @brief Get all camera names registered in the worldbody
+   * @return Set of camera names
+   */
+  [[nodiscard]] std::set<std::string> get_camera_names() const;
+
+  /**
+   * @brief Get all light names registered in the worldbody
+   * @return Set of light names
+   */
+  [[nodiscard]] std::set<std::string> get_light_names() const;
+
+  /**
+   * @brief Get all asset names (textures, materials, meshes, hfields) registered
+   * @return Set of asset names
+   */
+  [[nodiscard]] std::set<std::string> get_asset_names() const;
+
+  /**
+   * @brief Get all sensor names registered
+   * @return Set of sensor names
+   */
+  [[nodiscard]] std::set<std::string> get_sensor_names() const;
+
+  /**
+   * @brief Get all actuator names registered
+   * @return Set of actuator names
+   */
+  [[nodiscard]] std::set<std::string> get_actuator_names() const;
+
+  /**
+   * @brief Get all names from all categories (bodies, geoms, joints, sites, cameras, lights, assets, sensors, actuators)
+   * @return Set of all registered names
+   */
+  [[nodiscard]] std::set<std::string> get_all_names() const;
 
 protected:
   [[nodiscard]] bool is_default_value([[maybe_unused]] const std::string& name, [[maybe_unused]] const AttributeValue& value) const override { return false; }
