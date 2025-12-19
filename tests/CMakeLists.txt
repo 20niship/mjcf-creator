@@ -20,6 +20,7 @@ set(TEST_SOURCES
     test_urdf_conversion.cpp
     test_actuator_sensor.cpp
     test_temporary_files.cpp
+    test_name_utilities.cpp
 )
 
 add_executable(tests ${TEST_SOURCES})
