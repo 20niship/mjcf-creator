@@ -11,7 +11,11 @@
 #include <iostream>
 #include <set>
 #include <sstream>
+#if __has_include(<tinyxml2/tinyxml2.h>)
+#include <tinyxml2/tinyxml2.h>
+#else
 #include <tinyxml2.h>
+#endif
 
 namespace mjcf {
 

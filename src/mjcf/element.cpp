@@ -1,7 +1,14 @@
 #include "element.hpp"
-#include <tinyxml2.h>
+#include <filesystem>
+#include <fstream>
 #include <iomanip>
 #include <sstream>
+
+#if __has_include(<tinyxml2/tinyxml2.h>)
+#include <tinyxml2/tinyxml2.h>
+#else
+#include <tinyxml2.h>
+#endif
 
 namespace mjcf {
 
@@ -96,12 +103,19 @@ bool Element::is_default_value([[maybe_unused]] const std::string& name, [[maybe
 }
 
 std::string Element::xml() const {
-  tinyxml2::XMLDocument doc;
-  write_xml_element(&doc, nullptr);
+  static tinyxml2::XMLDocument* doc = new tinyxml2::XMLDocument();
+  doc->Clear();
+  write_xml_element(doc, nullptr);
 
-  tinyxml2::XMLPrinter printer;
-  doc.Print(&printer);
-  return printer.CStr();
+  namespace fs = std::filesystem;
+
+  std::string tmpfile = fs::temp_directory_path().string() + "/mjcf_element_temp.xml";
+  doc->SaveFile(tmpfile.c_str());
+  std::ifstream ifs(tmpfile);
+  std::string content((std::istreambuf_iterator<char>(ifs)), (std::istreambuf_iterator<char>()));
+  ifs.close();
+  fs::remove(tmpfile);
+  return content;
 }
 
 void* Element::write_xml_element_base(void* doc_ptr, void* parent_ptr) const {
