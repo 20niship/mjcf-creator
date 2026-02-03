@@ -188,6 +188,43 @@ auto mujoco = std::make_shared<mjcf::Mujoco>("model");
 mujoco->worldbody_->add_child(body);
 ```
 
+### Name Management Utilities
+
+MuJoCo requires unique names for all elements. The library provides utility functions to retrieve all registered names and help avoid naming conflicts:
+
+```cpp
+auto mujoco = std::make_shared<mjcf::Mujoco>("model");
+
+// Get names by category
+auto body_names = mujoco->get_body_names();       // All body names
+auto geom_names = mujoco->get_geom_names();       // All geom names
+auto joint_names = mujoco->get_joint_names();     // All joint names
+auto site_names = mujoco->get_site_names();       // All site names
+auto camera_names = mujoco->get_camera_names();   // All camera names
+auto light_names = mujoco->get_light_names();     // All light names
+auto asset_names = mujoco->get_asset_names();     // All asset names (textures, materials, meshes, hfields)
+auto sensor_names = mujoco->get_sensor_names();   // All sensor names
+auto actuator_names = mujoco->get_actuator_names(); // All actuator names
+
+// Get all names at once
+auto all_names = mujoco->get_all_names();         // All names from all categories
+
+// Check for name conflicts
+std::string proposed_name = "my_body";
+if(all_names.find(proposed_name) != all_names.end()) {
+    // Name is already in use, generate alternative
+    proposed_name = proposed_name + "_2";
+}
+```
+
+These functions are useful when:
+- Adding URDF models with potential name conflicts
+- Generating unique names programmatically
+- Validating model consistency
+- Debugging naming issues
+
+See `examples/name_utilities_example.cpp` for a complete usage example.
+
 ## Architecture
 
 The library is organized into several header/source pairs:
