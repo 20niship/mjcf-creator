@@ -31,8 +31,8 @@ int main() {
 
   if(std::filesystem::exists(robot1_urdf)) {
     std::cout << "Adding first robot with prefix 'robot1'..." << std::endl;
-    bool success = scene->add_urdf(robot1_urdf, "robot1", false, {});
-    if(success) {
+    auto [body, joint] = scene->add_urdf(robot1_urdf, "robot1", false, {});
+    if(body) {
       std::cout << "✓ Successfully added first robot with prefix 'robot1_'" << std::endl;
     } else {
       std::cout << "✗ Failed to add first robot" << std::endl;
@@ -44,8 +44,8 @@ int main() {
   // Example 2: Add the same robot again with different prefix (simulating multiple robots)
   if(std::filesystem::exists(robot1_urdf)) {
     std::cout << "Adding second instance with prefix 'robot2'..." << std::endl;
-    bool success = scene->add_urdf(robot1_urdf, "robot2");
-    if(success) {
+    auto [body, joint] = scene->add_urdf(robot1_urdf, "robot2");
+    if(body) {
       std::cout << "✓ Successfully added second robot with prefix 'robot2_'" << std::endl;
     } else {
       std::cout << "✗ Failed to add second robot" << std::endl;
@@ -82,8 +82,8 @@ int main() {
   urdf_file << simple_urdf;
   urdf_file.close();
 
-  bool success = scene->add_urdf(temp_urdf, ""); // No prefix
-  if(success) {
+  auto [body, joint] = scene->add_urdf(temp_urdf, "");
+  if(body != nullptr) {
     std::cout << "✓ Successfully added simple box without prefix" << std::endl;
   } else {
     std::cout << "✗ Failed to add simple box" << std::endl;

@@ -4,7 +4,7 @@
 
 namespace mjcf {
 
-enum class GeomType { Plane, Hfield, Sphere, Capsule, Ellipsoid, Cylinder, Box, Mesh };
+enum class GeomType { Plane, Hfield, Sphere, Capsule, Ellipsoid, Cylinder, Box, Mesh, Sdf };
 enum class SiteType { Sphere, Capsule, Ellipsoid, Cylinder, Box };
 enum class JointType { Free, Ball, Slide, Hinge };
 enum class LightMode { Fixed, Track, Trackcom, Targetbody, Targetbodycom };

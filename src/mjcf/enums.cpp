@@ -15,13 +15,14 @@ std::string to_string(GeomType type) {
     case GeomType::Cylinder: return "cylinder";
     case GeomType::Box: return "box";
     case GeomType::Mesh: return "mesh";
+    case GeomType::Sdf: return "sdf";
   }
   throw std::invalid_argument("Invalid GeomType");
 }
 
 GeomType geom_type_from_string(const std::string& str) {
   static const std::unordered_map<std::string, GeomType> map = {{"plane", GeomType::Plane},         {"hfield", GeomType::Hfield},     {"sphere", GeomType::Sphere}, {"capsule", GeomType::Capsule},
-                                                                {"ellipsoid", GeomType::Ellipsoid}, {"cylinder", GeomType::Cylinder}, {"box", GeomType::Box},       {"mesh", GeomType::Mesh}};
+                                                                {"ellipsoid", GeomType::Ellipsoid}, {"cylinder", GeomType::Cylinder}, {"box", GeomType::Box},       {"mesh", GeomType::Mesh}, {"sdf", GeomType::Sdf}};
   auto it                                                    = map.find(str);
   if(it != map.end()) return it->second;
   throw std::invalid_argument("Invalid geom type string: " + str);

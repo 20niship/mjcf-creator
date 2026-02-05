@@ -1,7 +1,7 @@
 #include "doctest.h"
-#include "mjcf/mjcf.hpp"
 #include <filesystem>
 #include <fstream>
+#include <mjcf/mjcf.hpp>
 #include <tinyxml2.h>
 
 TEST_SUITE("URDF Conversion Tests") {
@@ -20,8 +20,9 @@ TEST_SUITE("URDF Conversion Tests") {
 
     // Perform conversion
     auto mujoco  = std::make_shared<mjcf::Mujoco>();
-    bool success = mujoco->add_urdf(urdf_path);
-    CHECK(success);
+    auto [body, joint] = mujoco->add_urdf(urdf_path);
+    CHECK(body != nullptr);
+    CHECK(joint != nullptr);
     std::string content = mujoco->get_xml_text();
 
     CHECK(content.find("<mujoco") != std::string::npos);
@@ -52,9 +53,10 @@ TEST_SUITE("URDF Conversion Tests") {
 
   TEST_CASE("URDF to MJCF conversion") {
     std::string urdf_path = "../tests/robot.urdf";
-    auto mujoco  = std::make_shared<mjcf::Mujoco>();
-    auto success = mujoco->add_urdf(urdf_path);
-    CHECK(success);
+    auto mujoco           = std::make_shared<mjcf::Mujoco>();
+    auto [body, joint]= mujoco->add_urdf(urdf_path);
+    CHECK(body != nullptr);
+    CHECK(joint != nullptr);
     auto content = mujoco->get_xml_text();
 
     CHECK(content.find("<mujoco") != std::string::npos);
@@ -75,8 +77,9 @@ TEST_SUITE("URDF Conversion Tests") {
   TEST_CASE("URDF converter handles missing file") {
     std::string fake_urdf = "/tmp/nonexistent.urdf";
     auto mujoco           = std::make_shared<mjcf::Mujoco>();
-    bool success          = mujoco->add_urdf(fake_urdf);
-    CHECK_FALSE(success);
+    auto [body, joint]    = mujoco->add_urdf(fake_urdf);
+    CHECK(body != nullptr);
+    CHECK(joint != nullptr);
   }
 
   TEST_CASE("Basic URDF parsing functionality") {
@@ -115,10 +118,11 @@ TEST_SUITE("URDF Conversion Tests") {
     urdf_file << minimal_urdf;
     urdf_file.close();
 
-    auto mujoco  = std::make_shared<mjcf::Mujoco>();
-    bool success = mujoco->add_urdf(temp_urdf);
+    auto mujoco        = std::make_shared<mjcf::Mujoco>();
+    auto [body, joint] = mujoco->add_urdf(temp_urdf);
 
-    CHECK(success);
+    CHECK(body != nullptr);
+    CHECK(joint != nullptr);
 
     auto mjcf_content = mujoco->get_xml_text();
     CHECK(mjcf_content.find("<mujoco") != std::string::npos);
@@ -181,9 +185,9 @@ TEST_SUITE("URDF Conversion Tests") {
     urdf_file.close();
 
     auto mujoco  = std::make_shared<mjcf::Mujoco>();
-    bool success = mujoco->add_urdf(temp_urdf);
-
-    CHECK(success);
+    auto [body, joint] = mujoco->add_urdf(temp_urdf);
+    CHECK(body != nullptr);
+    CHECK(joint != nullptr);
 
     std::string xml_content = mujoco->get_xml_text();
 
@@ -268,9 +272,9 @@ TEST_SUITE("URDF Conversion Tests") {
     urdf_file.close();
 
     auto mujoco  = std::make_shared<mjcf::Mujoco>();
-    bool success = mujoco->add_urdf(temp_urdf);
-
-    CHECK(success);
+    auto [body, joint] = mujoco->add_urdf(temp_urdf);
+    CHECK(body != nullptr);
+    CHECK(joint != nullptr);
 
     std::string xml_content = mujoco->get_xml_text();
 
@@ -292,10 +296,11 @@ TEST_SUITE("URDF Conversion Tests") {
       return;
     }
 
-    auto mujoco  = std::make_shared<mjcf::Mujoco>();
-    bool success = mujoco->add_urdf(urdf_path);
+    auto mujoco        = std::make_shared<mjcf::Mujoco>();
+    auto [body, joint] = mujoco->add_urdf(urdf_path);
 
-    CHECK(success);
+    CHECK(body != nullptr);
+    CHECK(joint != nullptr);
 
     std::string xml_content = mujoco->get_xml_text();
 
@@ -426,10 +431,10 @@ TEST_SUITE("URDF Conversion Tests") {
       return;
     }
 
-    auto mujoco  = std::make_shared<mjcf::Mujoco>();
-    bool success = mujoco->add_urdf(urdf_path);
-
-    CHECK(success);
+    auto mujoco        = std::make_shared<mjcf::Mujoco>();
+    auto [body, joint] = mujoco->add_urdf(urdf_path);
+    CHECK(body != nullptr);
+    CHECK(joint != nullptr);
 
     std::string xml_content = mujoco->get_xml_text();
 
@@ -441,21 +446,21 @@ TEST_SUITE("URDF Conversion Tests") {
     // Verify that collision primitives are used, NOT visual meshes
     // base_link: collision has box, visual has mesh -> should use box
     CHECK(xml_content.find("type=\"box\"") != std::string::npos);
-    
+
     // link1: collision has cylinder, visual has mesh -> should use cylinder
     CHECK(xml_content.find("type=\"cylinder\"") != std::string::npos);
-    
+
     // link2: collision has sphere, visual has mesh -> should use sphere
     CHECK(xml_content.find("type=\"sphere\"") != std::string::npos);
-    
+
     // link3: collision has box, visual has box -> should use box
     // (already checked above)
 
     // Count geometry types to ensure visual meshes are NOT added
-    size_t mesh_count   = 0;
-    size_t box_count    = 0;
+    size_t mesh_count     = 0;
+    size_t box_count      = 0;
     size_t cylinder_count = 0;
-    size_t sphere_count = 0;
+    size_t sphere_count   = 0;
 
     size_t pos = 0;
     while((pos = xml_content.find("type=\"mesh\"", pos)) != std::string::npos) {
@@ -544,9 +549,9 @@ TEST_SUITE("URDF Conversion Tests") {
     urdf_file.close();
 
     auto mujoco  = std::make_shared<mjcf::Mujoco>();
-    bool success = mujoco->add_urdf(temp_urdf);
-
-    CHECK(success);
+    auto [body, joint] = mujoco->add_urdf(temp_urdf);
+    CHECK(body != nullptr);
+    CHECK(joint != nullptr);
 
     std::string xml_content = mujoco->get_xml_text();
 
@@ -558,7 +563,7 @@ TEST_SUITE("URDF Conversion Tests") {
     // Verify collision geometries are present
     CHECK(xml_content.find("type=\"box\"") != std::string::npos);
     CHECK(xml_content.find("type=\"cylinder\"") != std::string::npos);
-    
+
     // Verify no mesh elements
     CHECK(xml_content.find("type=\"mesh\"") == std::string::npos);
   }
@@ -593,9 +598,9 @@ TEST_SUITE("URDF Conversion Tests") {
     urdf_file.close();
 
     auto mujoco  = std::make_shared<mjcf::Mujoco>();
-    bool success = mujoco->add_urdf(temp_urdf);
-
-    CHECK(success);
+    auto [body, joint] = mujoco->add_urdf(temp_urdf);
+    CHECK(body != nullptr);
+    CHECK(joint != nullptr);
 
     std::string xml_content = mujoco->get_xml_text();
 
@@ -603,7 +608,7 @@ TEST_SUITE("URDF Conversion Tests") {
     CHECK(xml_content.find("type=\"mesh\"") != std::string::npos);
     CHECK(xml_content.find("<mesh") != std::string::npos);
     CHECK(xml_content.find("collision_mesh.obj") != std::string::npos);
-    
+
     // Visual mesh should not be added (collision takes precedence)
     CHECK(xml_content.find("visual_mesh.obj") == std::string::npos);
   }
@@ -661,10 +666,10 @@ TEST_SUITE("URDF Conversion Tests") {
     urdf_file << gazebo_friction_urdf;
     urdf_file.close();
 
-    auto mujoco  = std::make_shared<mjcf::Mujoco>();
-    bool success = mujoco->add_urdf(temp_urdf);
-
-    CHECK(success);
+    auto mujoco        = std::make_shared<mjcf::Mujoco>();
+    auto [body, joint] = mujoco->add_urdf(temp_urdf);
+    CHECK(body != nullptr);
+    CHECK(joint != nullptr);
 
     std::string xml_content = mujoco->get_xml_text();
 
@@ -677,7 +682,7 @@ TEST_SUITE("URDF Conversion Tests") {
     // MJCF friction format is "sliding torsional rolling"
     // ball_link should have friction="0.5 0.8 ..."
     CHECK(xml_content.find("friction=\"0.5 0.8") != std::string::npos);
-    
+
     // box_link should have friction="1.2 ..." (only mu1 specified)
     CHECK(xml_content.find("friction=\"1.2") != std::string::npos);
   }
@@ -774,10 +779,10 @@ TEST_SUITE("URDF Conversion Tests") {
     urdf_file << dynamics_urdf;
     urdf_file.close();
 
-    auto mujoco  = std::make_shared<mjcf::Mujoco>();
-    bool success = mujoco->add_urdf(temp_urdf);
-
-    CHECK(success);
+    auto mujoco                = std::make_shared<mjcf::Mujoco>();
+    auto [body_ptr, joint_ptr] = mujoco->add_urdf(temp_urdf);
+    CHECK(body_ptr != nullptr);
+    CHECK(joint_ptr != nullptr);
 
     std::string xml_content = mujoco->get_xml_text();
 
@@ -850,9 +855,9 @@ TEST_SUITE("URDF Conversion Tests") {
     urdf_file.close();
 
     auto mujoco  = std::make_shared<mjcf::Mujoco>();
-    bool success = mujoco->add_urdf(temp_urdf);
-
-    CHECK(success);
+    auto [body_ptr, joint_ptr] = mujoco->add_urdf(temp_urdf);
+    CHECK(body_ptr != nullptr);
+    CHECK(joint_ptr != nullptr);
 
     std::string xml_content = mujoco->get_xml_text();
 
@@ -920,10 +925,10 @@ TEST_SUITE("URDF Conversion Tests") {
     urdf_file << zero_values_urdf;
     urdf_file.close();
 
-    auto mujoco  = std::make_shared<mjcf::Mujoco>();
-    bool success = mujoco->add_urdf(temp_urdf);
-
-    CHECK(success);
+    auto mujoco                = std::make_shared<mjcf::Mujoco>();
+    auto [body_ptr, joint_ptr] = mujoco->add_urdf(temp_urdf);
+    CHECK(body_ptr != nullptr);
+    CHECK(joint_ptr != nullptr);
 
     std::string xml_content = mujoco->get_xml_text();
 

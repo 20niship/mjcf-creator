@@ -54,15 +54,17 @@ TEST_SUITE("Temporary File Tracking Tests") {
 
     SUBCASE("add_urdf without copy_meshes doesn't track files") {
       auto mujoco = std::make_shared<mjcf::Mujoco>("test_model");
-      bool success = mujoco->add_urdf(urdf_path, "", false);
-      CHECK(success);
+      auto [body, joint] = mujoco->add_urdf(urdf_path);
+      CHECK(body != nullptr);
+      CHECK(joint != nullptr);
       CHECK(mujoco->get_temporary_files().empty());
     }
 
     SUBCASE("add_urdf with copy_meshes tracks copied files") {
       auto mujoco = std::make_shared<mjcf::Mujoco>("test_model");
-      bool success = mujoco->add_urdf(urdf_path, "", true);
-      CHECK(success);
+      auto [body, joint] = mujoco->add_urdf(urdf_path);
+      CHECK(body != nullptr);
+      CHECK(joint != nullptr);
       
       const auto& temp_files = mujoco->get_temporary_files();
       CHECK_FALSE(temp_files.empty());
@@ -75,8 +77,9 @@ TEST_SUITE("Temporary File Tracking Tests") {
 
     SUBCASE("clear_temporary_files deletes tracked files") {
       auto mujoco = std::make_shared<mjcf::Mujoco>("test_model");
-      bool success = mujoco->add_urdf(urdf_path, "", true);
-      CHECK(success);
+      auto [body, joint] = mujoco->add_urdf(urdf_path, "", true);
+      CHECK(body != nullptr);
+      CHECK(joint != nullptr);
       
       const auto& temp_files = mujoco->get_temporary_files();
       CHECK_FALSE(temp_files.empty());
@@ -123,13 +126,15 @@ TEST_SUITE("Temporary File Tracking Tests") {
       auto mujoco = std::make_shared<mjcf::Mujoco>("test_model");
       
       // Add URDF twice with copy_meshes
-      bool success1 = mujoco->add_urdf(urdf_path, "robot1", true);
-      CHECK(success1);
+      auto [body1, joint1] = mujoco->add_urdf(urdf_path, "robot1", true);
+      CHECK(body1 != nullptr);
+      CHECK(joint1 != nullptr);
       size_t count_after_first = mujoco->get_temporary_files().size();
       CHECK(count_after_first > 0);
       
-      bool success2 = mujoco->add_urdf(urdf_path, "robot2", true);
-      CHECK(success2);
+      auto [body2, joint2] = mujoco->add_urdf(urdf_path, "robot2", true);
+      CHECK(body2 != nullptr);
+      CHECK(joint2 != nullptr);
       size_t count_after_second = mujoco->get_temporary_files().size();
       CHECK(count_after_second >= count_after_first);
       
