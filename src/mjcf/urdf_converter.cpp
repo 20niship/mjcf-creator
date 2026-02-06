@@ -344,15 +344,18 @@ std::tuple<std::shared_ptr<mjcf::Body>, std::shared_ptr<mjcf::Joint>> UrdfConver
   }
 
   // Add root body to worldbody
+  std::shared_ptr<Body> root_body = nullptr;
   for(const auto& [link_name, body] : link_to_body) {
     if(child_links.find(link_name) == child_links.end()) {
       body->pos = pos;
       worldbody->add_child(body);
+      root_body = body;
       break; // For simplicity, take the first root link
     }
   }
 
   // Process joints and create parent-child relationships
+  std::shared_ptr<Joint> first_joint = nullptr;
   for(XMLElement* joint = robot->FirstChildElement("joint"); joint != nullptr; joint = joint->NextSiblingElement("joint")) {
     const char* joint_name  = joint->Attribute("name");
     const char* joint_type_ = joint->Attribute("type");
@@ -436,6 +439,11 @@ std::tuple<std::shared_ptr<mjcf::Body>, std::shared_ptr<mjcf::Joint>> UrdfConver
       }
 
       child_body->add_child(mjcf_joint);
+      
+      // Store the first joint found
+      if(first_joint == nullptr) {
+        first_joint = mjcf_joint;
+      }
 
       auto filtered_ = std::find_if(actuator_metadata.begin(), actuator_metadata.end(),            //
                                     [&joint_name](const std::shared_ptr<BaseActuator>& actuator) { //
@@ -489,21 +497,28 @@ std::tuple<std::shared_ptr<mjcf::Body>, std::shared_ptr<mjcf::Joint>> UrdfConver
     }
   }
 
-  {
-    auto joints = robot->FirstChildElement("joint");
-    if(joints == nullptr) {
-      auto freejoint              = Joint::Free("free_" + model_name);
-      std::shared_ptr<Body> body_ = nullptr;
+  // If no MJCF joints were created (either no joints in URDF, or all were fixed/floating/planar),
+  // create a free joint for the root body
+  if(first_joint == nullptr) {
+    auto freejoint = Joint::Free("free_" + model_name);
+    if(root_body != nullptr) {
+      root_body->add_child(freejoint);
+      first_joint = freejoint;
+    } else {
+      // No root body was found, try to find one
       for(const auto& [link_name, body] : link_to_body) {
         if(child_links.find(link_name) == child_links.end()) {
           body->add_child(freejoint);
-          body_ = body;
+          root_body = body;
+          first_joint = freejoint;
+          break;
         }
       }
-      return {body_, freejoint};
     }
   }
-  return {nullptr, nullptr};
+  
+  // Return the root body and first joint found
+  return {root_body, first_joint};
 }
 
 void UrdfConverter::merge_asset_elements(const Asset& source_asset, Asset& target_asset, const std::string& name_prefix) {
