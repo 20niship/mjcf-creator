@@ -62,7 +62,7 @@ TEST_SUITE("Temporary File Tracking Tests") {
 
     SUBCASE("add_urdf with copy_meshes tracks copied files") {
       auto mujoco = std::make_shared<mjcf::Mujoco>("test_model");
-      auto [body, joint] = mujoco->add_urdf(urdf_path);
+      auto [body, joint] = mujoco->add_urdf(urdf_path, "", true);
       CHECK(body != nullptr);
       CHECK(joint != nullptr);
       

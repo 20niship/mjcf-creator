@@ -78,8 +78,9 @@ TEST_SUITE("URDF Conversion Tests") {
     std::string fake_urdf = "/tmp/nonexistent.urdf";
     auto mujoco           = std::make_shared<mjcf::Mujoco>();
     auto [body, joint]    = mujoco->add_urdf(fake_urdf);
-    CHECK(body != nullptr);
-    CHECK(joint != nullptr);
+    // When file doesn't exist, should return nullptr
+    CHECK(body == nullptr);
+    CHECK(joint == nullptr);
   }
 
   TEST_CASE("Basic URDF parsing functionality") {
