@@ -397,10 +397,14 @@ std::tuple<std::shared_ptr<mjcf::Body>, std::shared_ptr<mjcf::Joint>> UrdfConver
     if(joint_type != "fixed" and joint_type != "floating" and joint_type != "planar") {
       // if(joint_type == "prismatic") continue;
 
-      auto mjcf_joint  = std::make_shared<Joint>();
-      mjcf_joint->name = joint_name;
+      auto mjcf_joint   = std::make_shared<Joint>();
+      mjcf_joint->name  = joint_name;
+      mjcf_joint->range = {-1e10, 1e10};
 
-      if(joint_type == "revolute" || joint_type == "continuous") {
+      if(joint_type == "continuous") {
+        mjcf_joint->type    = JointType::Hinge;
+        mjcf_joint->limited = false;
+      } else if(joint_type == "revolute" || joint_type == "continuous") {
         mjcf_joint->type = JointType::Hinge;
       } else if(joint_type == "prismatic") {
         mjcf_joint->type = JointType::Slide;
@@ -416,12 +420,12 @@ std::tuple<std::shared_ptr<mjcf::Body>, std::shared_ptr<mjcf::Joint>> UrdfConver
       }
 
       XMLElement* limit = joint->FirstChildElement("limit");
-      double lower      = 0.0f;
-      double upper      = 0.0f;
+      double lower      = -1e10;
+      double upper      = 1e10;
       if(limit) {
-        lower             = limit->DoubleAttribute("lower");
-        upper             = limit->DoubleAttribute("upper");
-        mjcf_joint->range = {lower, upper};
+        lower = limit->DoubleAttribute("lower");
+        upper = limit->DoubleAttribute("upper");
+        if(upper > lower) mjcf_joint->range = {lower, upper};
       }
 
       // Parse joint dynamics for damping and friction
@@ -464,7 +468,7 @@ std::tuple<std::shared_ptr<mjcf::Body>, std::shared_ptr<mjcf::Joint>> UrdfConver
           ac->ctrllimited = false;
           ac->kp          = 100.0;
           ac->kv          = 10.0;
-          if(limit != nullptr) {
+          if(limit != nullptr && lower < upper) {
             ac->ctrlrange   = {lower, upper};
             ac->ctrllimited = true;
           }

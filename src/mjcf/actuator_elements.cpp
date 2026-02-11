@@ -11,13 +11,12 @@ void BaseActuator::set_xml_attrib() const {
   if(!name.empty()) this->set_attribute("name", name);
   if(!class_.empty()) this->set_attribute("class", class_);
   if(group != 0) this->set_attribute("group", group);
-  if(ctrllimited) this->set_attribute("ctrllimited", ctrllimited);
-  if(forcelimited) this->set_attribute("forcelimited", forcelimited);
-
-  // For arrays, check if they're non-default
-  if(ctrlrange != std::array<double, 2>{0.0, 0.0}) {
+  if(ctrllimited) {
+    this->set_attribute("ctrllimited", ctrllimited);
     this->set_attribute("ctrlrange", std::vector<double>(ctrlrange.begin(), ctrlrange.end()));
   }
+  if(forcelimited) this->set_attribute("forcelimited", forcelimited);
+
   if(forcerange != std::array<double, 2>{0.0, 0.0}) this->set_attribute("forcerange", std::vector<double>(forcerange.begin(), forcerange.end()));
   if(lengthrange != std::array<double, 2>{0.0, 0.0}) this->set_attribute("lengthrange", std::vector<double>(lengthrange.begin(), lengthrange.end()));
   if(gear != std::array<double, 6>{1, 0, 0, 0, 0, 0}) //
