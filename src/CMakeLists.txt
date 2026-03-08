@@ -6,6 +6,7 @@ set(MJCF_SOURCES
     mjcf/body_elements.cpp
     mjcf/actuator_elements.cpp
     mjcf/sensor_elements.cpp
+    mjcf/flex_elements.cpp
     mjcf/urdf_converter.cpp
 
     # externals 

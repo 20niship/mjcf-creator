@@ -3,10 +3,11 @@
 
 TEST_CASE("motor") {
   mjcf::Motor motor;
-  motor.name      = "motor1";
-  motor.joint     = "joint1";
-  motor.ctrlrange = {-10.0, 10.0};
-  motor.gear      = {10.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+  motor.name        = "motor1";
+  motor.joint       = "joint1";
+  motor.ctrllimited = true;
+  motor.ctrlrange   = {-10.0, 10.0};
+  motor.gear        = {10.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 
   std::string xml = motor.get_xml_text();
   CHECK(xml.find("name=\"motor1\"") != std::string::npos);
