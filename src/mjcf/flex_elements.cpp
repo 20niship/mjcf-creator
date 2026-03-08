@@ -30,9 +30,7 @@ void FlexContact::set_xml_attrib() const {
   if(passive) this->set_attribute("passive", passive);
 }
 
-bool FlexContact::is_default_value(const std::string& name, const AttributeValue& value) const {
-  return false;
-}
+bool FlexContact::is_default_value(const std::string& name, const AttributeValue& value) const { return false; }
 
 FlexEdge::FlexEdge() = default;
 
@@ -50,9 +48,7 @@ void FlexEdge::set_xml_attrib() const {
   if(damping != 0.0) this->set_attribute("damping", damping);
 }
 
-bool FlexEdge::is_default_value(const std::string& name, const AttributeValue& value) const {
-  return false;
-}
+bool FlexEdge::is_default_value(const std::string& name, const AttributeValue& value) const { return false; }
 
 FlexPin::FlexPin() = default;
 
@@ -72,80 +68,49 @@ void FlexPin::set_xml_attrib() const {
   }
 }
 
-bool FlexPin::is_default_value(const std::string& name, const AttributeValue& value) const {
-  return false;
-}
+bool FlexPin::is_default_value(const std::string& name, const AttributeValue& value) const { return false; }
 
 FlexComp::FlexComp() = default;
 
 void FlexComp::set_xml_attrib() const {
   if(!name.empty()) this->set_attribute("name", name);
   this->set_attribute("type", to_string(type));
-  if(!count.empty()) {
-    this->set_attribute("count", count);
-  }
-  if(!spacing.empty())     this->set_attribute("spacing", spacing);
-  if(scale != Arr3{1.0, 1.0, 1.0}) {
-    this->set_attribute("scale", std::vector<double>(scale.begin(), scale.end()));
-  }
+  if(!count.empty()) this->set_attribute("count", count);
+  if(!spacing.empty()) this->set_attribute("spacing", spacing);
+  if(scale != Arr3{1.0, 1.0, 1.0}) this->set_attribute("scale", std::vector<double>(scale.begin(), scale.end()));
   if(radius != 0.005) this->set_attribute("radius", radius);
   if(dim != 2) this->set_attribute("dim", dim);
-  if(dof != FlexDof::Full)  this->set_attribute("dof", to_string(dof));
+  if(dof != FlexDof::Full) this->set_attribute("dof", to_string(dof));
   if(rigid) this->set_attribute("rigid", rigid);
   if(mass != 0.0) this->set_attribute("mass", mass);
   if(inertiabox != 0.0) this->set_attribute("inertiabox", inertiabox);
-  if(pos != Arr3{0.0, 0.0, 0.0}) {
-    this->set_attribute("pos", std::vector<double>(pos.begin(), pos.end()));
-  }
-  if(quat != std::array<double, 4>{1.0, 0.0, 0.0, 0.0}) {
-    this->set_attribute("quat", std::vector<double>(quat.begin(), quat.end()));
-  }
-  if(euler != Arr3{0.0, 0.0, 0.0}) {
-    this->set_attribute("euler", std::vector<double>(euler.begin(), euler.end()));
-  }
-  if(axisangle != std::array<double, 4>{0.0, 0.0, 0.0, 0.0}) {
-    this->set_attribute("axisangle", std::vector<double>(axisangle.begin(), axisangle.end()));
-  }
-  if(xyaxes != std::array<double, 6>{0.0, 0.0, 0.0, 0.0, 0.0, 0.0}) {
-    this->set_attribute("xyaxes", std::vector<double>(xyaxes.begin(), xyaxes.end()));
-  }
-  if(zaxis != Arr3{0.0, 0.0, 0.0}) {
-    this->set_attribute("zaxis", std::vector<double>(zaxis.begin(), zaxis.end()));
-  }
-  if(origin != Arr3{0.0, 0.0, 0.0}) {
-    this->set_attribute("origin", std::vector<double>(origin.begin(), origin.end()));
-  }
+  if(pos != Arr3{0.0, 0.0, 0.0}) this->set_attribute("pos", std::vector<double>(pos.begin(), pos.end()));
+  if(quat != std::array<double, 4>{1.0, 0.0, 0.0, 0.0}) this->set_attribute("quat", std::vector<double>(quat.begin(), quat.end()));
+  if(euler != Arr3{0.0, 0.0, 0.0}) this->set_attribute("euler", std::vector<double>(euler.begin(), euler.end()));
+  if(axisangle != std::array<double, 4>{0.0, 0.0, 0.0, 0.0}) this->set_attribute("axisangle", std::vector<double>(axisangle.begin(), axisangle.end()));
+  if(xyaxes != std::array<double, 6>{0.0, 0.0, 0.0, 0.0, 0.0, 0.0}) this->set_attribute("xyaxes", std::vector<double>(xyaxes.begin(), xyaxes.end()));
+  if(zaxis != Arr3{0.0, 0.0, 0.0}) this->set_attribute("zaxis", std::vector<double>(zaxis.begin(), zaxis.end()));
+  if(origin != Arr3{0.0, 0.0, 0.0}) this->set_attribute("origin", std::vector<double>(origin.begin(), origin.end()));
   if(!file.empty()) this->set_attribute("file", file);
   if(!material.empty()) this->set_attribute("material", material);
-  if(rgba != std::array<double, 4>{0.5, 0.5, 0.5, 1.0}) {
-    this->set_attribute("rgba", std::vector<double>(rgba.begin(), rgba.end()));
-  }
+  if(rgba != std::array<double, 4>{0.5, 0.5, 0.5, 1.0}) this->set_attribute("rgba", std::vector<double>(rgba.begin(), rgba.end()));
   if(flatskin) this->set_attribute("flatskin", flatskin);
   if(group != 0) this->set_attribute("group", group);
 }
 
-bool FlexComp::is_default_value(const std::string& name, const AttributeValue& value) const {
-  return false;
-}
+bool FlexComp::is_default_value(const std::string& name, const AttributeValue& value) const { return false; }
 
-std::shared_ptr<FlexComp> FlexComp::Grid(
-    const std::string& name,
-    std::vector<int> count,
-    std::vector<double> spacing,
-    Arr3 pos) {
-  auto fc  = std::make_shared<FlexComp>();
-  fc->name = name;
-  fc->type = FlexCompType::Grid;
-  fc->count = count;
+std::shared_ptr<FlexComp> FlexComp::Grid(const std::string& name, std::vector<int> count, std::vector<double> spacing, Arr3 pos) {
+  auto fc     = std::make_shared<FlexComp>();
+  fc->name    = name;
+  fc->type    = FlexCompType::Grid;
+  fc->count   = count;
   fc->spacing = spacing;
-  fc->pos  = pos;
+  fc->pos     = pos;
   return fc;
 }
 
-std::shared_ptr<FlexComp> FlexComp::Mesh(
-    const std::string& name,
-    const std::string& file,
-    Arr3 pos) {
+std::shared_ptr<FlexComp> FlexComp::Mesh(const std::string& name, const std::string& file, Arr3 pos) {
   auto fc  = std::make_shared<FlexComp>();
   fc->name = name;
   fc->type = FlexCompType::Mesh;
