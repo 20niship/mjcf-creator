@@ -7,6 +7,7 @@
 #include "element.hpp"
 #include "enums.hpp"
 #include "sensor_elements.hpp"
+#include "flex_elements.hpp"
 #include "urdf_converter.hpp"
 
 /**

@@ -241,4 +241,78 @@ TextureBuiltin texture_builtin_from_string(const std::string& str) {
   throw std::invalid_argument("Invalid texture builtin string: " + str);
 }
 
+// FlexCompType conversions
+std::string to_string(FlexCompType type) {
+  switch(type) {
+    case FlexCompType::Grid: return "grid";
+    case FlexCompType::Box: return "box";
+    case FlexCompType::Cylinder: return "cylinder";
+    case FlexCompType::Ellipsoid: return "ellipsoid";
+    case FlexCompType::Square: return "square";
+    case FlexCompType::Disc: return "disc";
+    case FlexCompType::Circle: return "circle";
+    case FlexCompType::Mesh: return "mesh";
+    case FlexCompType::Gmsh: return "gmsh";
+    case FlexCompType::Direct: return "direct";
+  }
+  throw std::invalid_argument("Invalid FlexCompType");
+}
+
+FlexCompType flex_comp_type_from_string(const std::string& str) {
+  static const std::unordered_map<std::string, FlexCompType> map = {
+      {"grid", FlexCompType::Grid}, {"box", FlexCompType::Box},
+      {"cylinder", FlexCompType::Cylinder}, {"ellipsoid", FlexCompType::Ellipsoid},
+      {"square", FlexCompType::Square}, {"disc", FlexCompType::Disc},
+      {"circle", FlexCompType::Circle}, {"mesh", FlexCompType::Mesh},
+      {"gmsh", FlexCompType::Gmsh}, {"direct", FlexCompType::Direct}
+  };
+  auto it = map.find(str);
+  if(it != map.end()) return it->second;
+  throw std::invalid_argument("Invalid flexcomp type string: " + str);
+}
+
+// FlexSelfCollide conversions
+std::string to_string(FlexSelfCollide mode) {
+  switch(mode) {
+    case FlexSelfCollide::None: return "none";
+    case FlexSelfCollide::Narrow: return "narrow";
+    case FlexSelfCollide::Bvh: return "bvh";
+    case FlexSelfCollide::Sap: return "sap";
+    case FlexSelfCollide::Auto: return "auto";
+  }
+  throw std::invalid_argument("Invalid FlexSelfCollide");
+}
+
+FlexSelfCollide flex_self_collide_from_string(const std::string& str) {
+  static const std::unordered_map<std::string, FlexSelfCollide> map = {
+      {"none", FlexSelfCollide::None}, {"narrow", FlexSelfCollide::Narrow},
+      {"bvh", FlexSelfCollide::Bvh}, {"sap", FlexSelfCollide::Sap},
+      {"auto", FlexSelfCollide::Auto}
+  };
+  auto it = map.find(str);
+  if(it != map.end()) return it->second;
+  throw std::invalid_argument("Invalid flex selfcollide string: " + str);
+}
+
+// FlexDof conversions
+std::string to_string(FlexDof dof) {
+  switch(dof) {
+    case FlexDof::Full: return "full";
+    case FlexDof::Radial: return "radial";
+    case FlexDof::Trilinear: return "trilinear";
+    case FlexDof::Quadratic: return "quadratic";
+  }
+  throw std::invalid_argument("Invalid FlexDof");
+}
+
+FlexDof flex_dof_from_string(const std::string& str) {
+  static const std::unordered_map<std::string, FlexDof> map = {
+      {"full", FlexDof::Full}, {"radial", FlexDof::Radial},
+      {"trilinear", FlexDof::Trilinear}, {"quadratic", FlexDof::Quadratic}
+  };
+  auto it = map.find(str);
+  if(it != map.end()) return it->second;
+  throw std::invalid_argument("Invalid flex dof string: " + str);
+}
+
 } // namespace mjcf

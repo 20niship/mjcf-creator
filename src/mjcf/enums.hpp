@@ -17,6 +17,9 @@ enum class ActuatorType { Motor, Position, Velocity, Cylinder, Muscle, Tendon, D
 enum class TransmissionType { Joint, JointInParent, Slide, Tendon, Site, Body };
 enum class TextureType { Cube, Skybox, TwoD };
 enum class TextureBuiltin { None, Gradient, Checker, Flat };
+enum class FlexCompType { Grid, Box, Cylinder, Ellipsoid, Square, Disc, Circle, Mesh, Gmsh, Direct };
+enum class FlexSelfCollide { None, Narrow, Bvh, Sap, Auto };
+enum class FlexDof { Full, Radial, Trilinear, Quadratic };
 
 // Utility functions to convert enums to strings
 std::string to_string(GeomType type);
@@ -32,6 +35,9 @@ std::string to_string(ActuatorType type);
 std::string to_string(TransmissionType type);
 std::string to_string(TextureType type);
 std::string to_string(TextureBuiltin builtin);
+std::string to_string(FlexCompType type);
+std::string to_string(FlexSelfCollide mode);
+std::string to_string(FlexDof dof);
 
 // Utility functions to convert strings to enums
 GeomType geom_type_from_string(const std::string& str);
@@ -46,5 +52,8 @@ ActuatorType actuator_type_from_string(const std::string& str);
 TransmissionType transmission_type_from_string(const std::string& str);
 TextureType texture_type_from_string(const std::string& str);
 TextureBuiltin texture_builtin_from_string(const std::string& str);
+FlexCompType flex_comp_type_from_string(const std::string& str);
+FlexSelfCollide flex_self_collide_from_string(const std::string& str);
+FlexDof flex_dof_from_string(const std::string& str);
 
 } // namespace mjcf
