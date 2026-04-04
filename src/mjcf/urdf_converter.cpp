@@ -461,7 +461,11 @@ std::tuple<std::shared_ptr<mjcf::Body>, std::shared_ptr<mjcf::Joint>> UrdfConver
 
       if(filtered_ != actuator_metadata.end()) {
         for(const auto& child : actuator_metadata) {
-          if(child->joint == joint_name) mujoco->actuator_->add_child(child);
+          if(child->joint == joint_name) {
+            // nameが未設定の場合はjoint名を自動設定する
+            if(child->name.empty()) child->name = joint_name;
+            mujoco->actuator_->add_child(child);
+          }
         }
       } else if(empty_ != actuator_metadata.end()) {
         auto actuator_info   = *empty_;

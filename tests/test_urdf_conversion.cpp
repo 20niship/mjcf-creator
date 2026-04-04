@@ -949,4 +949,47 @@ TEST_SUITE("URDF Conversion Tests") {
     CHECK(xml_content.find("frictionless_joint") != std::string::npos);
     CHECK(xml_content.find("type=\"hinge\"") != std::string::npos);
   }
+
+  TEST_CASE("URDF actuator metadata with empty name gets joint name auto-assigned") {
+    // Position::Create(joint)はnameを空にするが、filtered_ブランチで自動設定されることを確認する
+    std::string urdf_content = R"(<?xml version="1.0"?>
+<robot name="test_robot">
+  <link name="base_link">
+    <inertial><origin xyz="0 0 0"/><mass value="1.0"/></inertial>
+    <collision><origin xyz="0 0 0"/><geometry><box size="0.1 0.1 0.1"/></geometry></collision>
+  </link>
+  <link name="link1">
+    <inertial><origin xyz="0 0 0"/><mass value="0.5"/></inertial>
+    <collision><origin xyz="0 0 0"/><geometry><box size="0.05 0.05 0.2"/></geometry></collision>
+  </link>
+  <joint name="test_joint" type="revolute">
+    <parent link="base_link"/>
+    <child link="link1"/>
+    <origin xyz="0 0 0.1"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-1.57" upper="1.57" effort="10" velocity="1"/>
+  </joint>
+</robot>)";
+
+    std::string temp_urdf = "actuator_name_test.urdf";
+    std::ofstream urdf_file(temp_urdf);
+    urdf_file << urdf_content;
+    urdf_file.close();
+
+    // nameを設定せずにjointだけ指定したアクチュエータを渡す
+    auto ac = mjcf::Position::Create("test_joint");
+    // ac->name は "" のまま
+
+    auto mujoco        = std::make_shared<mjcf::Mujoco>();
+    auto [body, joint] = mujoco->add_urdf(temp_urdf, "", false, {ac});
+    CHECK(body != nullptr);
+    CHECK(joint != nullptr);
+
+    std::string xml_content = mujoco->get_xml_text();
+
+    // nameが自動的にjoint名に設定されてXMLに出力されることを確認する
+    CHECK(xml_content.find("name=\"test_joint\"") != std::string::npos);
+    CHECK(xml_content.find("joint=\"test_joint\"") != std::string::npos);
+    CHECK(xml_content.find("<position") != std::string::npos);
+  }
 }
