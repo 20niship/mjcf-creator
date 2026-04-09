@@ -101,6 +101,7 @@ void Geom::set_xml_attrib() const {
   if(!hfield.empty()) this->set_attribute("hfield", hfield);
   if(!mesh.empty()) this->set_attribute("mesh", mesh);
   if(fitscale != 1.0) this->set_attribute("fitscale", fitscale);
+  if(mass > 0.0) this->set_attribute("mass", mass);
 }
 
 bool Geom::is_default_value(const std::string& name, const AttributeValue& value) const {
