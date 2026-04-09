@@ -67,6 +67,7 @@ public:
   std::string hfield;
   std::string mesh;
   double fitscale = 1.0; // MuJoCo default
+  double mass     = -1.0; // デフォルトは無効値（0より大きい場合のみXMLに書き出す）
 
   Geom();
 
