@@ -196,9 +196,23 @@ std::shared_ptr<Body> MjcfImporter::import_mjcf(
   namespace fs       = std::filesystem;
   const std::string base_dir = fs::path(filepath).parent_path().string();
 
+  // <compiler meshdir="..."> を読み取ってアセットのメッシュパスを解決するベースを決定
+  std::string asset_dir = base_dir;
+  if(XMLElement* compiler_elem = root->FirstChildElement("compiler")) {
+    const char* meshdir = compiler_elem->Attribute("meshdir");
+    if(meshdir && std::string(meshdir) != "") {
+      fs::path md(meshdir);
+      if(md.is_absolute()) {
+        asset_dir = md.string();
+      } else {
+        asset_dir = (fs::path(base_dir) / md).lexically_normal().string();
+      }
+    }
+  }
+
   // --- <asset> ---
   if(XMLElement* asset_elem = root->FirstChildElement("asset")) {
-    merge_assets(asset_elem, mujoco, name_prefix, base_dir);
+    merge_assets(asset_elem, mujoco, name_prefix, asset_dir);
   }
 
   // --- <default> ---
