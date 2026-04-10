@@ -1,7 +1,3 @@
-# 3Dメッシュファイル (.obj) は通常ビルド生成物として除外するが、
-# assets/ 配下のロボットモデルアセットは追跡対象とする
-!assets/**/*.obj
-
 # Prerequisites
 *.d
 
@@ -10,6 +6,8 @@
 *.lo
 *.o
 *.obj
+# assets/ 配下のロボットモデル用 .obj は追跡対象
+!assets/**/*.obj
 
 # Precompiled Headers
 *.gch
