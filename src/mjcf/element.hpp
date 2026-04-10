@@ -97,4 +97,18 @@ private:
   std::vector<std::shared_ptr<Element>> children_;
 };
 
+/**
+ * @brief タグ名を動的に指定できる汎用要素
+ *
+ * 既知の具体クラスにマッピングできない要素（外部XMLファイル取り込み時など）に使用する。
+ */
+class GenericElement : public Element {
+public:
+  explicit GenericElement(const std::string& tag) : tag_(tag) {}
+  [[nodiscard]] std::string element_name() const override { return tag_; }
+
+private:
+  std::string tag_;
+};
+
 } // namespace mjcf

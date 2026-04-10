@@ -141,6 +141,23 @@ public:
   }
 
   /**
+   * @brief 外部MJCFファイルをこのシーンに取り込む
+   *
+   * 指定したMJCF XMLファイルをパースし、asset / default / worldbody / actuator /
+   * sensor / contact / equality / tendon の各セクションをマージする。
+   * <compiler> と <option> はホスト側の設定を優先するため無視される。
+   *
+   * @param filepath     取り込む MJCF XML ファイルのパス
+   * @param parent       挿入先の Body (nullptr = worldbody 直下)
+   * @param name_prefix  名前衝突を避けるためのプレフィックス (例: "sub_")
+   * @return             取り込んだ最初の Body (存在しなければ nullptr)
+   */
+  std::shared_ptr<Body> add_xml_file(
+      const std::string& filepath,
+      std::shared_ptr<Body> parent     = nullptr,
+      const std::string& name_prefix   = "");
+
+  /**
    * @brief Add URDF content to this MJCF model
    *
    * @param urdf_path Path to input URDF file

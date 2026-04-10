@@ -1,4 +1,5 @@
 #include "core_elements.hpp"
+#include "mjcf_importer.hpp"
 #include "urdf_converter.hpp"
 #include <filesystem>
 #include <iostream>
@@ -34,6 +35,17 @@ std::tuple<std::shared_ptr<mjcf::Body>, std::shared_ptr<mjcf::Joint>> Mujoco::ad
   }
 
   return UrdfConverter::parse_urdf_to_mjcf(this, urdf_path, pos, actuator_metadata, copy_meshes);
+}
+
+std::shared_ptr<Body> Mujoco::add_xml_file(
+    const std::string& filepath,
+    std::shared_ptr<Body> parent,
+    const std::string& name_prefix) {
+  if(!std::filesystem::exists(filepath)) {
+    std::cerr << "[Mujoco::add_xml_file] File does not exist: " << filepath << std::endl;
+    return nullptr;
+  }
+  return MjcfImporter::import_mjcf(this, filepath, parent, name_prefix);
 }
 
 size_t Mujoco::clear_temporary_files() {
