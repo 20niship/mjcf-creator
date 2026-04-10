@@ -21,9 +21,10 @@ using namespace tinyxml2;
 // 参照属性名の集合 — これらにはプレフィックスを付与する
 // ---------------------------------------------------------------------------
 static const std::set<std::string> kRefAttrs = {
-    "name", "mesh", "material", "texture", "class",
+    "name", "mesh", "material", "texture", "class", "childclass",
     "joint", "joint1", "joint2", "body1", "body2",
-    "site", "tendon", "actuator", "geom1", "geom2",
+    "site", "site1", "site2", "tendon", "actuator", "geom1", "geom2",
+    "body", "target",
 };
 
 bool MjcfImporter::is_reference_attr(const std::string& attr_name) {
