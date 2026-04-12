@@ -22,15 +22,10 @@ namespace fs = std::filesystem;
 // 参照属性名の集合 — これらにはプレフィックスを付与する
 // ---------------------------------------------------------------------------
 static const std::set<std::string> kRefAttrs = {
-    "name", "mesh", "material", "texture", "class", "childclass",
-    "joint", "joint1", "joint2", "body1", "body2",
-    "site", "site1", "site2", "tendon", "actuator", "geom1", "geom2",
-    "body", "target",
+  "name", "mesh", "material", "texture", "class", "childclass", "joint", "joint1", "joint2", "body1", "body2", "site", "site1", "site2", "tendon", "actuator", "geom1", "geom2", "body", "target",
 };
 
-bool MjcfImporter::is_reference_attr(const std::string& attr_name) {
-  return kRefAttrs.count(attr_name) > 0;
-}
+bool MjcfImporter::is_reference_attr(const std::string& attr_name) { return kRefAttrs.count(attr_name) > 0; }
 
 std::string MjcfImporter::apply_prefix(const std::string& name, const std::string& prefix) {
   if(prefix.empty()) return name;
@@ -40,8 +35,7 @@ std::string MjcfImporter::apply_prefix(const std::string& name, const std::strin
 // ---------------------------------------------------------------------------
 // XML 要素ツリーを GenericElement ツリーとして再帰的に構築
 // ---------------------------------------------------------------------------
-std::shared_ptr<Element> MjcfImporter::build_element_tree(
-    void* xml_elem_ptr, const std::string& prefix, const std::string& base_dir) {
+std::shared_ptr<Element> MjcfImporter::build_element_tree(void* xml_elem_ptr, const std::string& prefix, const std::string& base_dir) {
   auto* xml_elem = static_cast<XMLElement*>(xml_elem_ptr);
   if(!xml_elem) return nullptr;
 
@@ -55,9 +49,9 @@ std::shared_ptr<Element> MjcfImporter::build_element_tree(
     if(attr_name == "file" || attr_name == "filename") {
       // 相対パスを絶対パスに解決
       if(!attr_value.empty() && attr_value[0] != '/') {
-        namespace fs       = std::filesystem;
-        fs::path resolved  = fs::path(base_dir) / attr_value;
-        attr_value         = resolved.lexically_normal().string();
+        namespace fs      = std::filesystem;
+        fs::path resolved = fs::path(base_dir) / attr_value;
+        attr_value        = resolved.lexically_normal().string();
       }
     } else if(is_reference_attr(attr_name) && !prefix.empty()) {
       attr_value = apply_prefix(attr_value, prefix);
@@ -67,8 +61,7 @@ std::shared_ptr<Element> MjcfImporter::build_element_tree(
   }
 
   // 子要素を再帰的に処理
-  for(XMLElement* child = xml_elem->FirstChildElement(); child;
-      child              = child->NextSiblingElement()) {
+  for(XMLElement* child = xml_elem->FirstChildElement(); child; child = child->NextSiblingElement()) {
     auto child_elem = build_element_tree(child, prefix, base_dir);
     if(child_elem) elem->add_child(child_elem);
   }
@@ -79,13 +72,11 @@ std::shared_ptr<Element> MjcfImporter::build_element_tree(
 // ---------------------------------------------------------------------------
 // <asset> セクションのマージ
 // ---------------------------------------------------------------------------
-void MjcfImporter::merge_assets(void* src_elem_ptr, Mujoco* dst,
-                                const std::string& prefix, const std::string& base_dir) {
+void MjcfImporter::merge_assets(void* src_elem_ptr, Mujoco* dst, const std::string& prefix, const std::string& base_dir) {
   auto* src = static_cast<XMLElement*>(src_elem_ptr);
   if(!src) return;
 
-  for(XMLElement* child = src->FirstChildElement(); child;
-      child              = child->NextSiblingElement()) {
+  for(XMLElement* child = src->FirstChildElement(); child; child = child->NextSiblingElement()) {
     const char* name_attr = child->Attribute("name");
 
     // MuJoCo仕様: <mesh>にname属性がない場合、fileのstemが暗黙の名前として使われる。
@@ -117,13 +108,11 @@ void MjcfImporter::merge_assets(void* src_elem_ptr, Mujoco* dst,
 // ---------------------------------------------------------------------------
 // <default> セクションのマージ
 // ---------------------------------------------------------------------------
-void MjcfImporter::merge_defaults(void* src_elem_ptr, Mujoco* dst,
-                                  const std::string& prefix) {
+void MjcfImporter::merge_defaults(void* src_elem_ptr, Mujoco* dst, const std::string& prefix) {
   auto* src = static_cast<XMLElement*>(src_elem_ptr);
   if(!src || !dst->default_) return;
 
-  for(XMLElement* child = src->FirstChildElement(); child;
-      child              = child->NextSiblingElement()) {
+  for(XMLElement* child = src->FirstChildElement(); child; child = child->NextSiblingElement()) {
     // base_dir は default 内の file 参照には通常使わないので空文字
     auto elem = build_element_tree(child, prefix, "");
     if(elem) dst->default_->add_child(elem);
@@ -133,15 +122,13 @@ void MjcfImporter::merge_defaults(void* src_elem_ptr, Mujoco* dst,
 // ---------------------------------------------------------------------------
 // <worldbody> セクションのマージ — 直接の子を dst_parent 配下に追加
 // ---------------------------------------------------------------------------
-std::shared_ptr<Body> MjcfImporter::merge_worldbody(void* src_elem_ptr, Element* dst_parent,
-                                                    const std::string& prefix) {
+std::shared_ptr<Body> MjcfImporter::merge_worldbody(void* src_elem_ptr, Element* dst_parent, const std::string& prefix) {
   auto* src = static_cast<XMLElement*>(src_elem_ptr);
   if(!src || !dst_parent) return nullptr;
 
   std::shared_ptr<Body> first_body = nullptr;
 
-  for(XMLElement* child = src->FirstChildElement(); child;
-      child              = child->NextSiblingElement()) {
+  for(XMLElement* child = src->FirstChildElement(); child; child = child->NextSiblingElement()) {
     auto elem = build_element_tree(child, prefix, "");
     if(!elem) continue;
     dst_parent->add_child(elem);
@@ -161,13 +148,11 @@ std::shared_ptr<Body> MjcfImporter::merge_worldbody(void* src_elem_ptr, Element*
 // ---------------------------------------------------------------------------
 // 汎用セクションマージ（actuator / sensor / contact / equality / tendon）
 // ---------------------------------------------------------------------------
-void MjcfImporter::merge_section(void* src_elem_ptr, Element* dst_container,
-                                 const std::string& prefix, const std::string& base_dir) {
+void MjcfImporter::merge_section(void* src_elem_ptr, Element* dst_container, const std::string& prefix, const std::string& base_dir) {
   auto* src = static_cast<XMLElement*>(src_elem_ptr);
   if(!src || !dst_container) return;
 
-  for(XMLElement* child = src->FirstChildElement(); child;
-      child              = child->NextSiblingElement()) {
+  for(XMLElement* child = src->FirstChildElement(); child; child = child->NextSiblingElement()) {
     auto elem = build_element_tree(child, prefix, base_dir);
     if(elem) dst_container->add_child(elem);
   }
@@ -176,11 +161,7 @@ void MjcfImporter::merge_section(void* src_elem_ptr, Element* dst_container,
 // ---------------------------------------------------------------------------
 // メインエントリポイント
 // ---------------------------------------------------------------------------
-std::shared_ptr<Body> MjcfImporter::import_mjcf(
-    Mujoco* mujoco,
-    const std::string& filepath,
-    std::shared_ptr<Body> parent,
-    const std::string& name_prefix) {
+std::shared_ptr<Body> MjcfImporter::import_mjcf(Mujoco* mujoco, const std::string& filepath, std::shared_ptr<Body> parent, const std::string& name_prefix) {
 
   if(!mujoco) {
     std::cerr << "[MjcfImporter] mujoco is null" << std::endl;
@@ -211,7 +192,7 @@ std::shared_ptr<Body> MjcfImporter::import_mjcf(
   }
 
   // ベースディレクトリ（file属性の相対パス解決用）
-  namespace fs       = std::filesystem;
+  namespace fs               = std::filesystem;
   const std::string base_dir = fs::path(filepath).parent_path().string();
 
   // <compiler meshdir="..."> を読み取ってアセットのメッシュパスを解決するベースを決定
@@ -241,9 +222,8 @@ std::shared_ptr<Body> MjcfImporter::import_mjcf(
   // --- <worldbody> ---
   std::shared_ptr<Body> result = nullptr;
   if(XMLElement* wb_elem = root->FirstChildElement("worldbody")) {
-    Element* dst = parent ? static_cast<Element*>(parent.get())
-                          : static_cast<Element*>(mujoco->worldbody_.get());
-    result = merge_worldbody(wb_elem, dst, name_prefix);
+    Element* dst = parent ? static_cast<Element*>(parent.get()) : static_cast<Element*>(mujoco->worldbody_.get());
+    result       = merge_worldbody(wb_elem, dst, name_prefix);
   }
 
   // --- <actuator> ---
