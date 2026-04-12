@@ -1,4 +1,7 @@
 #include "core_elements.hpp"
+#include "body_elements.hpp"
+#include "actuator_elements.hpp"
+#include "sensor_elements.hpp"
 #include "urdf_converter.hpp"
 #include <filesystem>
 #include <iostream>
@@ -126,6 +129,180 @@ void Size::set_xml_attrib() const {
 
 bool Size::is_default_value([[maybe_unused]] const std::string& name, [[maybe_unused]] const AttributeValue& value) const {
   return false; // サイズパラメータは通常明示的に設定される
+}
+
+// Helper function to recursively collect names from element tree
+namespace {
+template<typename T>
+void collect_names_recursive(const Element* element, std::set<std::string>& names) {
+  if(!element) return;
+  
+  // Try to cast to the target type and get name directly
+  auto typed_element = dynamic_cast<const T*>(element);
+  if(typed_element) {
+    // Access the name member variable directly
+    // This uses compile-time check to see if the type has a name member
+    if constexpr (requires { typed_element->name; }) {
+      if(!typed_element->name.empty()) {
+        names.insert(typed_element->name);
+      }
+    }
+  }
+  
+  // Recursively process children
+  for(const auto& child : element->get_children()) {
+    collect_names_recursive<T>(child.get(), names);
+  }
+}
+
+// Helper to collect names from asset container elements
+void collect_asset_names(const Element* container, std::set<std::string>& names) {
+  if(!container) return;
+  
+  for(const auto& child : container->get_children()) {
+    // Try each asset type
+    if(auto texture = dynamic_cast<const Texture*>(child.get())) {
+      if(!texture->name.empty()) names.insert(texture->name);
+    } else if(auto material = dynamic_cast<const Material*>(child.get())) {
+      if(!material->name.empty()) names.insert(material->name);
+    } else if(auto mesh = dynamic_cast<const Mesh*>(child.get())) {
+      if(!mesh->name.empty()) names.insert(mesh->name);
+    } else if(auto hfield = dynamic_cast<const Hfield*>(child.get())) {
+      if(!hfield->name.empty()) names.insert(hfield->name);
+    }
+  }
+}
+
+// Helper to collect sensor names
+void collect_sensor_names(const Element* container, std::set<std::string>& names) {
+  if(!container) return;
+  
+  for(const auto& child : container->get_children()) {
+    if(auto sensor = dynamic_cast<const BaseSensor*>(child.get())) {
+      if(!sensor->name.empty()) names.insert(sensor->name);
+    }
+  }
+}
+
+// Helper to collect actuator names
+void collect_actuator_names(const Element* container, std::set<std::string>& names) {
+  if(!container) return;
+  
+  for(const auto& child : container->get_children()) {
+    if(auto actuator = dynamic_cast<const BaseActuator*>(child.get())) {
+      if(!actuator->name.empty()) names.insert(actuator->name);
+    }
+  }
+}
+} // anonymous namespace
+
+std::set<std::string> Mujoco::get_body_names() const {
+  std::set<std::string> names;
+  if(worldbody_) {
+    collect_names_recursive<Body>(worldbody_.get(), names);
+  }
+  return names;
+}
+
+std::set<std::string> Mujoco::get_geom_names() const {
+  std::set<std::string> names;
+  if(worldbody_) {
+    collect_names_recursive<Geom>(worldbody_.get(), names);
+  }
+  return names;
+}
+
+std::set<std::string> Mujoco::get_joint_names() const {
+  std::set<std::string> names;
+  if(worldbody_) {
+    collect_names_recursive<Joint>(worldbody_.get(), names);
+  }
+  return names;
+}
+
+std::set<std::string> Mujoco::get_site_names() const {
+  std::set<std::string> names;
+  if(worldbody_) {
+    collect_names_recursive<Site>(worldbody_.get(), names);
+  }
+  return names;
+}
+
+std::set<std::string> Mujoco::get_camera_names() const {
+  std::set<std::string> names;
+  if(worldbody_) {
+    collect_names_recursive<Camera>(worldbody_.get(), names);
+  }
+  return names;
+}
+
+std::set<std::string> Mujoco::get_light_names() const {
+  std::set<std::string> names;
+  if(worldbody_) {
+    collect_names_recursive<Light>(worldbody_.get(), names);
+  }
+  return names;
+}
+
+std::set<std::string> Mujoco::get_asset_names() const {
+  std::set<std::string> names;
+  if(asset_) {
+    collect_asset_names(asset_.get(), names);
+  }
+  return names;
+}
+
+std::set<std::string> Mujoco::get_sensor_names() const {
+  std::set<std::string> names;
+  if(sensor_) {
+    collect_sensor_names(sensor_.get(), names);
+  }
+  return names;
+}
+
+std::set<std::string> Mujoco::get_actuator_names() const {
+  std::set<std::string> names;
+  if(actuator_) {
+    collect_actuator_names(actuator_.get(), names);
+  }
+  return names;
+}
+
+std::set<std::string> Mujoco::get_all_names() const {
+  std::set<std::string> names;
+  
+  // Collect from worldbody (bodies, geoms, joints, sites, cameras, lights)
+  auto body_names = get_body_names();
+  names.insert(body_names.begin(), body_names.end());
+  
+  auto geom_names = get_geom_names();
+  names.insert(geom_names.begin(), geom_names.end());
+  
+  auto joint_names = get_joint_names();
+  names.insert(joint_names.begin(), joint_names.end());
+  
+  auto site_names = get_site_names();
+  names.insert(site_names.begin(), site_names.end());
+  
+  auto camera_names = get_camera_names();
+  names.insert(camera_names.begin(), camera_names.end());
+  
+  auto light_names = get_light_names();
+  names.insert(light_names.begin(), light_names.end());
+  
+  // Collect from assets
+  auto asset_names = get_asset_names();
+  names.insert(asset_names.begin(), asset_names.end());
+  
+  // Collect from sensors
+  auto sensor_names = get_sensor_names();
+  names.insert(sensor_names.begin(), sensor_names.end());
+  
+  // Collect from actuators
+  auto actuator_names = get_actuator_names();
+  names.insert(actuator_names.begin(), actuator_names.end());
+  
+  return names;
 }
 
 } // namespace mjcf
