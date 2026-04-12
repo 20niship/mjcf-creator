@@ -16,6 +16,7 @@
 namespace mjcf {
 
 using namespace tinyxml2;
+namespace fs = std::filesystem;
 
 // ---------------------------------------------------------------------------
 // 参照属性名の集合 — これらにはプレフィックスを付与する
@@ -85,14 +86,30 @@ void MjcfImporter::merge_assets(void* src_elem_ptr, Mujoco* dst,
 
   for(XMLElement* child = src->FirstChildElement(); child;
       child              = child->NextSiblingElement()) {
-    // 重複チェック: name属性が既に登録されていればスキップ
     const char* name_attr = child->Attribute("name");
-    if(name_attr) {
-      std::string prefixed_name = apply_prefix(name_attr, prefix);
+
+    // MuJoCo仕様: <mesh>にname属性がない場合、fileのstemが暗黙の名前として使われる。
+    // プレフィックス付与が必要なため、ここで名前を明示的に導出する。
+    std::string derived_name;
+    if(!name_attr && std::string(child->Name()) == "mesh") {
+      const char* file_attr = child->Attribute("file");
+      if(file_attr) {
+        derived_name = fs::path(file_attr).stem().string();
+      }
+    }
+
+    // 重複チェック: 明示的name or 導出名でチェック
+    const std::string effective_name = name_attr ? name_attr : derived_name;
+    if(!effective_name.empty()) {
+      std::string prefixed_name = apply_prefix(effective_name, prefix);
       if(dst->has_asset(prefixed_name)) continue;
     }
 
     auto elem = build_element_tree(child, prefix, base_dir);
+    // nameがなかった場合、prefix付きの導出名を明示的に設定する
+    if(!derived_name.empty() && elem) {
+      elem->set_attribute_public("name", apply_prefix(derived_name, prefix));
+    }
     if(elem) dst->add_asset(elem);
   }
 }
