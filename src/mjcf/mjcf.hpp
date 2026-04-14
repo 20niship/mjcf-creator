@@ -9,6 +9,7 @@
 #include "sensor_elements.hpp"
 #include "flex_elements.hpp"
 #include "urdf_converter.hpp"
+#include "mjcf_importer.hpp"
 
 /**
  * @file mjcf.hpp

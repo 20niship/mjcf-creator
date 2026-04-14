@@ -8,6 +8,7 @@ set(MJCF_SOURCES
     mjcf/sensor_elements.cpp
     mjcf/flex_elements.cpp
     mjcf/urdf_converter.cpp
+    mjcf/mjcf_importer.cpp
 
     # externals 
     ext/tinyxml2.cpp

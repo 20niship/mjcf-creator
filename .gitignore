@@ -6,6 +6,8 @@
 *.lo
 *.o
 *.obj
+# assets/ 配下のロボットモデル用 .obj は追跡対象
+!assets/**/*.obj
 
 # Precompiled Headers
 *.gch
