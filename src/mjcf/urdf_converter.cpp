@@ -443,7 +443,7 @@ std::tuple<std::shared_ptr<mjcf::Body>, std::shared_ptr<mjcf::Joint>> UrdfConver
       }
 
       child_body->add_child(mjcf_joint);
-      
+
       // Store the first joint found
       if(first_joint == nullptr) {
         first_joint = mjcf_joint;
@@ -505,27 +505,6 @@ std::tuple<std::shared_ptr<mjcf::Body>, std::shared_ptr<mjcf::Joint>> UrdfConver
     }
   }
 
-  // If no MJCF joints were created (either no joints in URDF, or all were fixed/floating/planar),
-  // create a free joint for the root body
-  if(first_joint == nullptr) {
-    auto freejoint = Joint::Free("free_" + model_name);
-    if(root_body != nullptr) {
-      root_body->add_child(freejoint);
-      first_joint = freejoint;
-    } else {
-      // No root body was found, try to find one
-      for(const auto& [link_name, body] : link_to_body) {
-        if(child_links.find(link_name) == child_links.end()) {
-          body->add_child(freejoint);
-          root_body = body;
-          first_joint = freejoint;
-          break;
-        }
-      }
-    }
-  }
-  
-  // Return the root body and first joint found
   return {root_body, first_joint};
 }
 
