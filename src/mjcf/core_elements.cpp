@@ -124,6 +124,13 @@ bool Default::is_default_value([[maybe_unused]] const std::string& name, [[maybe
   return false; // 設定されている場合はclassを常に含める
 }
 
+void Weld::set_xml_attrib() const {
+  set_attribute("body1", body1);
+  set_attribute("body2", body2);
+  set_attribute("solref", std::vector<double>(solref.begin(), solref.end()));
+  set_attribute("solimp", std::vector<double>(solimp.begin(), solimp.end()));
+}
+
 } // namespace detail
 
 Size::Size() = default;

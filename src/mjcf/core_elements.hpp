@@ -58,6 +58,17 @@ public:
   [[nodiscard]] std::string element_name() const override { return "equality"; }
 };
 
+class Weld : public Element {
+public:
+  std::string body1;
+  std::string body2;
+  std::array<double, 2> solref = {0.02, 1.0};
+  std::array<double, 3> solimp = {0.9, 0.95, 0.001};
+  Weld() = default;
+  [[nodiscard]] std::string element_name() const override { return "weld"; }
+  void set_xml_attrib() const override;
+};
+
 class Tendon : public Element {
 public:
   Tendon() = default;
