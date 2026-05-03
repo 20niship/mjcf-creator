@@ -3,6 +3,7 @@
 #include "asset_elements.hpp"
 #include "body_elements.hpp"
 #include "core_elements.hpp"
+#include "sensor_elements.hpp"
 #include <algorithm>
 #include <cmath>
 #include <filesystem>
@@ -125,6 +126,49 @@ std::tuple<std::shared_ptr<mjcf::Body>, std::shared_ptr<mjcf::Joint>> UrdfConver
     if(mu1_elem) mu1 = mu1_elem->DoubleAttribute("value", -1.0);
     if(mu2_elem) mu2 = mu2_elem->DoubleAttribute("value", -1.0);
     if(mu1 >= 0.0 || mu2 >= 0.0) gazebo_friction_map[reference] = {mu1, mu2};
+  }
+
+  // Gazeboプラグインからセンサー情報を収集
+  struct UrdfSensorInfo {
+    enum class Type { ForceTorque, IMU };
+    Type type;
+    std::string name;
+    std::string joint_name; // FTセンサー: 対象joint名
+    std::string link_name;  // IMU: 対象link名
+  };
+  std::vector<UrdfSensorInfo> detected_sensors;
+
+  for(XMLElement* gazebo = robot->FirstChildElement("gazebo"); gazebo; gazebo = gazebo->NextSiblingElement("gazebo")) {
+    // <gazebo><plugin ...> 形式
+    for(XMLElement* plugin = gazebo->FirstChildElement("plugin"); plugin; plugin = plugin->NextSiblingElement("plugin")) {
+      const char* filename = plugin->Attribute("filename");
+      if(filename == nullptr) continue;
+      std::string fn = filename;
+
+      if(fn.find("ft_sensor") != std::string::npos) {
+        XMLElement* joint_name_elem = plugin->FirstChildElement("jointName");
+        if(joint_name_elem == nullptr || joint_name_elem->GetText() == nullptr) continue;
+        const char* plugin_name = plugin->Attribute("name");
+        detected_sensors.push_back({UrdfSensorInfo::Type::ForceTorque, plugin_name ? plugin_name : "ft_sensor", joint_name_elem->GetText(), ""});
+      } else if(fn.find("imu") != std::string::npos) {
+        XMLElement* frame_elem = plugin->FirstChildElement("frameName");
+        if(frame_elem == nullptr || frame_elem->GetText() == nullptr) continue;
+        const char* plugin_name = plugin->Attribute("name");
+        detected_sensors.push_back({UrdfSensorInfo::Type::IMU, plugin_name ? plugin_name : "imu_sensor", "", frame_elem->GetText()});
+      }
+    }
+
+    // <gazebo reference="link_name"><sensor type="imu"> 形式
+    const char* ref = gazebo->Attribute("reference");
+    if(ref != nullptr) {
+      for(XMLElement* sensor_elem = gazebo->FirstChildElement("sensor"); sensor_elem; sensor_elem = sensor_elem->NextSiblingElement("sensor")) {
+        const char* stype = sensor_elem->Attribute("type");
+        if(stype != nullptr && std::string(stype) == "imu") {
+          const char* sname = sensor_elem->Attribute("name");
+          detected_sensors.push_back({UrdfSensorInfo::Type::IMU, sname ? sname : "imu_sensor", "", ref});
+        }
+      }
+    }
   }
 
   std::map<std::string, std::shared_ptr<Body>> link_to_body;
@@ -332,6 +376,17 @@ std::tuple<std::shared_ptr<mjcf::Body>, std::shared_ptr<mjcf::Joint>> UrdfConver
     link_to_body[link_name] = body;
   }
 
+  // joint名→child link名のマップ（センサー用）
+  std::map<std::string, std::string> joint_to_child_link;
+  for(XMLElement* joint = robot->FirstChildElement("joint"); joint; joint = joint->NextSiblingElement("joint")) {
+    const char* jname = joint->Attribute("name");
+    XMLElement* child_elem = joint->FirstChildElement("child");
+    if(jname != nullptr && child_elem != nullptr) {
+      const char* child_link = child_elem->Attribute("link");
+      if(child_link != nullptr) joint_to_child_link[jname] = child_link;
+    }
+  }
+
   std::set<std::string> child_links;
   for(XMLElement* joint = robot->FirstChildElement("joint"); joint; joint = joint->NextSiblingElement("joint")) {
     XMLElement* child = joint->FirstChildElement("child");
@@ -502,6 +557,56 @@ std::tuple<std::shared_ptr<mjcf::Body>, std::shared_ptr<mjcf::Joint>> UrdfConver
           mujoco->actuator_->add_child(ac);
         }
       }
+    }
+  }
+
+  // 検出したセンサーに対してSiteとMJCFセンサーを生成
+  for(const auto& sensor_info : detected_sensors) {
+    std::shared_ptr<Body> target_body = nullptr;
+
+    if(sensor_info.type == UrdfSensorInfo::Type::ForceTorque) {
+      // joint名からchild bodyを取得
+      auto it = joint_to_child_link.find(sensor_info.joint_name);
+      if(it != joint_to_child_link.end()) {
+        auto body_it = link_to_body.find(it->second);
+        if(body_it != link_to_body.end()) target_body = body_it->second;
+      }
+    } else {
+      // link名から直接bodyを取得
+      auto it = link_to_body.find(sensor_info.link_name);
+      if(it != link_to_body.end()) target_body = it->second;
+    }
+
+    if(target_body == nullptr) continue;
+
+    // Siteを追加
+    std::string site_name = sensor_info.name + "_site";
+    auto site             = std::make_shared<Site>();
+    site->name            = site_name;
+    target_body->add_child(site);
+
+    // センサーを追加
+    if(sensor_info.type == UrdfSensorInfo::Type::ForceTorque) {
+      auto force_sensor = std::make_shared<Force>();
+      force_sensor->name = sensor_info.name + "_force";
+      force_sensor->site = site_name;
+      mujoco->sensor_->add_child(force_sensor);
+
+      auto torque_sensor = std::make_shared<Torque>();
+      torque_sensor->name = sensor_info.name + "_torque";
+      torque_sensor->site = site_name;
+      mujoco->sensor_->add_child(torque_sensor);
+
+    } else { // IMU
+      auto gyro_sensor = std::make_shared<Gyro>();
+      gyro_sensor->name = sensor_info.name + "_gyro";
+      gyro_sensor->site = site_name;
+      mujoco->sensor_->add_child(gyro_sensor);
+
+      auto acc_sensor = std::make_shared<Accelerometer>();
+      acc_sensor->name = sensor_info.name + "_accelerometer";
+      acc_sensor->site = site_name;
+      mujoco->sensor_->add_child(acc_sensor);
     }
   }
 
