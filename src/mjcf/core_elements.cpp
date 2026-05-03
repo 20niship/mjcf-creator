@@ -1,11 +1,21 @@
 #include "core_elements.hpp"
 #include "mjcf_importer.hpp"
 #include "urdf_converter.hpp"
+#include "sensor_elements.hpp"
 #include <filesystem>
 #include <iostream>
 
 namespace mjcf {
 
+std::vector<std::shared_ptr<BaseSensor>> Mujoco::get_sensors() const {
+  std::vector<std::shared_ptr<BaseSensor>> result;
+  if(!sensor_) return result;
+  for(const auto& child : sensor_->get_children()) {
+    auto s = std::dynamic_pointer_cast<BaseSensor>(child);
+    if(s) result.push_back(s);
+  }
+  return result;
+}
 
 void Mujoco::set_xml_attrib() const {
   if(!model.empty()) this->set_attribute("model", model);

@@ -4,12 +4,14 @@
 #include "element.hpp"
 #include "enums.hpp"
 #include <cassert>
+#include <memory>
 #include <string>
 #include <vector>
 
 namespace mjcf {
 
 class BaseActuator;
+class BaseSensor;
 class Body;
 class Joint;
 
@@ -225,6 +227,11 @@ public:
     assert(this->worldbody_ && "Worldbody container not initialized");
     worldbody_->add_child(body_element);
   }
+
+  /**
+   * @brief Get list of sensors in this MJCF model
+   */
+  [[nodiscard]] std::vector<std::shared_ptr<BaseSensor>> get_sensors() const;
 
   /**
    * @brief Get list of temporary files created during MJCF generation
