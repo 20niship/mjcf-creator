@@ -90,7 +90,7 @@ TEST_SUITE("URDF Conversion Tests") {
   <material name="test_material">
     <color rgba="1.0 0.0 0.0 1.0"/>
   </material>
-  
+
   <link name="base_link">
     <inertial>
       <origin xyz="0 0 0" rpy="0 0 0"/>
@@ -111,6 +111,29 @@ TEST_SUITE("URDF Conversion Tests") {
       </geometry>
     </collision>
   </link>
+
+  <link name="link1">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="0.5"/>
+      <inertia ixx="0.5" ixy="0" ixz="0" iyy="0.5" iyz="0" izz="0.5"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.1 0.1 0.1"/>
+      </geometry>
+      <material name="test_material"/>
+    </visual>
+  </link>
+
+  <joint name="base_joint" type="revolute">
+    <parent link="base_link"/>
+    <child link="link1"/>
+    <origin xyz="0 0 0.1" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="0" upper="3.14159" effort="100" velocity="1"/>
+  </joint>
 </robot>)";
 
     std::string temp_urdf = "minimal_test.urdf";
@@ -173,10 +196,12 @@ TEST_SUITE("URDF Conversion Tests") {
     </visual>
   </link>
   
-  <joint name="joint1" type="fixed">
+  <joint name="joint1" type="revolute">
     <parent link="base_link"/>
     <child link="link_with_inline_material_rgb"/>
     <origin xyz="0 0 0.5" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="0" upper="3.14159" effort="100" velocity="1"/>
   </joint>
 </robot>)";
 
@@ -260,10 +285,12 @@ TEST_SUITE("URDF Conversion Tests") {
     </collision>
   </link>
   
-  <joint name="joint1" type="fixed">
+  <joint name="joint1" type="revolute">
     <parent link="link1"/>
     <child link="link2"/>
     <origin xyz="0 0 0.3" rpy="0 0 0"/>
+    <axis xyz="1 0 0"/>
+    <limit lower="0" upper="3.14159" effort="100" velocity="1"/>
   </joint>
 </robot>)";
 
@@ -591,6 +618,26 @@ TEST_SUITE("URDF Conversion Tests") {
       </geometry>
     </collision>
   </link>
+  <link name="link1">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="0.5"/>
+      <inertia ixx="0.5" ixy="0" ixz="0" iyy="0.5" iyz="0" izz="0.5"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.1 0.1 0.1"/>
+      </geometry>
+    </visual>
+  </link>
+  <joint name="mesh_joint" type="revolute">
+    <parent link="base_link"/>
+    <child link="link1"/>
+    <origin xyz="0 0 0.1" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="0" upper="3.14159" effort="100" velocity="1"/>
+  </joint>
 </robot>)";
 
     std::string temp_urdf = "collision_mesh_test.urdf";
@@ -655,10 +702,12 @@ TEST_SUITE("URDF Conversion Tests") {
     </collision>
   </link>
   
-  <joint name="ball_to_box" type="fixed">
+  <joint name="ball_to_box" type="revolute">
     <parent link="ball_link"/>
     <child link="box_link"/>
     <origin xyz="0 0 0.2" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="0" upper="3.14159" effort="100" velocity="1"/>
   </joint>
 </robot>)";
 
