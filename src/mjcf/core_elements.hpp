@@ -230,8 +230,9 @@ public:
 
   /**
    * @brief Get list of sensors in this MJCF model
+   * @param root rootが指定された場合、そのBody配下のセンサのみを返す
    */
-  [[nodiscard]] std::vector<std::shared_ptr<BaseSensor>> get_sensors() const;
+  [[nodiscard]] std::vector<std::shared_ptr<BaseSensor>> get_sensors(const std::shared_ptr<Body>& root = nullptr) const;
 
   /**
    * @brief Get list of temporary files created during MJCF generation

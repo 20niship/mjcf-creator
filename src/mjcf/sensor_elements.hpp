@@ -9,6 +9,7 @@ namespace mjcf {
 class BaseSensor : public Element {
 public:
   std::string name;
+  std::string site           = "";
   double noise               = 0.0;
   double cutoff              = 0.0;
   int nsample                = 0;
@@ -316,8 +317,6 @@ protected:
  */
 class Gyro : public BaseSensor {
 public:
-  std::string site = "";
-
   Gyro();
 
   std::string element_name() const override { return "gyro"; }
@@ -333,8 +332,6 @@ protected:
  */
 class Accelerometer : public BaseSensor {
 public:
-  std::string site = "";
-
   Accelerometer();
 
   std::string element_name() const override { return "accelerometer"; }
@@ -350,8 +347,6 @@ protected:
  */
 class Magnetometer : public BaseSensor {
 public:
-  std::string site = "";
-
   Magnetometer();
 
   std::string element_name() const override { return "magnetometer"; }
@@ -367,8 +362,6 @@ protected:
  */
 class Rangefinder : public BaseSensor {
 public:
-  std::string site = "";
-
   Rangefinder();
 
   std::string element_name() const override { return "rangefinder"; }
@@ -384,8 +377,6 @@ protected:
  */
 class Force : public BaseSensor {
 public:
-  std::string site = "";
-
   Force();
 
   std::string element_name() const override { return "force"; }
@@ -401,8 +392,6 @@ protected:
  */
 class Torque : public BaseSensor {
 public:
-  std::string site = "";
-
   Torque();
 
   std::string element_name() const override { return "torque"; }
@@ -418,8 +407,6 @@ protected:
  */
 class Touch : public BaseSensor {
 public:
-  std::string site = "";
-
   Touch();
 
   std::string element_name() const override { return "touch"; }
@@ -439,8 +426,6 @@ protected:
  */
 class Velocimeter : public BaseSensor {
 public:
-  std::string site = "";
-
   Velocimeter();
 
   std::string element_name() const override { return "velocimeter"; }

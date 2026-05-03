@@ -1,18 +1,40 @@
 #include "core_elements.hpp"
+#include "body_elements.hpp"
 #include "mjcf_importer.hpp"
 #include "urdf_converter.hpp"
 #include "sensor_elements.hpp"
 #include <filesystem>
+#include <functional>
 #include <iostream>
+#include <set>
 
 namespace mjcf {
 
-std::vector<std::shared_ptr<BaseSensor>> Mujoco::get_sensors() const {
+std::vector<std::shared_ptr<BaseSensor>> Mujoco::get_sensors(const std::shared_ptr<Body>& root) const {
   std::vector<std::shared_ptr<BaseSensor>> result;
   if(!sensor_) return result;
+  if(!root) {
+    for(const auto& child : sensor_->get_children()) {
+      auto s = std::dynamic_pointer_cast<BaseSensor>(child);
+      if(s) result.push_back(s);
+    }
+    return result;
+  }
+  // rootのBody配下のSite名を再帰収集
+  std::set<std::string> site_names;
+  std::function<void(const Element&)> collect = [&](const Element& elem) {
+    for(const auto& child : elem.get_children()) {
+      auto site = std::dynamic_pointer_cast<Site>(child);
+      if(site && !site->name.empty()) site_names.insert(site->name);
+      collect(*child);
+    }
+  };
+  collect(*root);
   for(const auto& child : sensor_->get_children()) {
     auto s = std::dynamic_pointer_cast<BaseSensor>(child);
-    if(s) result.push_back(s);
+    if(s) {
+      if(!s->site.empty() && site_names.count(s->site) > 0) result.push_back(s);
+    }
   }
   return result;
 }
