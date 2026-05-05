@@ -290,7 +290,6 @@ std::tuple<std::shared_ptr<mjcf::Body>, std::shared_ptr<mjcf::Joint>> UrdfConver
                   final_mesh_path = mesh_filename; // Fallback to original
                 }
               } else {
-                std::cerr << "Mesh file not found: " << source_mesh_path << std::endl;
                 final_mesh_path = mesh_filename; // Fallback to original
               }
             } else {
