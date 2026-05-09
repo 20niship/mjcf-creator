@@ -123,8 +123,16 @@ std::tuple<std::shared_ptr<mjcf::Body>, std::shared_ptr<mjcf::Joint>> UrdfConver
 
     XMLElement* mu1_elem = gazebo->FirstChildElement("mu1");
     XMLElement* mu2_elem = gazebo->FirstChildElement("mu2");
-    if(mu1_elem) mu1 = mu1_elem->DoubleAttribute("value", -1.0);
-    if(mu2_elem) mu2 = mu2_elem->DoubleAttribute("value", -1.0);
+    // 属性形式 `<mu1 value="1.5"/>` とテキストコンテント形式 `<mu1>1.5</mu1>` (Gazebo 標準) の双方をサポートする
+    // 旧実装は属性形式のみで、URDF/Gazebo 標準のテキスト形式が黙殺されていた
+    if(mu1_elem) {
+      mu1 = mu1_elem->DoubleAttribute("value", -1.0);
+      if(mu1 < 0.0) mu1 = mu1_elem->DoubleText(-1.0);
+    }
+    if(mu2_elem) {
+      mu2 = mu2_elem->DoubleAttribute("value", -1.0);
+      if(mu2 < 0.0) mu2 = mu2_elem->DoubleText(-1.0);
+    }
     if(mu1 >= 0.0 || mu2 >= 0.0) gazebo_friction_map[reference] = {mu1, mu2};
   }
 
