@@ -179,7 +179,7 @@ public:
    * @param joint_metadata Map of joint name to joint metadata
    * @param actuator_metadata Map of actuator type to actuator metadata
    */
-  std::tuple<std::shared_ptr<mjcf::Body>, std::shared_ptr<mjcf::Joint>> add_urdf(const std::string& urdf_path, const std::string& name_prefix = "", bool copy_meshes = false, const std::vector<std::shared_ptr<BaseActuator>>& actuator_metadata = {}, const Arr3& pos = {0.0, 0.0, 0.0});
+  std::tuple<std::shared_ptr<mjcf::Body>, std::shared_ptr<mjcf::Joint>> add_urdf(const std::string& urdf_path, const std::string& name_prefix = "", bool copy_meshes = false, const std::vector<std::shared_ptr<BaseActuator>>& actuator_metadata = {}, const Arr3& pos = {0.0, 0.0, 0.0}, bool use_collision_tag_only = true);
 
   [[nodiscard]] std::string element_name() const override { return "mujoco"; }
 

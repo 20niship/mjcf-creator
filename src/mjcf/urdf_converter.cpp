@@ -72,7 +72,7 @@ std::vector<double> rpy_to_quat(const std::vector<double>& rpy) {
   return {w, x, y, z};
 }
 
-std::tuple<std::shared_ptr<mjcf::Body>, std::shared_ptr<mjcf::Joint>> UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_path, const Arr3& pos, const std::vector<std::shared_ptr<BaseActuator>>& actuator_metadata, bool copy_meshes, const std::string& output_dir) {
+std::tuple<std::shared_ptr<mjcf::Body>, std::shared_ptr<mjcf::Joint>> UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_path, const Arr3& pos, const std::vector<std::shared_ptr<BaseActuator>>& actuator_metadata, bool copy_meshes, const std::string& output_dir, bool use_collision_tag_only) {
   const std::string urdf_content = read_file(urdf_path);
   XMLDocument doc;
   if(doc.Parse(urdf_content.c_str()) != XML_SUCCESS) {
@@ -199,6 +199,19 @@ std::tuple<std::shared_ptr<mjcf::Body>, std::shared_ptr<mjcf::Joint>> UrdfConver
           if(pos.size() >= 3) inertial_elem->pos = {pos[0], pos[1], pos[2]};
         }
       }
+
+      // Parse inertia tensor (6 DOF: ixx, ixy, ixz, iyy, iyz, izz from URDF)
+      XMLElement* inertia_elem = inertial->FirstChildElement("inertia");
+      if(inertia_elem) {
+        double ixx = inertia_elem->DoubleAttribute("ixx");
+        double ixy = inertia_elem->DoubleAttribute("ixy");
+        double ixz = inertia_elem->DoubleAttribute("ixz");
+        double iyy = inertia_elem->DoubleAttribute("iyy");
+        double iyz = inertia_elem->DoubleAttribute("iyz");
+        double izz = inertia_elem->DoubleAttribute("izz");
+        // MuJoCo fullinertia order: [ixx, iyy, izz, ixy, ixz, iyz]
+        inertial_elem->fullinertia = {ixx, iyy, izz, ixy, ixz, iyz};
+      }
       body->add_child(inertial_elem);
     }
 
@@ -206,11 +219,14 @@ std::tuple<std::shared_ptr<mjcf::Body>, std::shared_ptr<mjcf::Joint>> UrdfConver
     XMLElement* first_collision = link->FirstChildElement("collision");
     bool has_collision          = (first_collision != nullptr);
 
-    // Process collision elements if they exist, otherwise fallback to visual
-    XMLElement* geom_source = has_collision ? first_collision : link->FirstChildElement("visual");
-    const char* source_type = has_collision ? "collision" : "visual";
+    // Process collision elements if they exist, otherwise fallback to visual (unless use_collision_tag_only is true)
+    if(!has_collision && use_collision_tag_only) {
+      // Skip geometry processing when collision tag is missing and use_collision_tag_only is true
+    } else {
+      XMLElement* geom_source = has_collision ? first_collision : link->FirstChildElement("visual");
+      const char* source_type = has_collision ? "collision" : "visual";
 
-    for(XMLElement* elem = geom_source; elem; elem = elem->NextSiblingElement(source_type)) {
+      for(XMLElement* elem = geom_source; elem; elem = elem->NextSiblingElement(source_type)) {
       auto geom = std::make_shared<Geom>();
 
       XMLElement* origin = elem->FirstChildElement("origin");
@@ -370,6 +386,7 @@ std::tuple<std::shared_ptr<mjcf::Body>, std::shared_ptr<mjcf::Joint>> UrdfConver
             mjcf_material->rgba = {rgba_values[0], rgba_values[1], rgba_values[2], rgba_values.size() > 3 ? rgba_values[3] : 1.0};
           mujoco->add_asset(mjcf_material);
         }
+      }
       }
     }
     link_to_body[link_name] = body;

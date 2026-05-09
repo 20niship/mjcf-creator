@@ -211,7 +211,7 @@ TEST_SUITE("URDF Conversion Tests") {
     urdf_file.close();
 
     auto mujoco  = std::make_shared<mjcf::Mujoco>();
-    auto [body, joint] = mujoco->add_urdf(temp_urdf);
+    auto [body, joint] = mujoco->add_urdf(temp_urdf, "", false, {}, {0.0, 0.0, 0.0}, false);
     CHECK(body != nullptr);
     CHECK(joint != nullptr);
 
@@ -1040,5 +1040,254 @@ TEST_SUITE("URDF Conversion Tests") {
     CHECK(xml_content.find("name=\"test_joint\"") != std::string::npos);
     CHECK(xml_content.find("joint=\"test_joint\"") != std::string::npos);
     CHECK(xml_content.find("<position") != std::string::npos);
+  }
+
+  TEST_CASE("URDF with use_collision_tag_only=true (default) skips geometry when no collision tag") {
+    std::string urdf_content = R"(<?xml version="1.0"?>
+<robot name="test_robot">
+  <link name="base_link">
+    <inertial><origin xyz="0 0 0"/><mass value="1.0"/></inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><box size="0.1 0.1 0.1"/></geometry>
+      <material name="test_material">
+        <color rgba="1.0 0.0 0.0 1.0"/>
+      </material>
+    </visual>
+  </link>
+  <link name="link1">
+    <inertial><origin xyz="0 0 0"/><mass value="0.5"/></inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><sphere radius="0.05"/></geometry>
+    </visual>
+  </link>
+  <joint name="test_joint" type="revolute">
+    <parent link="base_link"/>
+    <child link="link1"/>
+    <origin xyz="0 0 0.1"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-1.57" upper="1.57" effort="10" velocity="1"/>
+  </joint>
+</robot>)";
+
+    std::string temp_urdf = "use_collision_tag_only_default_test.urdf";
+    std::ofstream urdf_file(temp_urdf);
+    urdf_file << urdf_content;
+    urdf_file.close();
+
+    auto mujoco  = std::make_shared<mjcf::Mujoco>();
+    auto [body, joint] = mujoco->add_urdf(temp_urdf);
+    CHECK(body != nullptr);
+    CHECK(joint != nullptr);
+
+    std::string xml_content = mujoco->get_xml_text();
+
+    // use_collision_tag_only=true (デフォルト) では collisionタグがない場合、
+    // geomは生成されないはず
+    bool has_geom = xml_content.find("<geom") != std::string::npos;
+    CHECK(!has_geom);
+
+    // materialは処理されない（collisionタグがないため）
+    bool has_material = xml_content.find("test_material") != std::string::npos;
+    CHECK(!has_material);
+  }
+
+  TEST_CASE("URDF with use_collision_tag_only=false falls back to visual") {
+    std::string urdf_content = R"(<?xml version="1.0"?>
+<robot name="test_robot">
+  <link name="base_link">
+    <inertial><origin xyz="0 0 0"/><mass value="1.0"/></inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><box size="0.1 0.1 0.1"/></geometry>
+      <material name="fallback_material">
+        <color rgba="0.0 1.0 0.0 1.0"/>
+      </material>
+    </visual>
+  </link>
+  <link name="link1">
+    <inertial><origin xyz="0 0 0"/><mass value="0.5"/></inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><sphere radius="0.05"/></geometry>
+    </visual>
+  </link>
+  <joint name="test_joint" type="revolute">
+    <parent link="base_link"/>
+    <child link="link1"/>
+    <origin xyz="0 0 0.1"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-1.57" upper="1.57" effort="10" velocity="1"/>
+  </joint>
+</robot>)";
+
+    std::string temp_urdf = "use_collision_tag_only_false_test.urdf";
+    std::ofstream urdf_file(temp_urdf);
+    urdf_file << urdf_content;
+    urdf_file.close();
+
+    auto mujoco  = std::make_shared<mjcf::Mujoco>();
+    auto [body, joint] = mujoco->add_urdf(temp_urdf, "", false, {}, {0.0, 0.0, 0.0}, false);
+    CHECK(body != nullptr);
+    CHECK(joint != nullptr);
+
+    std::string xml_content = mujoco->get_xml_text();
+
+    // use_collision_tag_only=false ではvisualタグがcollisionとして使用される
+    // geomが生成される
+    bool has_geom = xml_content.find("<geom") != std::string::npos;
+    CHECK(has_geom);
+
+    // materialもvisualから処理される
+    bool has_material = xml_content.find("fallback_material") != std::string::npos;
+    CHECK(has_material);
+  }
+
+  TEST_CASE("URDF inertia tensor parsing and conversion") {
+    // Create a test URDF with defined inertia tensors
+    std::string inertia_urdf = R"(<?xml version="1.0"?>
+<robot name="inertia_test_robot">
+  <link name="base_link">
+    <inertial>
+      <origin xyz="0.01 0.02 0.03" rpy="0 0 0"/>
+      <mass value="2.5"/>
+      <inertia ixx="0.1" ixy="0.01" ixz="0.02" iyy="0.15" iyz="0.03" izz="0.2"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.2 0.3 0.4"/>
+      </geometry>
+    </visual>
+  </link>
+
+  <link name="link1">
+    <inertial>
+      <origin xyz="-0.01 0.015 0.005" rpy="0 0 0"/>
+      <mass value="1.2"/>
+      <inertia ixx="0.05" ixy="0.005" ixz="0.01" iyy="0.08" iyz="0.015" izz="0.1"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.1 0.15 0.2"/>
+      </geometry>
+    </visual>
+  </link>
+
+  <joint name="joint1" type="revolute">
+    <parent link="base_link"/>
+    <child link="link1"/>
+    <origin xyz="0 0 0.2" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-3.14159" upper="3.14159" effort="100" velocity="1"/>
+  </joint>
+</robot>)";
+
+    std::string temp_urdf = "inertia_test.urdf";
+    std::ofstream urdf_file(temp_urdf);
+    urdf_file << inertia_urdf;
+    urdf_file.close();
+
+    auto mujoco        = std::make_shared<mjcf::Mujoco>();
+    auto [body, joint] = mujoco->add_urdf(temp_urdf);
+
+    CHECK(body != nullptr);
+    CHECK(joint != nullptr);
+
+    std::string xml_content = mujoco->get_xml_text();
+
+    // Check that fullinertia attribute is present (indicates inertia was parsed)
+    CHECK(xml_content.find("fullinertia") != std::string::npos);
+
+    // Check for base_link inertia values
+    // Expected: fullinertia="0.1 0.15 0.2 0.01 0.02 0.03" (ixx, iyy, izz, ixy, ixz, iyz order)
+    // Values may be rounded, so check for approximate values
+    bool has_base_ixx = xml_content.find("0.1") != std::string::npos;
+    bool has_base_iyy = xml_content.find("0.15") != std::string::npos;
+    bool has_base_izz = xml_content.find("0.2") != std::string::npos;
+    CHECK(has_base_ixx);
+    CHECK(has_base_iyy);
+    CHECK(has_base_izz);
+
+    // Check for base_link mass
+    CHECK(xml_content.find("mass=\"2.5\"") != std::string::npos);
+
+    // Check for base_link origin/position
+    CHECK(xml_content.find("pos=\"0.01 0.02 0.03\"") != std::string::npos);
+
+    // Check for link1 inertia values
+    // Expected: fullinertia="0.05 0.08 0.1 0.005 0.01 0.015" (ixx, iyy, izz, ixy, ixz, iyz order)
+    bool has_link1_ixx = xml_content.find("0.05") != std::string::npos;
+    bool has_link1_iyy = xml_content.find("0.08") != std::string::npos;
+    bool has_link1_izz = xml_content.find("0.1") != std::string::npos;
+    CHECK(has_link1_ixx);
+    CHECK(has_link1_iyy);
+    CHECK(has_link1_izz);
+
+    // Check for link1 mass
+    CHECK(xml_content.find("mass=\"1.2\"") != std::string::npos);
+
+    // Check for link1 origin/position
+    CHECK(xml_content.find("pos=\"-0.01 0.015 0.005\"") != std::string::npos);
+
+    // Verify the structure is correct
+    CHECK(xml_content.find("<body name=\"base_link\"") != std::string::npos);
+    CHECK(xml_content.find("<body name=\"link1\"") != std::string::npos);
+    CHECK(xml_content.find("<joint name=\"joint1\"") != std::string::npos);
+    CHECK(xml_content.find("type=\"hinge\"") != std::string::npos);
+
+    // Clean up
+    std::filesystem::remove(temp_urdf);
+  }
+
+  TEST_CASE("URDF inertia with off-diagonal terms") {
+    // Test URDF with off-diagonal inertia terms (non-zero ixy, ixz, iyz)
+    std::string off_diag_urdf = R"(<?xml version="1.0"?>
+<robot name="off_diagonal_robot">
+  <link name="base_link">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="1.0"/>
+      <inertia ixx="0.01" ixy="-0.001" ixz="0.0005" iyy="0.012" iyz="-0.0002" izz="0.015"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.1 0.1 0.1"/>
+      </geometry>
+    </visual>
+  </link>
+</robot>)";
+
+    std::string temp_urdf = "off_diagonal_test.urdf";
+    std::ofstream urdf_file(temp_urdf);
+    urdf_file << off_diag_urdf;
+    urdf_file.close();
+
+    auto mujoco        = std::make_shared<mjcf::Mujoco>();
+    auto [body, joint] = mujoco->add_urdf(temp_urdf);
+
+    CHECK(body != nullptr);
+
+    std::string xml_content = mujoco->get_xml_text();
+
+    // Verify fullinertia is present
+    CHECK(xml_content.find("fullinertia") != std::string::npos);
+
+    // Check diagonal terms
+    CHECK(xml_content.find("0.01") != std::string::npos);   // ixx
+    CHECK(xml_content.find("0.012") != std::string::npos);  // iyy
+    CHECK(xml_content.find("0.015") != std::string::npos);  // izz
+
+    // Check off-diagonal terms (may be rounded)
+    // ixy=-0.001, ixz=0.0005, iyz=-0.0002
+    bool has_negative_off_diag = xml_content.find("-0.001") != std::string::npos ||
+                                 xml_content.find("-0.0") != std::string::npos;
+    CHECK(has_negative_off_diag);
+
+    // Clean up
+    std::filesystem::remove(temp_urdf);
   }
 }

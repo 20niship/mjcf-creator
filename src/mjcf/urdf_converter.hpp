@@ -25,7 +25,8 @@ public:
     const std::string& urdf_path,                                                         //
     const Arr3& pos, const std::vector<std::shared_ptr<BaseActuator>>& actuator_metadata, //
     bool copy_meshes              = false,                                                //
-    const std::string& output_dir = ""                                                    //
+    const std::string& output_dir = "",                                                   //
+    bool use_collision_tag_only   = true                                                  //
   );
 
   static void merge_asset_elements(const detail::Asset& source_asset, detail::Asset& target_asset, const std::string& name_prefix);
