@@ -117,12 +117,13 @@ std::string to_string(IntegratorType type) {
     case IntegratorType::Euler: return "Euler";
     case IntegratorType::RK4: return "RK4";
     case IntegratorType::Implicit: return "implicit";
+    case IntegratorType::ImplicitFast: return "implicitfast";
   }
   throw std::invalid_argument("Invalid IntegratorType");
 }
 
 IntegratorType integrator_type_from_string(const std::string& str) {
-  static const std::unordered_map<std::string, IntegratorType> map = {{"Euler", IntegratorType::Euler}, {"RK4", IntegratorType::RK4}, {"implicit", IntegratorType::Implicit}};
+  static const std::unordered_map<std::string, IntegratorType> map = {{"Euler", IntegratorType::Euler}, {"RK4", IntegratorType::RK4}, {"implicit", IntegratorType::Implicit}, {"implicitfast", IntegratorType::ImplicitFast}};
   auto it                                                          = map.find(str);
   if(it != map.end()) return it->second;
   throw std::invalid_argument("Invalid integrator type string: " + str);

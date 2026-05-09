@@ -9,7 +9,7 @@ enum class SiteType { Sphere, Capsule, Ellipsoid, Cylinder, Box };
 enum class JointType { Free, Ball, Slide, Hinge };
 enum class LightMode { Fixed, Track, Trackcom, Targetbody, Targetbodycom };
 enum class CameraMode { Fixed, Track, Trackcom, Targetbody, Targetbodycom };
-enum class IntegratorType { Euler, RK4, Implicit };
+enum class IntegratorType { Euler, RK4, Implicit, ImplicitFast };
 enum class SolverType { Newton, PGS, CG };
 enum class CoordinateType { Local, Global };
 enum class AngleUnit { Degree, Radian };
