@@ -74,7 +74,7 @@ std::vector<double> rpy_to_quat(const std::vector<double>& rpy) {
 }
 
 template <typename T> using Shr = std::shared_ptr<T>;
-using Str = std::string;
+using Str                       = std::string;
 
 std::tuple<Shr<mjcf::Body>, Shr<mjcf::Joint>> UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const Str& urdf_path, const Arr3& pos, const std::vector<Shr<BaseActuator>>& actuator_metadata, bool copy_meshes, const std::string& output_dir, bool use_collision_tag_only,
                                                                                 const std::string& name_prefix) {
@@ -126,6 +126,7 @@ std::tuple<Shr<mjcf::Body>, Shr<mjcf::Joint>> UrdfConverter::parse_urdf_to_mjcf(
   struct GazeboGeomParams {
     double mu1                   = -1.0;
     double mu2                   = -1.0;
+    int condim                   = -1; // -1 = 未指定 (デフォルト継承)
     std::array<double, 2> solref = {0.02, 1.0};
     std::array<double, 3> solimp = {0.9, 0.95, 0.001};
     bool has_solref() const { return solref[0] != 0.02 || solref[1] != 1.0; }
@@ -164,7 +165,12 @@ std::tuple<Shr<mjcf::Body>, Shr<mjcf::Joint>> UrdfConverter::parse_urdf_to_mjcf(
       if(vals.size() >= 3) params.solimp = {vals[0], vals[1], vals[2]};
     }
 
-    if(params.mu1 >= 0.0 || params.mu2 >= 0.0 || params.has_solref() || params.has_solimp()) gazebo_geom_map[reference] = params;
+    const auto condim_elem = gazebo->FirstChildElement("condim");
+    if(condim_elem != nullptr && condim_elem->GetText()) {
+      params.condim = std::stoi(condim_elem->GetText());
+    }
+
+    if(params.mu1 >= 0.0 || params.mu2 >= 0.0 || params.condim >= 0 || params.has_solref() || params.has_solimp()) gazebo_geom_map[reference] = params;
   }
 
   // Gazeboプラグインからセンサー情報を収集
@@ -380,12 +386,13 @@ std::tuple<Shr<mjcf::Body>, Shr<mjcf::Joint>> UrdfConverter::parse_urdf_to_mjcf(
           }
 
           if(geometry_found) {
-            // Gazebo接触パラメータ（mu1/mu2/solref/solimp）を適用
+            // Gazebo接触パラメータ（mu1/mu2/condim/solref/solimp）を適用
             auto geom_it = gazebo_geom_map.find(link_name);
             if(geom_it != gazebo_geom_map.end()) {
               const auto& gp = geom_it->second;
               if(gp.mu1 >= 0.0) geom->friction[0] = gp.mu1;
               if(gp.mu2 >= 0.0) geom->friction[1] = gp.mu2;
+              if(gp.condim >= 0) geom->condim = gp.condim;
               if(gp.has_solref()) geom->solref = gp.solref;
               if(gp.has_solimp()) geom->solimp = gp.solimp;
             }
