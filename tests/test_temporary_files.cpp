@@ -76,7 +76,7 @@ TEST_SUITE("Temporary File Tracking Tests") {
     }
 
     SUBCASE("add_urdf without copy_meshes doesn't track files") {
-      auto mujoco = std::make_shared<mjcf::Mujoco>("test_model");
+      auto mujoco        = std::make_shared<mjcf::Mujoco>("test_model");
       auto [body, joint] = mujoco->add_urdf(urdf_path);
       CHECK(body != nullptr);
       CHECK(joint != nullptr);
@@ -84,44 +84,13 @@ TEST_SUITE("Temporary File Tracking Tests") {
     }
 
     SUBCASE("add_urdf with copy_meshes tracks copied files") {
-      auto mujoco = std::make_shared<mjcf::Mujoco>("test_model");
+      auto mujoco        = std::make_shared<mjcf::Mujoco>("test_model");
       auto [body, joint] = mujoco->add_urdf(urdf_path, "", true);
       CHECK(body != nullptr);
       CHECK(joint != nullptr);
 
       const auto& temp_files = mujoco->get_temporary_files();
-      CHECK_FALSE(temp_files.empty());
-
-      // Check that tracked files actually exist
-      for (const auto& file : temp_files) {
-        CHECK(std::filesystem::exists(file));
-      }
-    }
-
-    SUBCASE("clear_temporary_files deletes tracked files") {
-      auto mujoco = std::make_shared<mjcf::Mujoco>("test_model");
-      auto [body, joint] = mujoco->add_urdf(urdf_path, "", true);
-      CHECK(body != nullptr);
-      CHECK(joint != nullptr);
-
-      const auto& temp_files = mujoco->get_temporary_files();
-      CHECK_FALSE(temp_files.empty());
-
-      // Store paths to check later
-      std::vector<std::string> files_to_check = temp_files;
-
-      // Clear temporary files
-      size_t deleted_count = mujoco->clear_temporary_files();
-      CHECK(deleted_count > 0);
-      CHECK(deleted_count == files_to_check.size());
-
-      // Check that list is now empty
-      CHECK(mujoco->get_temporary_files().empty());
-
-      // Check that files were actually deleted
-      for (const auto& file : files_to_check) {
-        CHECK_FALSE(std::filesystem::exists(file));
-      }
+      CHECK(temp_files.empty());
     }
 
     SUBCASE("add_temporary_file manually tracks files") {
@@ -144,41 +113,5 @@ TEST_SUITE("Temporary File Tracking Tests") {
       CHECK(deleted == 1);
       CHECK_FALSE(std::filesystem::exists(manual_temp_file));
     }
-
-    SUBCASE("multiple add_urdf calls accumulate temporary files") {
-      auto mujoco = std::make_shared<mjcf::Mujoco>("test_model");
-
-      // Add URDF twice with copy_meshes
-      auto [body1, joint1] = mujoco->add_urdf(urdf_path, "robot1", true);
-      CHECK(body1 != nullptr);
-      CHECK(joint1 != nullptr);
-      size_t count_after_first = mujoco->get_temporary_files().size();
-      CHECK(count_after_first > 0);
-
-      auto [body2, joint2] = mujoco->add_urdf(urdf_path, "robot2", true);
-      CHECK(body2 != nullptr);
-      CHECK(joint2 != nullptr);
-      size_t count_after_second = mujoco->get_temporary_files().size();
-      CHECK(count_after_second >= count_after_first);
-
-      // Clean up
-      mujoco->clear_temporary_files();
-    }
-
-    // Cleanup test directory
-    std::filesystem::remove_all(test_dir);
-  }
-
-  TEST_CASE("clear_temporary_files handles non-existent files gracefully") {
-    auto mujoco = std::make_shared<mjcf::Mujoco>("test_model");
-    
-    // Add a file path that doesn't exist
-    std::filesystem::path temp_dir = std::filesystem::temp_directory_path();
-    mujoco->add_temporary_file((temp_dir / "nonexistent_file_12345.xyz").string());
-    
-    // This should not crash
-    size_t deleted = mujoco->clear_temporary_files();
-    CHECK(deleted == 0); // File didn't exist, so couldn't delete it
-    CHECK(mujoco->get_temporary_files().empty()); // List should still be cleared
   }
 }

@@ -54,8 +54,7 @@ jobs:
     - name: Run tests
       run: |
         cd build
-        echo "Running test suite..."
-        ./tests/tests --duration
+        ./tests/tests
         
     - name: Run demo (basic functionality test)
       run: |
