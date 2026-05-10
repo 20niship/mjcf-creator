@@ -73,8 +73,15 @@ std::vector<double> rpy_to_quat(const std::vector<double>& rpy) {
   return {w, x, y, z};
 }
 
-std::tuple<std::shared_ptr<mjcf::Body>, std::shared_ptr<mjcf::Joint>> UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_path, const Arr3& pos, const std::vector<std::shared_ptr<BaseActuator>>& actuator_metadata, bool copy_meshes, const std::string& output_dir,
-                                                                                                        bool use_collision_tag_only) {
+template <typename T> using Shr = std::shared_ptr<T>;
+using Str = std::string;
+
+std::tuple<Shr<mjcf::Body>, Shr<mjcf::Joint>> UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const Str& urdf_path, const Arr3& pos, const std::vector<Shr<BaseActuator>>& actuator_metadata, bool copy_meshes, const std::string& output_dir, bool use_collision_tag_only,
+                                                                                const std::string& name_prefix) {
+  auto add_pfx = [&name_prefix](const std::string& nm) -> std::string {
+    if(name_prefix.empty() || nm.empty()) return nm;
+    return name_prefix + "_" + nm;
+  };
   const std::string urdf_content = read_file(urdf_path);
   XMLDocument doc;
   if(doc.Parse(urdf_content.c_str()) != XML_SUCCESS) {
@@ -210,7 +217,7 @@ std::tuple<std::shared_ptr<mjcf::Body>, std::shared_ptr<mjcf::Joint>> UrdfConver
     if(!link_name) continue;
 
     auto body  = std::make_shared<Body>();
-    body->name = link_name;
+    body->name = add_pfx(link_name);
 
     // Process inertial properties
     XMLElement* inertial = link->FirstChildElement("inertial");
@@ -349,10 +356,7 @@ std::tuple<std::shared_ptr<mjcf::Body>, std::shared_ptr<mjcf::Joint>> UrdfConver
                 final_mesh_path = mesh_filename;
               }
 
-              // Create a unique mesh name based on link name and mesh filename
-              std::string mesh_name = std::string(link_name) + "_" + std::filesystem::path(final_mesh_path).stem().string();
-
-              // Create mesh asset
+              auto mesh_name   = add_pfx(std::string(link_name) + "_" + std::filesystem::path(final_mesh_path).stem().string());
               auto mesh_asset  = std::make_shared<Mesh>();
               mesh_asset->name = mesh_name;
               mesh_asset->file = final_mesh_path;
@@ -533,7 +537,7 @@ std::tuple<std::shared_ptr<mjcf::Body>, std::shared_ptr<mjcf::Joint>> UrdfConver
       // if(joint_type == "prismatic") continue;
 
       auto mjcf_joint   = std::make_shared<Joint>();
-      mjcf_joint->name  = joint_name;
+      mjcf_joint->name  = add_pfx(joint_name);
       mjcf_joint->range = {-1e10, 1e10};
 
       if(joint_type == "continuous") {
@@ -600,24 +604,63 @@ std::tuple<std::shared_ptr<mjcf::Body>, std::shared_ptr<mjcf::Joint>> UrdfConver
                                    return actuator->joint == "";
                                  });
 
+      // 多ロボット時は actuator の name と joint 参照に prefix を入れて mjcf の name 衝突を避ける。
+      const std::string pfx_joint_name = add_pfx(joint_name);
+
+      // metadata から関係するパラメータを抽出して prefix 付き actuator にコピーするヘルパ。
+      auto clone_with_prefix = [&pfx_joint_name](const std::shared_ptr<BaseActuator>& src) -> std::shared_ptr<BaseActuator> {
+        std::shared_ptr<BaseActuator> dst;
+        if(auto p = std::dynamic_pointer_cast<Position>(src)) {
+          auto cloned = std::make_shared<Position>();
+          cloned->kp  = p->kp;
+          cloned->kv  = p->kv;
+          dst         = cloned;
+        } else if(std::dynamic_pointer_cast<Motor>(src)) {
+          dst = std::make_shared<Motor>();
+        } else if(auto v = std::dynamic_pointer_cast<Velocity>(src)) {
+          auto cloned = std::make_shared<Velocity>();
+          cloned->kv  = v->kv;
+          dst         = cloned;
+        } else {
+          return nullptr; // 未知の型は対応していないので処理をスキップ
+        }
+        // 共通パラメータをコピー
+        dst->class_        = src->class_;
+        dst->group         = src->group;
+        dst->ctrllimited   = src->ctrllimited;
+        dst->forcelimited  = src->forcelimited;
+        dst->ctrlrange     = src->ctrlrange;
+        dst->forcerange    = src->forcerange;
+        dst->lengthrange   = src->lengthrange;
+        dst->gear          = src->gear;
+        dst->cranklength   = src->cranklength;
+        dst->jointinparent = src->jointinparent;
+        dst->tendon        = src->tendon;
+        dst->cranksite     = src->cranksite;
+        dst->site          = src->site;
+        dst->refsite       = src->refsite;
+        dst->user          = src->user;
+        // name/joint のみ prefix 付きを書き込む (元 metadata は不変)
+        dst->name  = pfx_joint_name;
+        dst->joint = pfx_joint_name;
+        return dst;
+      };
+
       if(filtered_ != actuator_metadata.end()) {
         for(const auto& child : actuator_metadata) {
           if(child->joint == joint_name) {
-            // nameが未設定の場合はjoint名を自動設定する
-            if(child->name.empty()) child->name = joint_name;
-            mujoco->actuator_->add_child(child);
+            auto pfx_act = clone_with_prefix(child);
+            if(pfx_act) mujoco->actuator_->add_child(pfx_act);
           }
         }
       } else if(empty_ != actuator_metadata.end()) {
-        auto actuator_info   = *empty_;
-        actuator_info->name  = joint_name;
-        actuator_info->joint = joint_name;
-        mujoco->actuator_->add_child(actuator_info);
+        auto pfx_act = clone_with_prefix(*empty_);
+        if(pfx_act) mujoco->actuator_->add_child(pfx_act);
       } else {
 
         if(mjcf_joint->type == JointType::Hinge) {
-          auto ac         = Position::Create(joint_name);
-          ac->name        = joint_name;
+          auto ac         = Position::Create(pfx_joint_name);
+          ac->name        = pfx_joint_name;
           ac->ctrllimited = false;
           ac->kp          = 100.0;
           ac->kv          = 10.0;
@@ -628,15 +671,15 @@ std::tuple<std::shared_ptr<mjcf::Body>, std::shared_ptr<mjcf::Joint>> UrdfConver
           // ac->gear        = {100, 0, 0, 0, 0, 0};
           mujoco->actuator_->add_child(ac);
         } else if(mjcf_joint->type == JointType::Slide) {
-          auto ac         = Position::Create(joint_name);
-          ac->name        = joint_name;
+          auto ac         = Position::Create(pfx_joint_name);
+          ac->name        = pfx_joint_name;
           ac->ctrllimited = false;
           ac->kp          = 10.0;
           ac->kv          = 1.0;
           mujoco->actuator_->add_child(ac);
         } else if(mjcf_joint->type == JointType::Ball) {
-          auto ac         = Position::Create(joint_name);
-          ac->name        = joint_name;
+          auto ac         = Position::Create(pfx_joint_name);
+          ac->name        = pfx_joint_name;
           ac->ctrllimited = false;
           ac->kp          = 100.0;
           ac->kv          = 10.0;
@@ -665,32 +708,30 @@ std::tuple<std::shared_ptr<mjcf::Body>, std::shared_ptr<mjcf::Joint>> UrdfConver
 
     if(target_body == nullptr) continue;
 
-    // Siteを追加
-    std::string site_name = sensor_info.name + "_site";
+    std::string site_name = add_pfx(sensor_info.name + "_site");
     auto site             = std::make_shared<Site>();
     site->name            = site_name;
     target_body->add_child(site);
 
-    // センサーを追加
     if(sensor_info.type == UrdfSensorInfo::Type::ForceTorque) {
       auto force_sensor  = std::make_shared<Force>();
-      force_sensor->name = sensor_info.name + "_force";
+      force_sensor->name = add_pfx(sensor_info.name + "_force");
       force_sensor->site = site_name;
       mujoco->sensor_->add_child(force_sensor);
 
       auto torque_sensor  = std::make_shared<Torque>();
-      torque_sensor->name = sensor_info.name + "_torque";
+      torque_sensor->name = add_pfx(sensor_info.name + "_torque");
       torque_sensor->site = site_name;
       mujoco->sensor_->add_child(torque_sensor);
 
     } else { // IMU
       auto gyro_sensor  = std::make_shared<Gyro>();
-      gyro_sensor->name = sensor_info.name + "_gyro";
+      gyro_sensor->name = add_pfx(sensor_info.name + "_gyro");
       gyro_sensor->site = site_name;
       mujoco->sensor_->add_child(gyro_sensor);
 
       auto acc_sensor  = std::make_shared<Accelerometer>();
-      acc_sensor->name = sensor_info.name + "_accelerometer";
+      acc_sensor->name = add_pfx(sensor_info.name + "_accelerometer");
       acc_sensor->site = site_name;
       mujoco->sensor_->add_child(acc_sensor);
     }
