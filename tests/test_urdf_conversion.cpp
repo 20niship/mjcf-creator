@@ -1358,7 +1358,7 @@ TEST_SUITE("URDF Conversion Tests") {
     <mu1>1.5</mu1>
     <mu2>0.05</mu2>
     <solref>0.01 0.5</solref>
-    <solimp>0.9 0.95 0.001</solimp>
+    <solimp>0.123 0.456 0.789</solimp>
   </gazebo>
   <link name="base_link">
     <inertial>
@@ -1401,6 +1401,7 @@ TEST_SUITE("URDF Conversion Tests") {
     std::string xml = mujoco->get_xml_text();
     CHECK(xml.find("friction=\"1.5") != std::string::npos);
     CHECK(xml.find("solref=\"0.01 0.5\"") != std::string::npos);
+    CHECK(xml.find("solimp=\"0.123 0.456 0.789\"") != std::string::npos);
     std::filesystem::remove(temp_urdf);
   }
 }
