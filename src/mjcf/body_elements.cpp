@@ -12,6 +12,8 @@ std::string sanitize_body_name(const std::string& name) {
 
 Body::Body() = default;
 
+#define TO_VEC(arr) std::vector<double>(arr.begin(), arr.end())
+
 void Body::set_xml_attrib() const {
   // Only set non-default values
   // Sanitize the name to avoid reserved names like "world"
@@ -19,24 +21,12 @@ void Body::set_xml_attrib() const {
     std::string sanitized_name = sanitize_body_name(name);
     this->set_attribute("name", sanitized_name);
   }
-  if(pos != Arr3{0.0, 0.0, 0.0}) {
-    this->set_attribute("pos", std::vector<double>(pos.begin(), pos.end()));
-  }
-  if(quat != std::array<double, 4>{1.0, 0.0, 0.0, 0.0}) {
-    this->set_attribute("quat", std::vector<double>(quat.begin(), quat.end()));
-  }
-  if(axisangle != std::array<double, 4>{0.0, 0.0, 0.0, 0.0}) {
-    this->set_attribute("axisangle", std::vector<double>(axisangle.begin(), axisangle.end()));
-  }
-  if(euler != Arr3{0.0, 0.0, 0.0}) {
-    this->set_attribute("euler", std::vector<double>(euler.begin(), euler.end()));
-  }
-  if(xyaxes != std::array<double, 6>{0.0, 0.0, 0.0, 0.0, 0.0, 0.0}) {
-    this->set_attribute("xyaxes", std::vector<double>(xyaxes.begin(), xyaxes.end()));
-  }
-  if(zaxis != Arr3{0.0, 0.0, 0.0}) {
-    this->set_attribute("zaxis", std::vector<double>(zaxis.begin(), zaxis.end()));
-  }
+  if(pos != Arr3{0.0, 0.0, 0.0}) this->set_attribute("pos", TO_VEC(pos));
+  if(quat != std::array<double, 4>{1.0, 0.0, 0.0, 0.0}) this->set_attribute("quat", TO_VEC(quat));
+  if(axisangle != std::array<double, 4>{0.0, 0.0, 0.0, 0.0}) this->set_attribute("axisangle", TO_VEC(axisangle));
+  if(euler != Arr3{0.0, 0.0, 0.0}) this->set_attribute("euler", TO_VEC(euler));
+  if(xyaxes != std::array<double, 6>{0.0, 0.0, 0.0, 0.0, 0.0, 0.0}) this->set_attribute("xyaxes", TO_VEC(xyaxes));
+  if(zaxis != Arr3{0.0, 0.0, 0.0}) this->set_attribute("zaxis", TO_VEC(zaxis));
   if(mocap) this->set_attribute("mocap", mocap);
   if(!childclass.empty()) this->set_attribute("childclass", childclass);
 }
@@ -53,18 +43,12 @@ void Geom::set_xml_attrib() const {
   if(!name.empty()) this->set_attribute("name", name);
   if(!class_.empty()) this->set_attribute("class", class_);
   this->set_attribute("type", to_string(type));
-  if(size != Arr3{0.0, 0.0, 0.0}) {
-    this->set_attribute("size", std::vector<double>(size.begin(), size.end()));
-  }
-  if(pos != Arr3{0.0, 0.0, 0.0}) {
-    this->set_attribute("pos", std::vector<double>(pos.begin(), pos.end()));
-  }
+  if(size != Arr3{0.0, 0.0, 0.0}) this->set_attribute("size", TO_VEC(size));
+  if(pos != Arr3{0.0, 0.0, 0.0}) this->set_attribute("pos", TO_VEC(pos));
   if(quat != std::array<double, 4>{1.0, 0.0, 0.0, 0.0}) {
-    this->set_attribute("quat", std::vector<double>(quat.begin(), quat.end()));
+    this->set_attribute("quat", TO_VEC(quat));
   }
-  if(rgba != std::array<double, 4>{0.5, 0.5, 0.5, 1.0}) {
-    this->set_attribute("rgba", std::vector<double>(rgba.begin(), rgba.end()));
-  }
+  if(rgba != std::array<double, 4>{0.5, 0.5, 0.5, 1.0}) this->set_attribute("rgba", TO_VEC(rgba));
   if(!material.empty()) this->set_attribute("material", material);
   if(contype != 1) this->set_attribute("contype", contype);
   if(conaffinity != 1) this->set_attribute("conaffinity", conaffinity);
@@ -74,30 +58,17 @@ void Geom::set_xml_attrib() const {
   if(friction != Arr3{1.0, 0.005, 0.0001}) {
     this->set_attribute("friction", std::vector<double>(friction.begin(), friction.end()));
   }
-  // if(solmix != 1.0) this->set_attribute("solmix", solmix);
-  // if(solref != std::array<double, 2>{0.02, 1.0}) {
-  //   this->set_attribute("solref", std::vector<double>(solref.begin(), solref.end()));
-  // }
-  // if(solimp != std::array<double, 3>{0.9, 0.95, 0.001}) {
-  //   this->set_attribute("solimp", std::vector<double>(solimp.begin(), solimp.end()));
-  // }
+  if(solmix != 1.0) this->set_attribute("solmix", solmix);
+  if(solref != std::array<double, 2>{0.02, 1.0}) this->set_attribute("solref", TO_VEC(solref));
+  if(solimp != std::array<double, 3>{0.9, 0.95, 0.001}) this->set_attribute("solimp", TO_VEC(solimp));
+
   if(margin != 0.0) this->set_attribute("margin", margin);
   if(gap != 0.0) this->set_attribute("gap", gap);
-  if(fromto != std::array<double, 6>{0.0, 0.0, 0.0, 0.0, 0.0, 0.0}) {
-    this->set_attribute("fromto", std::vector<double>(fromto.begin(), fromto.end()));
-  }
-  if(axisangle != std::array<double, 4>{0.0, 0.0, 0.0, 0.0}) {
-    this->set_attribute("axisangle", std::vector<double>(axisangle.begin(), axisangle.end()));
-  }
-  if(euler != Arr3{0.0, 0.0, 0.0}) {
-    this->set_attribute("euler", std::vector<double>(euler.begin(), euler.end()));
-  }
-  if(xyaxes != std::array<double, 6>{0.0, 0.0, 0.0, 0.0, 0.0, 0.0}) {
-    this->set_attribute("xyaxes", std::vector<double>(xyaxes.begin(), xyaxes.end()));
-  }
-  if(zaxis != Arr3{0.0, 0.0, 0.0}) {
-    this->set_attribute("zaxis", std::vector<double>(zaxis.begin(), zaxis.end()));
-  }
+  if(fromto != std::array<double, 6>{0.0, 0.0, 0.0, 0.0, 0.0, 0.0}) this->set_attribute("fromto", TO_VEC(fromto));
+  if(axisangle != std::array<double, 4>{0.0, 0.0, 0.0, 0.0}) this->set_attribute("axisangle", TO_VEC(axisangle));
+  if(euler != Arr3{0.0, 0.0, 0.0}) this->set_attribute("euler", TO_VEC(euler));
+  if(xyaxes != std::array<double, 6>{0.0, 0.0, 0.0, 0.0, 0.0, 0.0}) this->set_attribute("xyaxes", TO_VEC(xyaxes));
+  if(zaxis != Arr3{0.0, 0.0, 0.0}) this->set_attribute("zaxis", TO_VEC(zaxis));
   if(!hfield.empty()) this->set_attribute("hfield", hfield);
   if(!mesh.empty()) this->set_attribute("mesh", mesh);
   if(fitscale != 1.0) this->set_attribute("fitscale", fitscale);

@@ -12,6 +12,7 @@
 #include <iostream>
 #include <set>
 #include <sstream>
+#include <unordered_map>
 #if __has_include(<tinyxml2/tinyxml2.h>)
 #include <tinyxml2/tinyxml2.h>
 #else
@@ -72,7 +73,8 @@ std::vector<double> rpy_to_quat(const std::vector<double>& rpy) {
   return {w, x, y, z};
 }
 
-std::tuple<std::shared_ptr<mjcf::Body>, std::shared_ptr<mjcf::Joint>> UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_path, const Arr3& pos, const std::vector<std::shared_ptr<BaseActuator>>& actuator_metadata, bool copy_meshes, const std::string& output_dir, bool use_collision_tag_only) {
+std::tuple<std::shared_ptr<mjcf::Body>, std::shared_ptr<mjcf::Joint>> UrdfConverter::parse_urdf_to_mjcf(Mujoco* mujoco, const std::string& urdf_path, const Arr3& pos, const std::vector<std::shared_ptr<BaseActuator>>& actuator_metadata, bool copy_meshes, const std::string& output_dir,
+                                                                                                        bool use_collision_tag_only) {
   const std::string urdf_content = read_file(urdf_path);
   XMLDocument doc;
   if(doc.Parse(urdf_content.c_str()) != XML_SUCCESS) {
@@ -113,27 +115,49 @@ std::tuple<std::shared_ptr<mjcf::Body>, std::shared_ptr<mjcf::Joint>> UrdfConver
 
   auto worldbody = mujoco->worldbody_;
 
-  // Parse Gazebo tags for friction parameters
-  std::map<std::string, std::pair<double, double>> gazebo_friction_map; // link_name -> (mu1, mu2)
+  // <gazebo reference="link_name"> からジオメトリ接触パラメータを収集
+  struct GazeboGeomParams {
+    double mu1                   = -1.0;
+    double mu2                   = -1.0;
+    std::array<double, 2> solref = {0.02, 1.0};
+    std::array<double, 3> solimp = {0.9, 0.95, 0.001};
+    bool has_solref() const { return solref[0] != 0.02 || solref[1] != 1.0; }
+    bool has_solimp() const { return solimp[0] != 0.9 || solimp[1] != 0.95 || solimp[2] != 0.001; }
+  };
+  std::unordered_map<std::string, GazeboGeomParams> gazebo_geom_map;
   for(XMLElement* gazebo = robot->FirstChildElement("gazebo"); gazebo; gazebo = gazebo->NextSiblingElement("gazebo")) {
     const char* reference = gazebo->Attribute("reference");
     if(reference == nullptr) continue;
 
-    double mu1 = -1.0, mu2 = -1.0;
+    GazeboGeomParams params;
 
-    XMLElement* mu1_elem = gazebo->FirstChildElement("mu1");
-    XMLElement* mu2_elem = gazebo->FirstChildElement("mu2");
+    const auto mu1_elem = gazebo->FirstChildElement("mu1");
+    const auto mu2_elem = gazebo->FirstChildElement("mu2");
     // 属性形式 `<mu1 value="1.5"/>` とテキストコンテント形式 `<mu1>1.5</mu1>` (Gazebo 標準) の双方をサポートする
-    // 旧実装は属性形式のみで、URDF/Gazebo 標準のテキスト形式が黙殺されていた
-    if(mu1_elem) {
-      mu1 = mu1_elem->DoubleAttribute("value", -1.0);
-      if(mu1 < 0.0) mu1 = mu1_elem->DoubleText(-1.0);
+    if(mu1_elem != nullptr) {
+      params.mu1 = mu1_elem->DoubleAttribute("value", -1.0);
+      if(params.mu1 < 0.0) params.mu1 = mu1_elem->DoubleText(-1.0);
     }
-    if(mu2_elem) {
-      mu2 = mu2_elem->DoubleAttribute("value", -1.0);
-      if(mu2 < 0.0) mu2 = mu2_elem->DoubleText(-1.0);
+    if(mu2_elem != nullptr) {
+      params.mu2 = mu2_elem->DoubleAttribute("value", -1.0);
+      if(params.mu2 < 0.0) params.mu2 = mu2_elem->DoubleText(-1.0);
     }
-    if(mu1 >= 0.0 || mu2 >= 0.0) gazebo_friction_map[reference] = {mu1, mu2};
+
+    // solref: "timeconst ratio" の2値
+    const auto solref_elem = gazebo->FirstChildElement("solref");
+    if(solref_elem != nullptr && solref_elem->GetText()) {
+      auto vals = parse_space_separated_values(solref_elem->GetText());
+      if(vals.size() >= 2) params.solref = {vals[0], vals[1]};
+    }
+
+    // solimp: "dmin dmax width" の3値
+    const auto solimp_elem = gazebo->FirstChildElement("solimp");
+    if(solimp_elem != nullptr && solimp_elem->GetText()) {
+      auto vals = parse_space_separated_values(solimp_elem->GetText());
+      if(vals.size() >= 3) params.solimp = {vals[0], vals[1], vals[2]};
+    }
+
+    if(params.mu1 >= 0.0 || params.mu2 >= 0.0 || params.has_solref() || params.has_solimp()) gazebo_geom_map[reference] = params;
   }
 
   // Gazeboプラグインからセンサー情報を収集
@@ -235,166 +259,162 @@ std::tuple<std::shared_ptr<mjcf::Body>, std::shared_ptr<mjcf::Joint>> UrdfConver
       const char* source_type = has_collision ? "collision" : "visual";
 
       for(XMLElement* elem = geom_source; elem; elem = elem->NextSiblingElement(source_type)) {
-      auto geom = std::make_shared<Geom>();
+        auto geom = std::make_shared<Geom>();
 
-      XMLElement* origin = elem->FirstChildElement("origin");
-      if(origin) {
-        const char* xyz = origin->Attribute("xyz");
-        if(xyz) {
-          auto pos = parse_space_separated_values(xyz);
-          if(pos.size() >= 3) geom->pos = {pos[0], pos[1], pos[2]};
-        }
-
-        const char* rpy = origin->Attribute("rpy");
-        if(rpy) {
-          auto rpy_values = parse_space_separated_values(rpy);
-          if(rpy_values.size() >= 3) {
-            auto quat = rpy_to_quat(rpy_values);
-            if(quat.size() >= 4) geom->quat = {quat[0], quat[1], quat[2], quat[3]};
+        XMLElement* origin = elem->FirstChildElement("origin");
+        if(origin) {
+          const char* xyz = origin->Attribute("xyz");
+          if(xyz) {
+            auto pos = parse_space_separated_values(xyz);
+            if(pos.size() >= 3) geom->pos = {pos[0], pos[1], pos[2]};
           }
-        }
-      }
 
-      XMLElement* geometry = elem->FirstChildElement("geometry");
-      if(geometry) {
-        XMLElement* box      = geometry->FirstChildElement("box");
-        XMLElement* cylinder = geometry->FirstChildElement("cylinder");
-        XMLElement* sphere   = geometry->FirstChildElement("sphere");
-        XMLElement* mesh     = geometry->FirstChildElement("mesh");
-
-        bool geometry_found = false;
-
-        if(box) {
-          geom->type       = GeomType::Box;
-          const char* size = box->Attribute("size");
-          if(size) {
-            auto sizes = parse_space_separated_values(size);
-            if(sizes.size() >= 3) geom->size = {sizes[0] / 2, sizes[1] / 2, sizes[2] / 2}; // MJCF uses half-sizes
-          }
-          geometry_found = true;
-        } else if(cylinder) {
-          geom->type     = GeomType::Cylinder;
-          double radius  = cylinder->DoubleAttribute("radius");
-          double length  = cylinder->DoubleAttribute("length");
-          geom->size     = {radius, length / 2, 0.001}; // MJCF uses half-length
-          geometry_found = true;
-        } else if(sphere) {
-          geom->type     = GeomType::Sphere;
-          double radius  = sphere->DoubleAttribute("radius");
-          geom->size     = {radius, 0.001, 0.001};
-          geometry_found = true;
-        } else if(mesh) {
-          geom->type = GeomType::Mesh;
-
-          const char* filename = mesh->Attribute("filename");
-          if(filename) {
-            std::string mesh_filename   = filename;
-            std::string final_mesh_path = mesh_filename;
-
-            // Remove ROS package:// prefix if present
-            const std::string package_prefix = "package://";
-            if(mesh_filename.find(package_prefix) == 0) {
-              mesh_filename = mesh_filename.substr(package_prefix.length());
+          const char* rpy = origin->Attribute("rpy");
+          if(rpy) {
+            auto rpy_values = parse_space_separated_values(rpy);
+            if(rpy_values.size() >= 3) {
+              auto quat = rpy_to_quat(rpy_values);
+              if(quat.size() >= 4) geom->quat = {quat[0], quat[1], quat[2], quat[3]};
             }
+          }
+        }
 
-            if(copy_meshes) {
-              // Resolve the full path to the mesh file
-              std::string source_mesh_path = resolve_mesh_path(urdf_path, mesh_filename);
+        XMLElement* geometry = elem->FirstChildElement("geometry");
+        if(geometry) {
+          XMLElement* box      = geometry->FirstChildElement("box");
+          XMLElement* cylinder = geometry->FirstChildElement("cylinder");
+          XMLElement* sphere   = geometry->FirstChildElement("sphere");
+          XMLElement* mesh     = geometry->FirstChildElement("mesh");
 
-              if(std::filesystem::exists(source_mesh_path)) {
-                // Generate hash-based filename
-                std::string hash_filename  = generate_hash_filename(source_mesh_path);
-                std::string dest_mesh_path = (output_dir.empty() ? "./" : (output_dir + "/")) + hash_filename;
+          bool geometry_found = false;
 
-                // Copy the mesh file
-                if(copy_mesh_file(source_mesh_path, dest_mesh_path)) {
-                  final_mesh_path = hash_filename; // Use the hash-based filename
-                  mujoco->add_temporary_file(dest_mesh_path);
+          if(box) {
+            geom->type       = GeomType::Box;
+            const char* size = box->Attribute("size");
+            if(size) {
+              auto sizes = parse_space_separated_values(size);
+              if(sizes.size() >= 3) geom->size = {sizes[0] / 2, sizes[1] / 2, sizes[2] / 2}; // MJCF uses half-sizes
+            }
+            geometry_found = true;
+          } else if(cylinder) {
+            geom->type     = GeomType::Cylinder;
+            double radius  = cylinder->DoubleAttribute("radius");
+            double length  = cylinder->DoubleAttribute("length");
+            geom->size     = {radius, length / 2, 0.001}; // MJCF uses half-length
+            geometry_found = true;
+          } else if(sphere) {
+            geom->type     = GeomType::Sphere;
+            double radius  = sphere->DoubleAttribute("radius");
+            geom->size     = {radius, 0.001, 0.001};
+            geometry_found = true;
+          } else if(mesh) {
+            geom->type = GeomType::Mesh;
+
+            const char* filename = mesh->Attribute("filename");
+            if(filename) {
+              std::string mesh_filename   = filename;
+              std::string final_mesh_path = mesh_filename;
+
+              // Remove ROS package:// prefix if present
+              const std::string package_prefix = "package://";
+              if(mesh_filename.find(package_prefix) == 0) {
+                mesh_filename = mesh_filename.substr(package_prefix.length());
+              }
+
+              if(copy_meshes) {
+                // Resolve the full path to the mesh file
+                std::string source_mesh_path = resolve_mesh_path(urdf_path, mesh_filename);
+
+                if(std::filesystem::exists(source_mesh_path)) {
+                  // Generate hash-based filename
+                  std::string hash_filename  = generate_hash_filename(source_mesh_path);
+                  std::string dest_mesh_path = (output_dir.empty() ? "./" : (output_dir + "/")) + hash_filename;
+
+                  // Copy the mesh file
+                  if(copy_mesh_file(source_mesh_path, dest_mesh_path)) {
+                    final_mesh_path = hash_filename; // Use the hash-based filename
+                    mujoco->add_temporary_file(dest_mesh_path);
+                  } else {
+                    final_mesh_path = mesh_filename; // Fallback to original
+                  }
                 } else {
                   final_mesh_path = mesh_filename; // Fallback to original
                 }
               } else {
-                final_mesh_path = mesh_filename; // Fallback to original
+                // Extract just the filename after the last slash
+                size_t last_slash = mesh_filename.find_last_of("/\\");
+                if(last_slash != std::string::npos) {
+                  mesh_filename = mesh_filename.substr(last_slash + 1);
+                }
+                final_mesh_path = mesh_filename;
               }
-            } else {
-              // Extract just the filename after the last slash
-              size_t last_slash = mesh_filename.find_last_of("/\\");
-              if(last_slash != std::string::npos) {
-                mesh_filename = mesh_filename.substr(last_slash + 1);
+
+              // Create a unique mesh name based on link name and mesh filename
+              std::string mesh_name = std::string(link_name) + "_" + std::filesystem::path(final_mesh_path).stem().string();
+
+              // Create mesh asset
+              auto mesh_asset  = std::make_shared<Mesh>();
+              mesh_asset->name = mesh_name;
+              mesh_asset->file = final_mesh_path;
+
+              // Parse scale attribute if present
+              const char* scale_attr = mesh->Attribute("scale");
+              if(scale_attr) {
+                auto scale_values = parse_space_separated_values(scale_attr);
+                if(scale_values.size() >= 3) {
+                  mesh_asset->scale = {scale_values[0], scale_values[1], scale_values[2]};
+                } else if(scale_values.size() == 1) {
+                  // Uniform scale
+                  mesh_asset->scale = {scale_values[0], scale_values[0], scale_values[0]};
+                }
               }
-              final_mesh_path = mesh_filename;
+
+              mujoco->add_asset(mesh_asset);
+              geom->mesh = mesh_name;
             }
+            geometry_found = true;
+          }
 
-            // Create a unique mesh name based on link name and mesh filename
-            std::string mesh_name = std::string(link_name) + "_" + std::filesystem::path(final_mesh_path).stem().string();
-
-            // Create mesh asset
-            auto mesh_asset  = std::make_shared<Mesh>();
-            mesh_asset->name = mesh_name;
-            mesh_asset->file = final_mesh_path;
-
-            // Parse scale attribute if present
-            const char* scale_attr = mesh->Attribute("scale");
-            if(scale_attr) {
-              auto scale_values = parse_space_separated_values(scale_attr);
-              if(scale_values.size() >= 3) {
-                mesh_asset->scale = {scale_values[0], scale_values[1], scale_values[2]};
-              } else if(scale_values.size() == 1) {
-                // Uniform scale
-                mesh_asset->scale = {scale_values[0], scale_values[0], scale_values[0]};
-              }
+          if(geometry_found) {
+            // Gazebo接触パラメータ（mu1/mu2/solref/solimp）を適用
+            auto geom_it = gazebo_geom_map.find(link_name);
+            if(geom_it != gazebo_geom_map.end()) {
+              const auto& gp = geom_it->second;
+              if(gp.mu1 >= 0.0) geom->friction[0] = gp.mu1;
+              if(gp.mu2 >= 0.0) geom->friction[1] = gp.mu2;
+              if(gp.has_solref()) geom->solref = gp.solref;
+              if(gp.has_solimp()) geom->solimp = gp.solimp;
             }
-
-            mujoco->add_asset(mesh_asset);
-            geom->mesh = mesh_name;
+            body->add_child(geom);
           }
-          geometry_found = true;
+        } else {
+          // No geometry element found, don't add the geom
+          continue;
         }
 
-        // Only add the geom if a valid geometry type was found
-        if(geometry_found) {
-          // Apply Gazebo friction parameters if available
-          auto friction_it = gazebo_friction_map.find(link_name);
-          if(friction_it != gazebo_friction_map.end()) {
-            double mu1 = friction_it->second.first;
-            double mu2 = friction_it->second.second;
+        // Process material only from visual elements (not collision)
+        if(!has_collision) {
+          XMLElement* material = elem->FirstChildElement("material");
+          if(material) {
+            const char* mat_name = material->Attribute("name");
+            if(mat_name == nullptr) continue;
+            if(std::string(mat_name) == "") continue;
+            geom->material = mat_name;
 
-            // MJCF friction is [sliding, torsional, rolling]
-            // Gazebo mu1 is sliding friction, mu2 is torsional friction
-            // Only apply non-negative values
-            if(mu1 >= 0.0) geom->friction[0] = mu1;
-            if(mu2 >= 0.0) geom->friction[1] = mu2;
+            if(mujoco->has_material(mat_name)) continue;
+            XMLElement* color = material->FirstChildElement("color");
+            if(color == nullptr) continue;
+            const char* rgba = color->Attribute("rgba");
+            if(rgba == nullptr) continue;
+            auto mjcf_material  = std::make_shared<Material>();
+            mjcf_material->name = mat_name;
+
+            auto rgba_values = parse_space_separated_values(rgba);
+            if(rgba_values.size() >= 3) //
+              mjcf_material->rgba = {rgba_values[0], rgba_values[1], rgba_values[2], rgba_values.size() > 3 ? rgba_values[3] : 1.0};
+            mujoco->add_asset(mjcf_material);
           }
-          body->add_child(geom);
         }
-      } else {
-        // No geometry element found, don't add the geom
-        continue;
-      }
-
-      // Process material only from visual elements (not collision)
-      if(!has_collision) {
-        XMLElement* material = elem->FirstChildElement("material");
-        if(material) {
-          const char* mat_name = material->Attribute("name");
-          if(mat_name == nullptr) continue;
-          if(std::string(mat_name) == "") continue;
-          geom->material = mat_name;
-
-          if(mujoco->has_material(mat_name)) continue;
-          XMLElement* color = material->FirstChildElement("color");
-          if(color == nullptr) continue;
-          const char* rgba = color->Attribute("rgba");
-          if(rgba == nullptr) continue;
-          auto mjcf_material  = std::make_shared<Material>();
-          mjcf_material->name = mat_name;
-
-          auto rgba_values = parse_space_separated_values(rgba);
-          if(rgba_values.size() >= 3) //
-            mjcf_material->rgba = {rgba_values[0], rgba_values[1], rgba_values[2], rgba_values.size() > 3 ? rgba_values[3] : 1.0};
-          mujoco->add_asset(mjcf_material);
-        }
-      }
       }
     }
     link_to_body[link_name] = body;
@@ -403,12 +423,45 @@ std::tuple<std::shared_ptr<mjcf::Body>, std::shared_ptr<mjcf::Joint>> UrdfConver
   // joint名→child link名のマップ（センサー用）
   std::map<std::string, std::string> joint_to_child_link;
   for(XMLElement* joint = robot->FirstChildElement("joint"); joint; joint = joint->NextSiblingElement("joint")) {
-    const char* jname = joint->Attribute("name");
+    const char* jname      = joint->Attribute("name");
     XMLElement* child_elem = joint->FirstChildElement("child");
     if(jname != nullptr && child_elem != nullptr) {
       const char* child_link = child_elem->Attribute("link");
       if(child_link != nullptr) joint_to_child_link[jname] = child_link;
     }
+  }
+
+  // <joint>内の<mujoco>ブロックからMuJoCo専用パラメータを事前収集
+  struct MujocoJointParams {
+    double stiffness                  = -1.0;
+    double armature                   = -1.0;
+    std::array<double, 2> solreflimit = {0.0, 0.0};
+    bool has_solreflimit              = false;
+  };
+  std::map<std::string, MujocoJointParams> mujoco_joint_map;
+  for(XMLElement* joint = robot->FirstChildElement("joint"); joint; joint = joint->NextSiblingElement("joint")) {
+    const char* jname        = joint->Attribute("name");
+    XMLElement* mujoco_block = joint->FirstChildElement("mujoco");
+    if(jname == nullptr || mujoco_block == nullptr) continue;
+
+    MujocoJointParams mp;
+
+    XMLElement* stiffness_elem = mujoco_block->FirstChildElement("stiffness");
+    if(stiffness_elem && stiffness_elem->GetText()) mp.stiffness = std::stod(stiffness_elem->GetText());
+
+    XMLElement* armature_elem = mujoco_block->FirstChildElement("armature");
+    if(armature_elem && armature_elem->GetText()) mp.armature = std::stod(armature_elem->GetText());
+
+    XMLElement* solreflimit_elem = mujoco_block->FirstChildElement("solreflimit");
+    if(solreflimit_elem && solreflimit_elem->GetText()) {
+      auto vals = parse_space_separated_values(solreflimit_elem->GetText());
+      if(vals.size() >= 2) {
+        mp.solreflimit     = {vals[0], vals[1]};
+        mp.has_solreflimit = true;
+      }
+    }
+
+    mujoco_joint_map[jname] = mp;
   }
 
   std::set<std::string> child_links;
@@ -521,6 +574,15 @@ std::tuple<std::shared_ptr<mjcf::Body>, std::shared_ptr<mjcf::Joint>> UrdfConver
         if(friction >= 0.0) mjcf_joint->frictionloss = friction;
       }
 
+      // <mujoco>ブロックのMuJoCo専用パラメータを適用
+      auto mj_it = mujoco_joint_map.find(joint_name);
+      if(mj_it != mujoco_joint_map.end()) {
+        const auto& mjp = mj_it->second;
+        if(mjp.stiffness >= 0.0) mjcf_joint->stiffness = mjp.stiffness;
+        if(mjp.armature >= 0.0) mjcf_joint->armature = mjp.armature;
+        if(mjp.has_solreflimit) mjcf_joint->solreflimit = mjp.solreflimit;
+      }
+
       child_body->add_child(mjcf_joint);
 
       // Store the first joint found
@@ -611,23 +673,23 @@ std::tuple<std::shared_ptr<mjcf::Body>, std::shared_ptr<mjcf::Joint>> UrdfConver
 
     // センサーを追加
     if(sensor_info.type == UrdfSensorInfo::Type::ForceTorque) {
-      auto force_sensor = std::make_shared<Force>();
+      auto force_sensor  = std::make_shared<Force>();
       force_sensor->name = sensor_info.name + "_force";
       force_sensor->site = site_name;
       mujoco->sensor_->add_child(force_sensor);
 
-      auto torque_sensor = std::make_shared<Torque>();
+      auto torque_sensor  = std::make_shared<Torque>();
       torque_sensor->name = sensor_info.name + "_torque";
       torque_sensor->site = site_name;
       mujoco->sensor_->add_child(torque_sensor);
 
     } else { // IMU
-      auto gyro_sensor = std::make_shared<Gyro>();
+      auto gyro_sensor  = std::make_shared<Gyro>();
       gyro_sensor->name = sensor_info.name + "_gyro";
       gyro_sensor->site = site_name;
       mujoco->sensor_->add_child(gyro_sensor);
 
-      auto acc_sensor = std::make_shared<Accelerometer>();
+      auto acc_sensor  = std::make_shared<Accelerometer>();
       acc_sensor->name = sensor_info.name + "_accelerometer";
       acc_sensor->site = site_name;
       mujoco->sensor_->add_child(acc_sensor);

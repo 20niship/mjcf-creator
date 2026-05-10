@@ -19,7 +19,7 @@ TEST_SUITE("URDF Conversion Tests") {
     }
 
     // Perform conversion
-    auto mujoco  = std::make_shared<mjcf::Mujoco>();
+    auto mujoco        = std::make_shared<mjcf::Mujoco>();
     auto [body, joint] = mujoco->add_urdf(urdf_path);
     CHECK(body != nullptr);
     CHECK(joint != nullptr);
@@ -54,7 +54,7 @@ TEST_SUITE("URDF Conversion Tests") {
   TEST_CASE("URDF to MJCF conversion") {
     std::string urdf_path = "../tests/robot.urdf";
     auto mujoco           = std::make_shared<mjcf::Mujoco>();
-    auto [body, joint]= mujoco->add_urdf(urdf_path);
+    auto [body, joint]    = mujoco->add_urdf(urdf_path);
     CHECK(body != nullptr);
     CHECK(joint != nullptr);
     auto content = mujoco->get_xml_text();
@@ -210,7 +210,7 @@ TEST_SUITE("URDF Conversion Tests") {
     urdf_file << inline_material_urdf;
     urdf_file.close();
 
-    auto mujoco  = std::make_shared<mjcf::Mujoco>();
+    auto mujoco        = std::make_shared<mjcf::Mujoco>();
     auto [body, joint] = mujoco->add_urdf(temp_urdf, "", false, {}, {0.0, 0.0, 0.0}, false);
     CHECK(body != nullptr);
     CHECK(joint != nullptr);
@@ -299,7 +299,7 @@ TEST_SUITE("URDF Conversion Tests") {
     urdf_file << global_material_urdf;
     urdf_file.close();
 
-    auto mujoco  = std::make_shared<mjcf::Mujoco>();
+    auto mujoco        = std::make_shared<mjcf::Mujoco>();
     auto [body, joint] = mujoco->add_urdf(temp_urdf);
     CHECK(body != nullptr);
     CHECK(joint != nullptr);
@@ -576,7 +576,7 @@ TEST_SUITE("URDF Conversion Tests") {
     urdf_file << collision_only_urdf;
     urdf_file.close();
 
-    auto mujoco  = std::make_shared<mjcf::Mujoco>();
+    auto mujoco        = std::make_shared<mjcf::Mujoco>();
     auto [body, joint] = mujoco->add_urdf(temp_urdf);
     CHECK(body != nullptr);
     CHECK(joint != nullptr);
@@ -645,7 +645,7 @@ TEST_SUITE("URDF Conversion Tests") {
     urdf_file << collision_mesh_urdf;
     urdf_file.close();
 
-    auto mujoco  = std::make_shared<mjcf::Mujoco>();
+    auto mujoco        = std::make_shared<mjcf::Mujoco>();
     auto [body, joint] = mujoco->add_urdf(temp_urdf);
     CHECK(body != nullptr);
     CHECK(joint != nullptr);
@@ -904,7 +904,7 @@ TEST_SUITE("URDF Conversion Tests") {
     urdf_file << combined_urdf;
     urdf_file.close();
 
-    auto mujoco  = std::make_shared<mjcf::Mujoco>();
+    auto mujoco                = std::make_shared<mjcf::Mujoco>();
     auto [body_ptr, joint_ptr] = mujoco->add_urdf(temp_urdf);
     CHECK(body_ptr != nullptr);
     CHECK(joint_ptr != nullptr);
@@ -1076,7 +1076,7 @@ TEST_SUITE("URDF Conversion Tests") {
     urdf_file << urdf_content;
     urdf_file.close();
 
-    auto mujoco  = std::make_shared<mjcf::Mujoco>();
+    auto mujoco        = std::make_shared<mjcf::Mujoco>();
     auto [body, joint] = mujoco->add_urdf(temp_urdf);
     CHECK(body != nullptr);
     CHECK(joint != nullptr);
@@ -1127,7 +1127,7 @@ TEST_SUITE("URDF Conversion Tests") {
     urdf_file << urdf_content;
     urdf_file.close();
 
-    auto mujoco  = std::make_shared<mjcf::Mujoco>();
+    auto mujoco        = std::make_shared<mjcf::Mujoco>();
     auto [body, joint] = mujoco->add_urdf(temp_urdf, "", false, {}, {0.0, 0.0, 0.0}, false);
     CHECK(body != nullptr);
     CHECK(joint != nullptr);
@@ -1277,17 +1277,130 @@ TEST_SUITE("URDF Conversion Tests") {
     CHECK(xml_content.find("fullinertia") != std::string::npos);
 
     // Check diagonal terms
-    CHECK(xml_content.find("0.01") != std::string::npos);   // ixx
-    CHECK(xml_content.find("0.012") != std::string::npos);  // iyy
-    CHECK(xml_content.find("0.015") != std::string::npos);  // izz
+    CHECK(xml_content.find("0.01") != std::string::npos);  // ixx
+    CHECK(xml_content.find("0.012") != std::string::npos); // iyy
+    CHECK(xml_content.find("0.015") != std::string::npos); // izz
 
     // Check off-diagonal terms (may be rounded)
     // ixy=-0.001, ixz=0.0005, iyz=-0.0002
-    bool has_negative_off_diag = xml_content.find("-0.001") != std::string::npos ||
-                                 xml_content.find("-0.0") != std::string::npos;
+    bool has_negative_off_diag = xml_content.find("-0.001") != std::string::npos || xml_content.find("-0.0") != std::string::npos;
     CHECK(has_negative_off_diag);
 
     // Clean up
+    std::filesystem::remove(temp_urdf);
+  }
+
+  TEST_CASE("URDF stiffness/armature/solreflimit") {
+    std::string urdf = R"(<?xml version="1.0"?>
+<robot name="mujoco_block_robot">
+  <link name="base_link">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="1.0"/>
+      <inertia ixx="0.01" ixy="0" ixz="0" iyy="0.01" iyz="0" izz="0.01"/>
+    </inertial>
+    <collision>
+      <geometry><box size="0.1 0.1 0.1"/></geometry>
+    </collision>
+  </link>
+  <link name="wheel_link">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="0.5"/>
+      <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+    </inertial>
+    <collision>
+      <geometry><cylinder radius="0.05" length="0.02"/></geometry>
+    </collision>
+  </link>
+  <joint name="wheel_joint" type="continuous">
+    <parent link="base_link"/>
+    <child link="wheel_link"/>
+    <origin xyz="0.1 0 0" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <dynamics damping="10.0" friction="0.05"/>
+    <mujoco>
+      <solreflimit>0.02 1.0</solreflimit>
+      <stiffness>2.0</stiffness>
+      <armature>0.01</armature>
+    </mujoco>
+  </joint>
+</robot>)";
+
+    std::string temp_urdf = "mujoco_block_test.urdf";
+    std::ofstream urdf_file(temp_urdf);
+    urdf_file << urdf;
+    urdf_file.close();
+
+    auto mujoco        = std::make_shared<mjcf::Mujoco>();
+    auto [body, joint] = mujoco->add_urdf(temp_urdf);
+    CHECK(body != nullptr);
+
+    std::string xml = mujoco->get_xml_text();
+
+    // damping/frictionlossは従来通り出力される
+    CHECK(xml.find("damping=\"10\"") != std::string::npos);
+    CHECK(xml.find("frictionloss=\"0.05\"") != std::string::npos);
+
+    // <mujoco>ブロックのパラメータが反映されていること
+    CHECK(xml.find("stiffness=\"2\"") != std::string::npos);
+    CHECK(xml.find("armature=\"0.01\"") != std::string::npos);
+    // solreflimitはデフォルト値(0.02 1.0)と同じなので出力されない（デフォルト抑制）
+    // stiffness/armatureが出力されていれば<mujoco>ブロックのパースは成功
+
+    std::filesystem::remove(temp_urdf);
+  }
+
+  TEST_CASE("URDF Gazebo link - solref/solimp") {
+    std::string urdf = R"(<?xml version="1.0"?>
+<robot name="solref_solimp_robot">
+  <gazebo reference="wheel_link">
+    <mu1>1.5</mu1>
+    <mu2>0.05</mu2>
+    <solref>0.01 0.5</solref>
+    <solimp>0.9 0.95 0.001</solimp>
+  </gazebo>
+  <link name="base_link">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="1.0"/>
+      <inertia ixx="0.01" ixy="0" ixz="0" iyy="0.01" iyz="0" izz="0.01"/>
+    </inertial>
+    <collision>
+      <geometry><box size="0.2 0.2 0.05"/></geometry>
+    </collision>
+  </link>
+  <link name="wheel_link">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="0.3"/>
+      <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+    </inertial>
+    <collision>
+      <geometry><cylinder radius="0.05" length="0.02"/></geometry>
+    </collision>
+  </link>
+  <joint name="wheel_joint" type="continuous">
+    <parent link="base_link"/>
+    <child link="wheel_link"/>
+    <origin xyz="0.1 0 0" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <dynamics damping="5.0" friction="0.05"/>
+  </joint>
+</robot>)";
+
+    std::string temp_urdf = "solref_solimp_test.urdf";
+    std::ofstream urdf_file(temp_urdf);
+    urdf_file << urdf;
+    urdf_file.close();
+
+    auto mujoco        = std::make_shared<mjcf::Mujoco>();
+    auto [body, joint] = mujoco->add_urdf(temp_urdf);
+    CHECK(body != nullptr);
+
+    std::string xml = mujoco->get_xml_text();
+    CHECK(xml.find("friction=\"1.5") != std::string::npos);
+    CHECK(xml.find("solref=\"0.01 0.5\"") != std::string::npos);
     std::filesystem::remove(temp_urdf);
   }
 }
