@@ -296,6 +296,7 @@ std::tuple<Shr<mjcf::Body>, Shr<mjcf::Joint>> UrdfConverter::parse_urdf_to_mjcf(
         if(geometry) {
           XMLElement* box      = geometry->FirstChildElement("box");
           XMLElement* cylinder = geometry->FirstChildElement("cylinder");
+          XMLElement* capsule  = geometry->FirstChildElement("capsule");
           XMLElement* sphere   = geometry->FirstChildElement("sphere");
           XMLElement* mesh     = geometry->FirstChildElement("mesh");
 
@@ -314,6 +315,12 @@ std::tuple<Shr<mjcf::Body>, Shr<mjcf::Joint>> UrdfConverter::parse_urdf_to_mjcf(
             double radius  = cylinder->DoubleAttribute("radius");
             double length  = cylinder->DoubleAttribute("length");
             geom->size     = {radius, length / 2, 0.001}; // MJCF uses half-length
+            geometry_found = true;
+          } else if(capsule) {
+            geom->type     = GeomType::Capsule;
+            double radius  = capsule->DoubleAttribute("radius");
+            double length  = capsule->DoubleAttribute("length");
+            geom->size     = {radius, length / 2, 0.001};
             geometry_found = true;
           } else if(sphere) {
             geom->type     = GeomType::Sphere;
