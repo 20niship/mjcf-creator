@@ -127,6 +127,8 @@ std::tuple<Shr<mjcf::Body>, Shr<mjcf::Joint>> UrdfConverter::parse_urdf_to_mjcf(
     double mu1                   = -1.0;
     double mu2                   = -1.0;
     int condim                   = -1; // -1 = 未指定 (デフォルト継承)
+    int contype                  = -1; // -1 = 未指定 (デフォルト継承)
+    int conaffinity              = -1; // -1 = 未指定 (デフォルト継承)
     std::array<double, 2> solref = {0.02, 1.0};
     std::array<double, 3> solimp = {0.9, 0.95, 0.001};
     bool has_solref() const { return solref[0] != 0.02 || solref[1] != 1.0; }
@@ -170,7 +172,17 @@ std::tuple<Shr<mjcf::Body>, Shr<mjcf::Joint>> UrdfConverter::parse_urdf_to_mjcf(
       params.condim = std::stoi(condim_elem->GetText());
     }
 
-    if(params.mu1 >= 0.0 || params.mu2 >= 0.0 || params.condim >= 0 || params.has_solref() || params.has_solimp()) gazebo_geom_map[reference] = params;
+    const auto contype_elem = gazebo->FirstChildElement("contype");
+    if(contype_elem != nullptr && contype_elem->GetText()) {
+      params.contype = std::stoi(contype_elem->GetText());
+    }
+
+    const auto conaffinity_elem = gazebo->FirstChildElement("conaffinity");
+    if(conaffinity_elem != nullptr && conaffinity_elem->GetText()) {
+      params.conaffinity = std::stoi(conaffinity_elem->GetText());
+    }
+
+    if(params.mu1 >= 0.0 || params.mu2 >= 0.0 || params.condim >= 0 || params.contype >= 0 || params.conaffinity >= 0 || params.has_solref() || params.has_solimp()) gazebo_geom_map[reference] = params;
   }
 
   // Gazeboプラグインからセンサー情報を収集
@@ -393,13 +405,15 @@ std::tuple<Shr<mjcf::Body>, Shr<mjcf::Joint>> UrdfConverter::parse_urdf_to_mjcf(
           }
 
           if(geometry_found) {
-            // Gazebo接触パラメータ（mu1/mu2/condim/solref/solimp）を適用
+            // Gazebo接触パラメータ（mu1/mu2/condim/contype/conaffinity/solref/solimp）を適用
             auto geom_it = gazebo_geom_map.find(link_name);
             if(geom_it != gazebo_geom_map.end()) {
               const auto& gp = geom_it->second;
               if(gp.mu1 >= 0.0) geom->friction[0] = gp.mu1;
               if(gp.mu2 >= 0.0) geom->friction[1] = gp.mu2;
               if(gp.condim >= 0) geom->condim = gp.condim;
+              if(gp.contype >= 0) geom->contype = gp.contype;
+              if(gp.conaffinity >= 0) geom->conaffinity = gp.conaffinity;
               if(gp.has_solref()) geom->solref = gp.solref;
               if(gp.has_solimp()) geom->solimp = gp.solimp;
             }

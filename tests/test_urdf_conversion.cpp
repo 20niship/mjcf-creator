@@ -1404,4 +1404,82 @@ TEST_SUITE("URDF Conversion Tests") {
     CHECK(xml.find("solimp=\"0.123 0.456 0.789\"") != std::string::npos);
     std::filesystem::remove(temp_urdf);
   }
+
+  TEST_CASE("URDF Gazebo link - contype and conaffinity") {
+    std::string urdf = R"(<?xml version="1.0"?>
+<robot name="contype_robot">
+  <gazebo reference="wheel_link">
+    <contype>2</contype>
+    <conaffinity>4</conaffinity>
+  </gazebo>
+  <link name="base_link">
+    <inertial>
+      <mass value="1.0"/>
+      <inertia ixx="0.01" ixy="0" ixz="0" iyy="0.01" iyz="0" izz="0.01"/>
+    </inertial>
+    <collision>
+      <geometry><box size="0.2 0.2 0.05"/></geometry>
+    </collision>
+  </link>
+  <link name="wheel_link">
+    <inertial>
+      <mass value="0.3"/>
+      <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+    </inertial>
+    <collision>
+      <geometry><cylinder radius="0.05" length="0.02"/></geometry>
+    </collision>
+  </link>
+  <joint name="wheel_joint" type="continuous">
+    <parent link="base_link"/>
+    <child link="wheel_link"/>
+    <origin xyz="0.1 0 0" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+  </joint>
+</robot>)";
+
+    std::string temp_urdf = "contype_conaffinity_test.urdf";
+    std::ofstream urdf_file(temp_urdf);
+    urdf_file << urdf;
+    urdf_file.close();
+
+    auto mujoco        = std::make_shared<mjcf::Mujoco>();
+    auto [body, joint] = mujoco->add_urdf(temp_urdf);
+    CHECK(body != nullptr);
+
+    std::string xml = mujoco->get_xml_text();
+    CHECK(xml.find("contype=\"2\"") != std::string::npos);
+    CHECK(xml.find("conaffinity=\"4\"") != std::string::npos);
+    std::filesystem::remove(temp_urdf);
+  }
+
+  TEST_CASE("URDF Gazebo link - contype/conaffinity default values not output") {
+    std::string urdf = R"(<?xml version="1.0"?>
+<robot name="default_contype_robot">
+  <link name="base_link">
+    <inertial>
+      <mass value="1.0"/>
+      <inertia ixx="0.01" ixy="0" ixz="0" iyy="0.01" iyz="0" izz="0.01"/>
+    </inertial>
+    <collision>
+      <geometry><box size="0.2 0.2 0.05"/></geometry>
+    </collision>
+  </link>
+</robot>)";
+
+    std::string temp_urdf = "default_contype_test.urdf";
+    std::ofstream urdf_file(temp_urdf);
+    urdf_file << urdf;
+    urdf_file.close();
+
+    auto mujoco        = std::make_shared<mjcf::Mujoco>();
+    auto [body, joint] = mujoco->add_urdf(temp_urdf);
+    CHECK(body != nullptr);
+
+    std::string xml = mujoco->get_xml_text();
+    // Default values (contype=1, conaffinity=1) should not appear in output
+    CHECK(xml.find("contype=") == std::string::npos);
+    CHECK(xml.find("conaffinity=") == std::string::npos);
+    std::filesystem::remove(temp_urdf);
+  }
 }
