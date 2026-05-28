@@ -187,11 +187,11 @@ std::tuple<Shr<mjcf::Body>, Shr<mjcf::Joint>> UrdfConverter::parse_urdf_to_mjcf(
 
   // Gazeboプラグインからセンサー情報を収集
   struct UrdfSensorInfo {
-    enum class Type { ForceTorque, IMU };
+    enum class Type { ForceTorque, IMU, Touch };
     Type type;
     std::string name;
     std::string joint_name; // FTセンサー: 対象joint名
-    std::string link_name;  // IMU: 対象link名
+    std::string link_name;  // IMU/Touch: 対象link名
   };
   std::vector<UrdfSensorInfo> detected_sensors;
 
@@ -215,14 +215,19 @@ std::tuple<Shr<mjcf::Body>, Shr<mjcf::Joint>> UrdfConverter::parse_urdf_to_mjcf(
       }
     }
 
-    // <gazebo reference="link_name"><sensor type="imu"> 形式
+    // <gazebo reference="link_name"><sensor type="imu"|"contact"> 形式
     const char* ref = gazebo->Attribute("reference");
     if(ref != nullptr) {
       for(XMLElement* sensor_elem = gazebo->FirstChildElement("sensor"); sensor_elem; sensor_elem = sensor_elem->NextSiblingElement("sensor")) {
         const char* stype = sensor_elem->Attribute("type");
-        if(stype != nullptr && std::string(stype) == "imu") {
-          const char* sname = sensor_elem->Attribute("name");
+        if(stype == nullptr) continue;
+        const std::string stype_str = stype;
+        const char* sname           = sensor_elem->Attribute("name");
+        if(stype_str == "imu") {
           detected_sensors.push_back({UrdfSensorInfo::Type::IMU, sname ? sname : "imu_sensor", "", ref});
+        } else if(stype_str == "contact") {
+          // 接触センサーは対象linkにsiteを生成し、touchセンサーで参照する
+          detected_sensors.push_back({UrdfSensorInfo::Type::Touch, sname ? sname : "touch_sensor", "", ref});
         }
       }
     }
@@ -729,7 +734,7 @@ std::tuple<Shr<mjcf::Body>, Shr<mjcf::Joint>> UrdfConverter::parse_urdf_to_mjcf(
         if(body_it != link_to_body.end()) target_body = body_it->second;
       }
     } else {
-      // link名から直接bodyを取得
+      // IMU / Touch はlink名から直接bodyを取得
       auto it = link_to_body.find(sensor_info.link_name);
       if(it != link_to_body.end()) target_body = it->second;
     }
@@ -752,7 +757,7 @@ std::tuple<Shr<mjcf::Body>, Shr<mjcf::Joint>> UrdfConverter::parse_urdf_to_mjcf(
       torque_sensor->site = site_name;
       mujoco->sensor_->add_child(torque_sensor);
 
-    } else { // IMU
+    } else if(sensor_info.type == UrdfSensorInfo::Type::IMU) {
       auto gyro_sensor  = std::make_shared<Gyro>();
       gyro_sensor->name = add_pfx(sensor_info.name + "_gyro");
       gyro_sensor->site = site_name;
@@ -762,6 +767,12 @@ std::tuple<Shr<mjcf::Body>, Shr<mjcf::Joint>> UrdfConverter::parse_urdf_to_mjcf(
       acc_sensor->name = add_pfx(sensor_info.name + "_accelerometer");
       acc_sensor->site = site_name;
       mujoco->sensor_->add_child(acc_sensor);
+    } else { // Touch
+      // 対象siteの接触力ノルムを測定するtouchセンサーを生成
+      auto touch  = std::make_shared<Touch>();
+      touch->name = add_pfx(sensor_info.name);
+      touch->site = site_name;
+      mujoco->sensor_->add_child(touch);
     }
   }
 
