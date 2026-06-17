@@ -13,6 +13,11 @@
 #include <set>
 #include <sstream>
 #include <unordered_map>
+#ifndef _WIN32
+#include <unistd.h>  // getpid (並列プロセスで mesh コピー名を一意化するため)
+#else
+#include <process.h> // _getpid
+#endif
 #if __has_include(<tinyxml2/tinyxml2.h>)
 #include <tinyxml2/tinyxml2.h>
 #else
@@ -908,7 +913,15 @@ std::string UrdfConverter::generate_hash_filename(const std::string& original_pa
     hash_str = hash_str.substr(0, 5);
   }
   std::string filename = path.filename().string();
-  return hash_str + "_" + filename;
+  // mesh は共有 cwd/cache に同名コピーされ並列プロセスで奪い合う (書込中を別プロセスが読むと
+  // empty/truncated になりモデルが壊れる)。PID を混ぜて一意化する。コピー先 (dest_mesh_path) と
+  // MJCF 参照 (final_mesh_path) は共にこの戻り値を使うため整合する。
+#ifndef _WIN32
+  const long pid = static_cast<long>(getpid());
+#else
+  const long pid = static_cast<long>(_getpid());
+#endif
+  return hash_str + "_" + std::to_string(pid) + "_" + filename;
 }
 
 bool UrdfConverter::copy_mesh_file(const std::string& source_path, const std::string& dest_path) {
