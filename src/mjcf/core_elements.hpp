@@ -66,7 +66,7 @@ public:
   std::string body2;
   std::array<double, 2> solref = {0.02, 1.0};
   std::array<double, 3> solimp = {0.9, 0.95, 0.001};
-  Weld() = default;
+  Weld()                       = default;
   [[nodiscard]] std::string element_name() const override { return "weld"; }
   void set_xml_attrib() const override;
 };
@@ -165,10 +165,7 @@ public:
    * @param name_prefix  名前衝突を避けるためのプレフィックス (例: "sub_")
    * @return             取り込んだ最初の Body (存在しなければ nullptr)
    */
-  std::shared_ptr<Body> add_xml_file(
-      const std::string& filepath,
-      std::shared_ptr<Body> parent     = nullptr,
-      const std::string& name_prefix   = "");
+  std::shared_ptr<Body> add_xml_file(const std::string& filepath, std::shared_ptr<Body> parent = nullptr, const std::string& name_prefix = "");
 
   /**
    * @brief Add URDF content to this MJCF model
@@ -178,8 +175,10 @@ public:
    * @param copy_meshes Whether to copy mesh files
    * @param joint_metadata Map of joint name to joint metadata
    * @param actuator_metadata Map of actuator type to actuator metadata
+   * @param output_dir Directory to copy meshes into when copy_meshes is true (default: cwd)
    */
-  std::tuple<std::shared_ptr<mjcf::Body>, std::shared_ptr<mjcf::Joint>> add_urdf(const std::string& urdf_path, const std::string& name_prefix = "", bool copy_meshes = false, const std::vector<std::shared_ptr<BaseActuator>>& actuator_metadata = {}, const Arr3& pos = {0.0, 0.0, 0.0}, bool use_collision_tag_only = true);
+  std::tuple<std::shared_ptr<mjcf::Body>, std::shared_ptr<mjcf::Joint>> add_urdf(const std::string& urdf_path, const std::string& name_prefix = "", bool copy_meshes = false, const std::vector<std::shared_ptr<BaseActuator>>& actuator_metadata = {}, const Arr3& pos = {0.0, 0.0, 0.0},
+                                                                                 bool use_collision_tag_only = true, const std::string& output_dir = "");
 
   [[nodiscard]] std::string element_name() const override { return "mujoco"; }
 
