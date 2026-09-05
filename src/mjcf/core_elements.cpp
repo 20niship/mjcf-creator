@@ -133,7 +133,7 @@ void Option::set_xml_attrib() const {
   if(iterations != 100) this->set_attribute("iterations", iterations);
   if(noslip_iterations > 0) this->set_attribute("noslip_iterations", noslip_iterations);
   if(noslip_tolerance > 0) this->set_attribute("noslip_tolerance", noslip_tolerance);
-  if(impratio != 5.0) this->set_attribute("impratio", impratio);
+  if(impratio > 0.0) this->set_attribute("impratio", impratio); 
   if(tolerance != 1e-8) this->set_attribute("tolerance", tolerance);
 }
 
