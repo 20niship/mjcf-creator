@@ -104,9 +104,9 @@ public:
   double viscosity          = 0.0;
   bool multi_ccd            = false;
   int iterations            = 100;
-  int noslip_iterations     = 5;
-  float noslip_tolerance    = 1e-6;
-  double impratio           = 5.0;
+  int noslip_iterations     = -1; // >0の値が代入されてxml書き出し
+  double noslip_tolerance   = -1; // >0の値が代入されてxml書き出し
+  double impratio           = -1; // >0の値が代入されてxml書き出し
   double tolerance          = 1e-8;
   std::string cone          = "pyramidal";
 
