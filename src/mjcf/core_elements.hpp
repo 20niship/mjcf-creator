@@ -71,6 +71,22 @@ public:
   void set_xml_attrib() const override;
 };
 
+//! <equality><joint> : joint1 = polycoef(joint2) の結合拘束。URDF の <mimic> (従関節 = multiplier * 主関節 + offset) の MJCF 表現
+class JointEquality : public Element {
+public:
+  std::string name;
+  std::string joint1; // 従関節
+  std::string joint2; // 主関節
+  std::array<double, 5> polycoef = {0.0, 1.0, 0.0, 0.0, 0.0};
+  // MuJoCo 既定 (solref 0.02 / solimp 0.9 0.95) では回転指の 4 節リンクで従関節が 3〜5% 遅れて止まるため、
+  // mimic は機構的な剛結合として硬く取る (solref の時定数を短く、solimp の到達率を上げる)
+  std::array<double, 2> solref   = {0.005, 1.0};
+  std::array<double, 3> solimp   = {0.99, 0.999, 0.001};
+  JointEquality()                = default;
+  [[nodiscard]] std::string element_name() const override { return "joint"; }
+  void set_xml_attrib() const override;
+};
+
 class Tendon : public Element {
 public:
   Tendon() = default;

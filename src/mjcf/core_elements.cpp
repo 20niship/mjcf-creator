@@ -154,6 +154,15 @@ bool Default::is_default_value([[maybe_unused]] const std::string& name, [[maybe
   return false; // 設定されている場合はclassを常に含める
 }
 
+void JointEquality::set_xml_attrib() const {
+  if(!name.empty()) set_attribute("name", name);
+  set_attribute("joint1", joint1);
+  set_attribute("joint2", joint2);
+  set_attribute("polycoef", std::vector<double>(polycoef.begin(), polycoef.end()));
+  set_attribute("solref", std::vector<double>(solref.begin(), solref.end()));
+  set_attribute("solimp", std::vector<double>(solimp.begin(), solimp.end()));
+}
+
 void Weld::set_xml_attrib() const {
   set_attribute("body1", body1);
   set_attribute("body2", body2);
