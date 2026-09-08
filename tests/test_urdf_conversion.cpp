@@ -1484,7 +1484,7 @@ TEST_SUITE("URDF Conversion Tests") {
   }
 }
 
-TEST_CASE("URDF mimic joint becomes MJCF joint equality without actuator") {
+TEST_CASE("URDF mimic joint becomes MJCF joint equality") {
   // <mimic> は従関節 = offset + multiplier * 主関節 の等式拘束に変換し、従関節にはアクチュエータを付けない
   const std::string urdf = R"(<?xml version="1.0"?>
 <robot name="two_finger">
@@ -1515,9 +1515,9 @@ TEST_CASE("URDF mimic joint becomes MJCF joint equality without actuator") {
   CHECK(xml.find("joint1=\"right_joint\"") != std::string::npos);
   CHECK(xml.find("joint2=\"left_joint\"") != std::string::npos);
   CHECK(xml.find("polycoef=\"0.001 -1 0 0 0\"") != std::string::npos);
-  // 主関節にはアクチュエータがあり、従関節には無い
+  // 従関節にもアクチュエータを残す (握力を担う。ctrl は利用側が mimic に沿って主関節から導く)
   CHECK(xml.find("<position") != std::string::npos);
   CHECK(xml.find("joint=\"left_joint\"") != std::string::npos);
-  CHECK(xml.find("joint=\"right_joint\"") == std::string::npos);
+  CHECK(xml.find("joint=\"right_joint\"") != std::string::npos);
   std::filesystem::remove(path);
 }
