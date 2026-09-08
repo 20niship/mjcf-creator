@@ -632,6 +632,18 @@ std::tuple<Shr<mjcf::Body>, Shr<mjcf::Joint>> UrdfConverter::parse_urdf_to_mjcf(
         first_joint = mjcf_joint;
       }
 
+      // <mimic joint multiplier offset> は MuJoCo の joint 等式拘束 (joint1 = offset + multiplier * joint2) で表す。
+      // 従関節は拘束が駆動するのでアクチュエータを付けない (付けると ctrl=0 の位置制御が拘束と綱引きする)
+      if(XMLElement* mimic = joint->FirstChildElement("mimic"); mimic != nullptr && mimic->Attribute("joint") != nullptr) {
+        auto eq      = std::make_shared<detail::JointEquality>();
+        eq->name     = add_pfx(std::string(joint_name) + "_mimic");
+        eq->joint1   = add_pfx(joint_name);
+        eq->joint2   = add_pfx(mimic->Attribute("joint"));
+        eq->polycoef = {mimic->DoubleAttribute("offset", 0.0), mimic->DoubleAttribute("multiplier", 1.0), 0.0, 0.0, 0.0};
+        mujoco->equality_->add_child(eq);
+        continue;
+      }
+
       auto filtered_ = std::find_if(actuator_metadata.begin(), actuator_metadata.end(),            //
                                     [&joint_name](const std::shared_ptr<BaseActuator>& actuator) { //
                                       return actuator->joint == joint_name;

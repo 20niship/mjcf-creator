@@ -1483,3 +1483,41 @@ TEST_SUITE("URDF Conversion Tests") {
     std::filesystem::remove(temp_urdf);
   }
 }
+
+TEST_CASE("URDF mimic joint becomes MJCF joint equality without actuator") {
+  // <mimic> は従関節 = offset + multiplier * 主関節 の等式拘束に変換し、従関節にはアクチュエータを付けない
+  const std::string urdf = R"(<?xml version="1.0"?>
+<robot name="two_finger">
+  <link name="base"><inertial><mass value="1"/><inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/></inertial></link>
+  <link name="left"><inertial><mass value="0.1"/><inertia ixx="0.01" ixy="0" ixz="0" iyy="0.01" iyz="0" izz="0.01"/></inertial></link>
+  <link name="right"><inertial><mass value="0.1"/><inertia ixx="0.01" ixy="0" ixz="0" iyy="0.01" iyz="0" izz="0.01"/></inertial></link>
+  <joint name="left_joint" type="prismatic">
+    <parent link="base"/><child link="left"/><axis xyz="1 0 0"/>
+    <limit lower="0" upper="0.02" effort="10" velocity="1"/>
+  </joint>
+  <joint name="right_joint" type="prismatic">
+    <parent link="base"/><child link="right"/><axis xyz="-1 0 0"/>
+    <limit lower="0" upper="0.02" effort="10" velocity="1"/>
+    <mimic joint="left_joint" multiplier="-1" offset="0.001"/>
+  </joint>
+</robot>)";
+  const std::string path = "mimic_test.urdf";
+  {
+    std::ofstream f(path);
+    f << urdf;
+  }
+  auto mujoco        = std::make_shared<mjcf::Mujoco>();
+  auto [body, joint] = mujoco->add_urdf(path);
+  REQUIRE(body != nullptr);
+  const std::string xml = mujoco->get_xml_text();
+
+  CHECK(xml.find("<equality>") != std::string::npos);
+  CHECK(xml.find("joint1=\"right_joint\"") != std::string::npos);
+  CHECK(xml.find("joint2=\"left_joint\"") != std::string::npos);
+  CHECK(xml.find("polycoef=\"0.001 -1 0 0 0\"") != std::string::npos);
+  // 主関節にはアクチュエータがあり、従関節には無い
+  CHECK(xml.find("<position") != std::string::npos);
+  CHECK(xml.find("joint=\"left_joint\"") != std::string::npos);
+  CHECK(xml.find("joint=\"right_joint\"") == std::string::npos);
+  std::filesystem::remove(path);
+}

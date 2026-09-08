@@ -71,6 +71,20 @@ public:
   void set_xml_attrib() const override;
 };
 
+//! <equality><joint> : joint1 = polycoef(joint2) の結合拘束。URDF の <mimic> (従関節 = multiplier * 主関節 + offset) の MJCF 表現
+class JointEquality : public Element {
+public:
+  std::string name;
+  std::string joint1; // 従関節
+  std::string joint2; // 主関節
+  std::array<double, 5> polycoef = {0.0, 1.0, 0.0, 0.0, 0.0};
+  std::array<double, 2> solref   = {0.02, 1.0};
+  std::array<double, 3> solimp   = {0.9, 0.95, 0.001};
+  JointEquality()                = default;
+  [[nodiscard]] std::string element_name() const override { return "joint"; }
+  void set_xml_attrib() const override;
+};
+
 class Tendon : public Element {
 public:
   Tendon() = default;
