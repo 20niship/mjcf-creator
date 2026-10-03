@@ -52,6 +52,8 @@ public:
   double specular                 = 0.0;
   double shininess                = 0.0;
   double reflectance              = 0.0;
+  double metallic                 = -1.0; // MuJoCo default (負値=未指定、PBRレンダラ用)
+  double roughness                = -1.0; // MuJoCo default (負値=未指定、PBRレンダラ用)
   std::array<double, 4> rgba      = {0.0, 0.0, 0.0, 0.0};
 
   Material() = default;

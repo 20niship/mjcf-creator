@@ -174,13 +174,15 @@ std::string to_string(ActuatorType type) {
     case ActuatorType::General: return "general";
     case ActuatorType::Plugin: return "plugin";
     case ActuatorType::Intvelocity: return "intvelocity";
+    case ActuatorType::Adhesion: return "adhesion";
   }
   throw std::invalid_argument("Invalid ActuatorType");
 }
 
 ActuatorType actuator_type_from_string(const std::string& str) {
   static const std::unordered_map<std::string, ActuatorType> map = {{"motor", ActuatorType::Motor},   {"position", ActuatorType::Position}, {"velocity", ActuatorType::Velocity}, {"cylinder", ActuatorType::Cylinder}, {"muscle", ActuatorType::Muscle},
-                                                                    {"tendon", ActuatorType::Tendon}, {"damper", ActuatorType::Damper},     {"general", ActuatorType::General},   {"plugin", ActuatorType::Plugin},     {"intvelocity", ActuatorType::Intvelocity}};
+                                                                    {"tendon", ActuatorType::Tendon}, {"damper", ActuatorType::Damper},     {"general", ActuatorType::General},   {"plugin", ActuatorType::Plugin},     {"intvelocity", ActuatorType::Intvelocity},
+                                                                    {"adhesion", ActuatorType::Adhesion}};
   auto it                                                        = map.find(str);
   if(it != map.end()) return it->second;
   throw std::invalid_argument("Invalid actuator type string: " + str);

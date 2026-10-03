@@ -61,6 +61,17 @@ TEST_CASE("material-element") {
   CHECK(STR_CONTAINS(xml, "rgba=\"0.8 0.6 0.4 1\""));
 }
 
+TEST_CASE("material-element-metallic-roughness") {
+  mjcf::Material material;
+  material.name       = "pbr_mat";
+  material.metallic   = 0.8;
+  material.roughness  = 0.3;
+
+  std::string xml = material.get_xml_text();
+  CHECK(STR_CONTAINS(xml, "metallic=\"0.8\""));
+  CHECK(STR_CONTAINS(xml, "roughness=\"0.3\""));
+}
+
 TEST_CASE("mesh-element") {
   mjcf::Mesh mesh;
   CHECK(mesh.element_name() == "mesh");

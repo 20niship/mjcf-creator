@@ -54,6 +54,34 @@ TEST_SUITE("body-elements-tests") {
     CHECK(xml.find("fitscale=\"1.5\"") != std::string::npos);
   }
 
+  TEST_CASE("geom-element-new-attributes") {
+    mjcf::Geom geom;
+    geom.density      = 500.0;
+    geom.shellinertia = true;
+    geom.fluidshape   = "ellipsoid";
+    geom.fluidcoef    = {1.0, 0.5, 2.0, 1.0, 1.0};
+    std::string xml   = geom.get_xml_text();
+    CHECK(xml.find("density=\"500\"") != std::string::npos);
+    CHECK(xml.find("shellinertia=\"true\"") != std::string::npos);
+    CHECK(xml.find("fluidshape=\"ellipsoid\"") != std::string::npos);
+    CHECK(xml.find("fluidcoef=\"1 0.5 2 1 1\"") != std::string::npos);
+  }
+
+  TEST_CASE("body-element-gravcomp") {
+    mjcf::Body body;
+    body.gravcomp   = 1.0;
+    std::string xml = body.get_xml_text();
+    CHECK(xml.find("gravcomp=\"1\"") != std::string::npos);
+  }
+
+  TEST_CASE("joint-element-actuatorgravcomp") {
+    mjcf::Joint joint;
+    joint.name              = "j1";
+    joint.actuatorgravcomp  = true;
+    std::string xml         = joint.get_xml_text();
+    CHECK(xml.find("actuatorgravcomp=\"true\"") != std::string::npos);
+  }
+
   TEST_CASE("light-element") {
     mjcf::Light light;
     CHECK(light.element_name() == "light");

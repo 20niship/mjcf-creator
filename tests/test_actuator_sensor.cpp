@@ -30,6 +30,74 @@ TEST_CASE("position-actuator") {
   CHECK(xml.find("kv=\"10\"") != std::string::npos);
 }
 
+TEST_CASE("position-actuator-new-attributes") {
+  mjcf::Position position;
+  position.joint        = "hinge_joint";
+  position.dampratio    = 1.0;
+  position.timeconst    = 0.05;
+  position.inheritrange = 1.0;
+
+  std::string xml = position.get_xml_text();
+  CHECK(xml.find("dampratio=\"1\"") != std::string::npos);
+  CHECK(xml.find("timeconst=\"0.05\"") != std::string::npos);
+  CHECK(xml.find("inheritrange=\"1\"") != std::string::npos);
+}
+
+TEST_CASE("base-actuator-slidersite-body") {
+  mjcf::Motor motor;
+  motor.slidersite = "slider_site";
+  motor.body       = "target_body";
+
+  std::string xml = motor.get_xml_text();
+  CHECK(xml.find("slidersite=\"slider_site\"") != std::string::npos);
+  CHECK(xml.find("body=\"target_body\"") != std::string::npos);
+}
+
+TEST_CASE("damper-actuator") {
+  mjcf::Damper damper;
+  damper.name        = "damper1";
+  damper.joint       = "hinge_joint";
+  damper.ctrllimited = true;
+  damper.ctrlrange   = {0.0, 10.0};
+  damper.kv          = 2.0;
+
+  std::string xml = damper.get_xml_text();
+  CHECK(xml.find("name=\"damper1\"") != std::string::npos);
+  CHECK(xml.find("joint=\"hinge_joint\"") != std::string::npos);
+  CHECK(xml.find("ctrlrange=\"0 10\"") != std::string::npos);
+  CHECK(xml.find("kv=\"2\"") != std::string::npos);
+}
+
+TEST_CASE("intvelocity-actuator") {
+  mjcf::IntVelocity iv;
+  iv.name     = "iv1";
+  iv.joint    = "hinge_joint";
+  iv.kp       = 50.0;
+  iv.kv       = 1.0;
+  iv.actrange = {-1.0, 1.0};
+
+  std::string xml = iv.get_xml_text();
+  CHECK(xml.find("name=\"iv1\"") != std::string::npos);
+  CHECK(xml.find("kp=\"50\"") != std::string::npos);
+  CHECK(xml.find("kv=\"1\"") != std::string::npos);
+  CHECK(xml.find("actrange=\"-1 1\"") != std::string::npos);
+}
+
+TEST_CASE("adhesion-actuator") {
+  mjcf::Adhesion adhesion;
+  adhesion.name      = "gecko_foot";
+  adhesion.body      = "foot_body";
+  adhesion.ctrlrange = {0.0, 1.0};
+  adhesion.gain      = 50.0;
+
+  std::string xml = adhesion.get_xml_text();
+  CHECK(xml.find("<adhesion") != std::string::npos);
+  CHECK(xml.find("name=\"gecko_foot\"") != std::string::npos);
+  CHECK(xml.find("body=\"foot_body\"") != std::string::npos);
+  CHECK(xml.find("ctrlrange=\"0 1\"") != std::string::npos);
+  CHECK(xml.find("gain=\"50\"") != std::string::npos);
+}
+
 TEST_CASE("velocity-actuator") {
   mjcf::Velocity velocity;
   velocity.name  = "vel_actuator";
@@ -56,6 +124,21 @@ TEST_CASE("muscle-actuator") {
   CHECK(xml.find("force=\"100\"") != std::string::npos);
   CHECK(xml.find("range=\"0.8 1.2\"") != std::string::npos);
   CHECK(xml.find("timeconst=\"0.01 0.04\"") != std::string::npos);
+}
+
+TEST_CASE("general-actuator-new-attributes") {
+  mjcf::General general;
+  general.joint     = "hinge_joint";
+  general.actlimited = true;
+  general.actrange  = {-0.5, 0.5};
+  general.actdim    = 2;
+  general.actearly  = true;
+
+  std::string xml = general.get_xml_text();
+  CHECK(xml.find("actlimited=\"true\"") != std::string::npos);
+  CHECK(xml.find("actrange=\"-0.5 0.5\"") != std::string::npos);
+  CHECK(xml.find("actdim=\"2\"") != std::string::npos);
+  CHECK(xml.find("actearly=\"true\"") != std::string::npos);
 }
 
 TEST_CASE("joint-position-sensor") {

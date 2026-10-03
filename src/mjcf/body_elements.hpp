@@ -20,6 +20,7 @@ public:
   Arr3 zaxis                      = {0.0, 0.0, 0.0};
   bool mocap                      = false;
   std::string childclass;
+  double gravcomp                 = 0.0; // MuJoCo default
 
   Body();
 
@@ -68,6 +69,10 @@ public:
   std::string mesh;
   double fitscale = 1.0; // MuJoCo default
   double mass     = -1.0; // デフォルトは無効値（0より大きい場合のみXMLに書き出す）
+  double density  = -1.0; // デフォルトは無効値（0以上の場合のみXMLに書き出す。MuJoCo内部default=1000)
+  bool shellinertia = false; // MuJoCo default
+  std::string fluidshape = "none"; // MuJoCo default: [none, ellipsoid]
+  std::array<double, 5> fluidcoef = {0.5, 0.25, 1.5, 1.0, 1.0}; // MuJoCo default
 
   Geom();
 
@@ -260,6 +265,7 @@ public:
   std::array<double, 2> springdamper     = {0.0, 0.0};
   bool limited                           = false;
   bool actuatorforcelimited              = false;
+  bool actuatorgravcomp                  = false; // MuJoCo default
   std::array<double, 2> actuatorfrcrange = {0.0, 0.0};
   std::array<double, 2> range            = {0.0, 0.0};
   double margin                          = 0.0;

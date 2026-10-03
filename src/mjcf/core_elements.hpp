@@ -99,7 +99,23 @@ public:
   AngleUnit angle           = AngleUnit::Degree;     // MuJoCo default
   CoordinateType coordinate = CoordinateType::Local; // MuJoCo default (note: default value may vary based on usage)
   bool inertiafromgeom      = false;                 // MuJoCo default
-  bool autolimits           = false;                 // MuJoCo default
+  bool autolimits           = true;                  // MuJoCo default (実際のmujocoのdefaultはtrue)
+  std::string meshdir;
+  std::string texturedir;
+  std::string assetdir;
+  double boundmass          = 0.0;    // MuJoCo default
+  double boundinertia       = 0.0;    // MuJoCo default
+  double settotalmass       = -1.0;   // MuJoCo default (負値=無効)
+  bool balanceinertia       = false;  // MuJoCo default
+  bool strippath            = false;  // MuJoCo default (MJCF既定)
+  bool fitaabb              = false;  // MuJoCo default
+  std::string eulerseq      = "xyz";  // MuJoCo default
+  bool discardvisual        = false;  // MuJoCo default (MJCF既定)
+  bool usethread            = true;   // MuJoCo default
+  bool fusestatic           = false;  // MuJoCo default (MJCF既定)
+  bool alignfree            = false;  // MuJoCo default
+  std::array<int, 2> inertiagrouprange = {0, 5}; // MuJoCo default
+  bool saveinertial         = false;  // MuJoCo default
 
   Compiler() = default;
 
@@ -117,14 +133,30 @@ public:
   SolverType solver         = SolverType::Newton;
   double timestep           = 0.002;
   Arr3 gravity              = {0.0, 0.0, -9.81};
+  Arr3 wind                 = {0.0, 0.0, 0.0};   // MuJoCo default
+  Arr3 magnetic             = {0.0, -0.5, 0.0};  // MuJoCo default
+  double density            = 0.0;
   double viscosity          = 0.0;
   bool multi_ccd            = false;
+  std::string jacobian      = "auto"; // MuJoCo default: [dense, sparse, auto]
   int iterations            = 100;
+  int ls_iterations         = 50;     // MuJoCo default
+  double ls_tolerance       = 0.01;   // MuJoCo default
   int noslip_iterations     = -1; // >0の値が代入されてxml書き出し
   double noslip_tolerance   = -1; // >0の値が代入されてxml書き出し
+  int ccd_iterations        = -1; // >0の値が代入されてxml書き出し (MuJoCo内部default=35)
+  double ccd_tolerance      = -1; // >0の値が代入されてxml書き出し (MuJoCo内部default=1e-6)
+  double sleep_tolerance    = -1; // >0の値が代入されてxml書き出し (MuJoCo内部default=1e-4)
+  int sdf_iterations        = -1; // >0の値が代入されてxml書き出し (MuJoCo内部default=10)
+  int sdf_initpoints        = -1; // >0の値が代入されてxml書き出し (MuJoCo内部default=40)
   double impratio           = -1; // >0の値が代入されてxml書き出し
   double tolerance          = 1e-8;
   std::string cone          = "pyramidal";
+  // Contact override (CSolver): o_marginが0以外の時のみo_solref/o_solimp/o_frictionも書き出す
+  double o_margin                     = 0.0;
+  std::array<double, 2> o_solref      = {0.02, 1.0};
+  std::array<double, 5> o_solimp      = {0.9, 0.95, 0.001, 0.5, 2.0};
+  std::array<double, 5> o_friction    = {1.0, 1.0, 0.005, 0.0001, 0.0001};
 
   Option() = default;
 

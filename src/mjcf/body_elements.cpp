@@ -29,6 +29,7 @@ void Body::set_xml_attrib() const {
   if(zaxis != Arr3{0.0, 0.0, 0.0}) this->set_attribute("zaxis", TO_VEC(zaxis));
   if(mocap) this->set_attribute("mocap", mocap);
   if(!childclass.empty()) this->set_attribute("childclass", childclass);
+  if(gravcomp != 0.0) this->set_attribute("gravcomp", gravcomp);
 }
 
 bool Body::is_default_value(const std::string& name, const AttributeValue& value) const {
@@ -73,6 +74,10 @@ void Geom::set_xml_attrib() const {
   if(!mesh.empty()) this->set_attribute("mesh", mesh);
   if(fitscale != 1.0) this->set_attribute("fitscale", fitscale);
   if(mass > 0.0) this->set_attribute("mass", mass);
+  if(density >= 0.0) this->set_attribute("density", density);
+  if(shellinertia) this->set_attribute("shellinertia", shellinertia);
+  if(fluidshape != "none") this->set_attribute("fluidshape", fluidshape);
+  if(fluidcoef != std::array<double, 5>{0.5, 0.25, 1.5, 1.0, 1.0}) this->set_attribute("fluidcoef", TO_VEC(fluidcoef));
 }
 
 bool Geom::is_default_value(const std::string& name, const AttributeValue& value) const {
@@ -221,6 +226,7 @@ void Joint::set_xml_attrib() const {
   }
   if(limited) this->set_attribute("limited", limited);
   if(actuatorforcelimited) this->set_attribute("actuatorforcelimited", actuatorforcelimited);
+  if(actuatorgravcomp) this->set_attribute("actuatorgravcomp", actuatorgravcomp);
   if(actuatorfrcrange != std::array<double, 2>{0.0, 0.0}) {
     this->set_attribute("actuatorfrcrange", std::vector<double>(actuatorfrcrange.begin(), actuatorfrcrange.end()));
   }

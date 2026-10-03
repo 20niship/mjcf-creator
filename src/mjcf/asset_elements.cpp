@@ -67,6 +67,8 @@ void Material::set_xml_attrib() const {
   if(specular != 0.0) this->set_attribute("specular", specular);
   if(shininess != 0.0) this->set_attribute("shininess", shininess);
   if(reflectance != 0.0) this->set_attribute("reflectance", reflectance);
+  if(metallic >= 0.0) this->set_attribute("metallic", metallic);
+  if(roughness >= 0.0) this->set_attribute("roughness", roughness);
 
   if(rgba != std::array<double, 4>{0.0, 0.0, 0.0, 0.0}) {
     this->set_attribute("rgba", std::vector<double>(rgba.begin(), rgba.end()));
