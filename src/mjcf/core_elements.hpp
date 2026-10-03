@@ -98,7 +98,7 @@ class Compiler : public Element {
 public:
   AngleUnit angle           = AngleUnit::Degree;     // MuJoCo default
   CoordinateType coordinate = CoordinateType::Local; // MuJoCo default (note: default value may vary based on usage)
-  bool inertiafromgeom      = false;                 // MuJoCo default
+  TriState inertiafromgeom  = TriState::Auto;        // MuJoCo default
   bool autolimits           = true;                  // MuJoCo default (実際のmujocoのdefaultはtrue)
   std::string meshdir;
   std::string texturedir;

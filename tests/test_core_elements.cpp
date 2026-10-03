@@ -18,7 +18,7 @@ TEST_SUITE("core-elements-tests") {
     CHECK(compiler.element_name() == "compiler");
     compiler.angle           = mjcf::AngleUnit::Radian;  // Changed to non-default value
     compiler.coordinate      = mjcf::CoordinateType::Global;  // Changed to non-default value
-    compiler.inertiafromgeom = true;
+    compiler.inertiafromgeom = mjcf::TriState::True;
     std::string xml          = compiler.get_xml_text();
     printf("%s\n", xml.c_str());
     CHECK(xml.find("angle=\"radian\"") != std::string::npos);  // Updated expectation

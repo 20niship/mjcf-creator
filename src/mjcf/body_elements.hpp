@@ -263,8 +263,8 @@ public:
   Arr3 pos                               = {0.0, 0.0, 0.0};
   Arr3 axis                              = {0.0, 0.0, 1.0}; // MuJoCo default
   std::array<double, 2> springdamper     = {0.0, 0.0};
-  bool limited                           = false;
-  bool actuatorforcelimited              = false;
+  TriState limited                       = TriState::Auto; // MuJoCo default
+  TriState actuatorfrclimited            = TriState::Auto; // MuJoCo default
   bool actuatorgravcomp                  = false; // MuJoCo default
   std::array<double, 2> actuatorfrcrange = {0.0, 0.0};
   std::array<double, 2> range            = {0.0, 0.0};

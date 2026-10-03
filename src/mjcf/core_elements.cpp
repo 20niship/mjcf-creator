@@ -99,7 +99,7 @@ namespace detail {
 void Compiler::set_xml_attrib() const {
   if(angle != AngleUnit::Degree) this->set_attribute("angle", to_string(angle));
   if(coordinate != CoordinateType::Local) this->set_attribute("coordinate", to_string(coordinate));
-  if(inertiafromgeom) this->set_attribute("inertiafromgeom", inertiafromgeom);
+  if(inertiafromgeom != TriState::Auto) this->set_attribute("inertiafromgeom", to_string(inertiafromgeom));
   if(!autolimits) this->set_attribute("autolimits", autolimits); // MuJoCo既定はtrueなのでfalse時のみ明示
   if(!meshdir.empty()) this->set_attribute("meshdir", meshdir);
   if(!texturedir.empty()) this->set_attribute("texturedir", texturedir);
@@ -124,7 +124,7 @@ void Compiler::set_xml_attrib() const {
 bool Compiler::is_default_value(const std::string& name, const AttributeValue& value) const {
   if(name == "angle" && std::get<std::string>(value) == to_string(AngleUnit::Degree)) return true;
   if(name == "coordinate" && std::get<std::string>(value) == to_string(CoordinateType::Local)) return true;
-  if(name == "inertiafromgeom" && !std::get<bool>(value)) return true;
+  if(name == "inertiafromgeom" && std::get<std::string>(value) == to_string(TriState::Auto)) return true;
   if(name == "autolimits" && std::get<bool>(value)) return true;
   return false;
 }

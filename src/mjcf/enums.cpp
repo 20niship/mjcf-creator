@@ -318,4 +318,22 @@ FlexDof flex_dof_from_string(const std::string& str) {
   throw std::invalid_argument("Invalid flex dof string: " + str);
 }
 
+std::string to_string(TriState state) {
+  switch(state) {
+    case TriState::False: return "false";
+    case TriState::True: return "true";
+    case TriState::Auto: return "auto";
+  }
+  throw std::invalid_argument("Invalid TriState");
+}
+
+TriState tri_state_from_string(const std::string& str) {
+  static const std::unordered_map<std::string, TriState> map = {
+      {"false", TriState::False}, {"true", TriState::True}, {"auto", TriState::Auto}
+  };
+  auto it = map.find(str);
+  if(it != map.end()) return it->second;
+  throw std::invalid_argument("Invalid TriState string: " + str);
+}
+
 } // namespace mjcf

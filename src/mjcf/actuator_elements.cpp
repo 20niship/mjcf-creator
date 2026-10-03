@@ -11,11 +11,11 @@ void BaseActuator::set_xml_attrib() const {
   if(!name.empty()) this->set_attribute("name", name);
   if(!class_.empty()) this->set_attribute("class", class_);
   if(group != 0) this->set_attribute("group", group);
-  if(ctrllimited) {
-    this->set_attribute("ctrllimited", ctrllimited);
+  if(ctrllimited != TriState::Auto) {
+    this->set_attribute("ctrllimited", to_string(ctrllimited));
     this->set_attribute("ctrlrange", std::vector<double>(ctrlrange.begin(), ctrlrange.end()));
   }
-  if(forcelimited) this->set_attribute("forcelimited", forcelimited);
+  if(forcelimited != TriState::Auto) this->set_attribute("forcelimited", to_string(forcelimited));
 
   if(forcerange != std::array<double, 2>{0.0, 0.0}) this->set_attribute("forcerange", std::vector<double>(forcerange.begin(), forcerange.end()));
   if(lengthrange != std::array<double, 2>{0.0, 0.0}) this->set_attribute("lengthrange", std::vector<double>(lengthrange.begin(), lengthrange.end()));
@@ -39,8 +39,8 @@ void BaseActuator::set_xml_attrib() const {
 
 bool BaseActuator::is_default_value(const std::string& name, const AttributeValue& value) const {
   if(name == "group" && std::get<int>(value) == 0) return true;
-  if(name == "ctrllimited" && !std::get<bool>(value)) return true;
-  if(name == "forcelimited" && !std::get<bool>(value)) return true;
+  if(name == "ctrllimited" && std::get<std::string>(value) == to_string(TriState::Auto)) return true;
+  if(name == "forcelimited" && std::get<std::string>(value) == to_string(TriState::Auto)) return true;
   if(name == "cranklength" && std::get<double>(value) == 0.0) return true;
   return false;
 }
@@ -177,7 +177,7 @@ void General::set_xml_attrib() const {
   if(biasprm != std::array<double, 10>{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}) {
     this->set_attribute("biasprm", std::vector<double>(biasprm.begin(), biasprm.end()));
   }
-  if(actlimited) this->set_attribute("actlimited", actlimited);
+  if(actlimited != TriState::Auto) this->set_attribute("actlimited", to_string(actlimited));
   if(actrange != std::array<double, 2>{0.0, 0.0}) {
     this->set_attribute("actrange", std::vector<double>(actrange.begin(), actrange.end()));
   }
@@ -229,7 +229,7 @@ void Adhesion::set_xml_attrib() const {
   if(!name.empty()) this->set_attribute("name", name);
   if(!class_.empty()) this->set_attribute("class", class_);
   if(group != 0) this->set_attribute("group", group);
-  if(forcelimited) this->set_attribute("forcelimited", forcelimited);
+  if(forcelimited != TriState::Auto) this->set_attribute("forcelimited", to_string(forcelimited));
   if(forcerange != std::array<double, 2>{0.0, 0.0}) this->set_attribute("forcerange", std::vector<double>(forcerange.begin(), forcerange.end()));
   if(user != std::array<double, 3>{0.0, 0.0, 0.0}) this->set_attribute("user", std::vector<double>(user.begin(), user.end()));
   this->set_attribute("body", body);
@@ -239,7 +239,7 @@ void Adhesion::set_xml_attrib() const {
 
 bool Adhesion::is_default_value(const std::string& name, const AttributeValue& value) const {
   if(name == "group" && std::get<int>(value) == 0) return true;
-  if(name == "forcelimited" && !std::get<bool>(value)) return true;
+  if(name == "forcelimited" && std::get<std::string>(value) == to_string(TriState::Auto)) return true;
   return false;
 }
 

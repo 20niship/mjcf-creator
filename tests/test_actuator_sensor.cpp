@@ -5,7 +5,7 @@ TEST_CASE("motor") {
   mjcf::Motor motor;
   motor.name        = "motor1";
   motor.joint       = "joint1";
-  motor.ctrllimited = true;
+  motor.ctrllimited = mjcf::TriState::True;
   motor.ctrlrange   = {-10.0, 10.0};
   motor.gear        = {10.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 
@@ -57,7 +57,7 @@ TEST_CASE("damper-actuator") {
   mjcf::Damper damper;
   damper.name        = "damper1";
   damper.joint       = "hinge_joint";
-  damper.ctrllimited = true;
+  damper.ctrllimited = mjcf::TriState::True;
   damper.ctrlrange   = {0.0, 10.0};
   damper.kv          = 2.0;
 
@@ -129,7 +129,7 @@ TEST_CASE("muscle-actuator") {
 TEST_CASE("general-actuator-new-attributes") {
   mjcf::General general;
   general.joint     = "hinge_joint";
-  general.actlimited = true;
+  general.actlimited = mjcf::TriState::True;
   general.actrange  = {-0.5, 0.5};
   general.actdim    = 2;
   general.actearly  = true;

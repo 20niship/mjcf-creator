@@ -224,8 +224,8 @@ void Joint::set_xml_attrib() const {
   if(springdamper != std::array<double, 2>{0.0, 0.0}) {
     this->set_attribute("springdamper", std::vector<double>(springdamper.begin(), springdamper.end()));
   }
-  if(limited) this->set_attribute("limited", limited);
-  if(actuatorforcelimited) this->set_attribute("actuatorforcelimited", actuatorforcelimited);
+  if(limited != TriState::Auto) this->set_attribute("limited", to_string(limited));
+  if(actuatorfrclimited != TriState::Auto) this->set_attribute("actuatorfrclimited", to_string(actuatorfrclimited));
   if(actuatorgravcomp) this->set_attribute("actuatorgravcomp", actuatorgravcomp);
   if(actuatorfrcrange != std::array<double, 2>{0.0, 0.0}) {
     this->set_attribute("actuatorfrcrange", std::vector<double>(actuatorfrcrange.begin(), actuatorfrcrange.end()));

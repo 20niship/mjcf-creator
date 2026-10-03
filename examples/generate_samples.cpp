@@ -156,7 +156,7 @@ void create_double_pendulum_scene() {
 
   // Compiler settings
   mujoco->compiler_->angle           = mjcf::AngleUnit::Degree;
-  mujoco->compiler_->inertiafromgeom = true;
+  mujoco->compiler_->inertiafromgeom = TriState::True;
 
   mujoco->option_->gravity    = std::array<double, 3>{0, 0, -9.81};
   mujoco->option_->timestep   = 0.005;
@@ -227,7 +227,7 @@ void create_double_pendulum_scene() {
   joint1->type    = mjcf::JointType::Hinge;
   joint1->axis    = std::array<double, 3>{0, 1, 0}; // Y axis
   joint1->pos     = std::array<double, 3>{-0.5, 0, 0};
-  joint1->limited = false;
+  joint1->limited = TriState::False;
 
   // Link 1 geometry
   auto link1_geom    = std::make_shared<mjcf::Geom>();
@@ -251,7 +251,7 @@ void create_double_pendulum_scene() {
   joint2->type    = mjcf::JointType::Hinge;
   joint2->axis    = std::array<double, 3>{0, 1, 0};
   joint2->pos     = std::array<double, 3>{-0.5, 0, 0};
-  joint2->limited = false;
+  joint2->limited = TriState::False;
 
   // Link 2 geometry
   auto link2_geom    = std::make_shared<mjcf::Geom>();
@@ -296,7 +296,7 @@ void create_vehicle_scene() {
   auto mujoco = std::make_shared<mjcf::Mujoco>("vehicle");
 
   mujoco->compiler_->angle           = mjcf::AngleUnit::Degree;
-  mujoco->compiler_->inertiafromgeom = true;
+  mujoco->compiler_->inertiafromgeom = TriState::True;
 
   mujoco->option_->gravity    = std::array<double, 3>{0, 0, -9.81};
   mujoco->option_->timestep   = 0.01;
@@ -383,7 +383,7 @@ void create_vehicle_scene() {
     wheel_joint->name    = wheel_info.name + "_joint";
     wheel_joint->type    = mjcf::JointType::Hinge;
     wheel_joint->axis    = std::array<double, 3>{0, 1, 0};
-    wheel_joint->limited = false;
+    wheel_joint->limited = TriState::False;
     wheel_joint->damping = 0.1;
 
     // Wheel geometry

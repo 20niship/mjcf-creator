@@ -584,7 +584,7 @@ std::tuple<Shr<mjcf::Body>, Shr<mjcf::Joint>> UrdfConverter::parse_urdf_to_mjcf(
 
       if(joint_type == "continuous") {
         mjcf_joint->type    = JointType::Hinge;
-        mjcf_joint->limited = false;
+        mjcf_joint->limited = TriState::False;
       } else if(joint_type == "revolute" || joint_type == "continuous") {
         mjcf_joint->type = JointType::Hinge;
       } else if(joint_type == "prismatic") {
@@ -714,26 +714,26 @@ std::tuple<Shr<mjcf::Body>, Shr<mjcf::Joint>> UrdfConverter::parse_urdf_to_mjcf(
         if(mjcf_joint->type == JointType::Hinge) {
           auto ac         = Position::Create(pfx_joint_name);
           ac->name        = pfx_joint_name;
-          ac->ctrllimited = false;
+          ac->ctrllimited = TriState::False;
           ac->kp          = 100.0;
           ac->kv          = 10.0;
           if(limit != nullptr && lower < upper) {
             ac->ctrlrange   = {lower, upper};
-            ac->ctrllimited = true;
+            ac->ctrllimited = TriState::True;
           }
           // ac->gear        = {100, 0, 0, 0, 0, 0};
           mujoco->actuator_->add_child(ac);
         } else if(mjcf_joint->type == JointType::Slide) {
           auto ac         = Position::Create(pfx_joint_name);
           ac->name        = pfx_joint_name;
-          ac->ctrllimited = false;
+          ac->ctrllimited = TriState::False;
           ac->kp          = 10.0;
           ac->kv          = 1.0;
           mujoco->actuator_->add_child(ac);
         } else if(mjcf_joint->type == JointType::Ball) {
           auto ac         = Position::Create(pfx_joint_name);
           ac->name        = pfx_joint_name;
-          ac->ctrllimited = false;
+          ac->ctrllimited = TriState::False;
           ac->kp          = 100.0;
           ac->kv          = 10.0;
           mujoco->actuator_->add_child(ac);
