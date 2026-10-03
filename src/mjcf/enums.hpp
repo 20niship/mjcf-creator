@@ -13,7 +13,7 @@ enum class IntegratorType { Euler, RK4, Implicit, ImplicitFast };
 enum class SolverType { Newton, PGS, CG };
 enum class CoordinateType { Local, Global };
 enum class AngleUnit { Degree, Radian };
-enum class ActuatorType { Motor, Position, Velocity, Cylinder, Muscle, Tendon, Damper, General, Plugin, Intvelocity };
+enum class ActuatorType { Motor, Position, Velocity, Cylinder, Muscle, Tendon, Damper, General, Plugin, Intvelocity, Adhesion };
 enum class TransmissionType { Joint, JointInParent, Slide, Tendon, Site, Body };
 enum class TextureType { Cube, Skybox, TwoD };
 enum class TextureBuiltin { None, Gradient, Checker, Flat };
