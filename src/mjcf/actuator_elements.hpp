@@ -25,8 +25,10 @@ public:
   std::string jointinparent;
   std::string tendon;
   std::string cranksite;
+  std::string slidersite;
   std::string site;
   std::string refsite;
+  std::string body;
   std::array<double, 3> user = {0.0, 0.0, 0.0};
 
   BaseActuator(const std::string& element_name);
@@ -54,8 +56,11 @@ protected:
 
 class Position : public BaseActuator {
 public:
-  double kp = 1.0;  // Position feedback gain (1 means not set)
-  double kv = 0.01; // Velocity feedback gain (0 means not set)
+  double kp          = 1.0; // MuJoCo default
+  double kv          = 0.0; // MuJoCo default
+  double dampratio   = 0.0; // MuJoCo default。kvと排他
+  double timeconst    = 0.0; // MuJoCo default。0より大きいとfilterexact dyntypeになる
+  double inheritrange = 0.0; // MuJoCo default (0=無効)
 
   Position() : BaseActuator("position") {}
 
@@ -167,6 +172,70 @@ public:
   General();
 
   std::string element_name() const override { return "general"; }
+
+  void set_xml_attrib() const override;
+
+protected:
+  bool is_default_value(const std::string& name, const AttributeValue& value) const override;
+};
+
+/**
+ * @brief Damper actuator element: F = -kv * velocity * control (kv, ctrlrangeは非負が必須)
+ */
+class Damper : public BaseActuator {
+public:
+  double kv = 1.0; // MuJoCo default
+
+  Damper();
+
+  std::string element_name() const override { return "damper"; }
+
+  void set_xml_attrib() const override;
+
+protected:
+  bool is_default_value(const std::string& name, const AttributeValue& value) const override;
+};
+
+/**
+ * @brief Integrated-velocity actuator element(activation stateが位置、actrangeでクランプ可能)
+ */
+class IntVelocity : public BaseActuator {
+public:
+  double kp                  = 1.0; // MuJoCo default
+  double kv                  = 0.0; // MuJoCo default
+  double dampratio           = 0.0; // MuJoCo default。kvと排他
+  double inheritrange        = 0.0; // MuJoCo default (0=無効)
+  std::array<double, 2> actrange = {0.0, 0.0};
+
+  IntVelocity();
+
+  std::string element_name() const override { return "intvelocity"; }
+
+  void set_xml_attrib() const override;
+
+protected:
+  bool is_default_value(const std::string& name, const AttributeValue& value) const override;
+};
+
+/**
+ * @brief Adhesion(吸着)アクチュエータ。joint/tendon/site等ではなくbodyに属する全接触へ法線方向の力を加える。
+ * 共通のtransmission系属性(joint/tendon/site/...)は持たないためBaseActuatorを継承しない。
+ */
+class Adhesion : public Element {
+public:
+  std::string name;
+  std::string class_;
+  int group                        = 0;
+  bool forcelimited                = false;
+  std::array<double, 2> ctrlrange  = {0.0, 0.0};
+  std::array<double, 2> forcerange = {0.0, 0.0};
+  std::array<double, 3> user       = {0.0, 0.0, 0.0};
+  std::string body; // required
+  double gain                      = 1.0; // MuJoCo default
+
+  Adhesion() = default;
+
+  std::string element_name() const override { return "adhesion"; }
 
   void set_xml_attrib() const override;
 
