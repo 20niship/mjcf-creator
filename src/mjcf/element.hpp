@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <map>
 #include <memory>
 #include <optional>
@@ -10,6 +11,7 @@
 namespace mjcf {
 
 using Arr3 = std::array<double, 3>;
+using Arr5 = std::array<double, 5>; // solimp/solimplimit等(dmin,dmax,width,midpoint,power)
 
 class Element;
 

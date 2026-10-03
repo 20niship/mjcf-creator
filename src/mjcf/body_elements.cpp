@@ -61,7 +61,7 @@ void Geom::set_xml_attrib() const {
   }
   if(solmix != 1.0) this->set_attribute("solmix", solmix);
   if(solref != std::array<double, 2>{0.02, 1.0}) this->set_attribute("solref", TO_VEC(solref));
-  if(solimp != std::array<double, 3>{0.9, 0.95, 0.001}) this->set_attribute("solimp", TO_VEC(solimp));
+  if(solimp != Arr5{0.9, 0.95, 0.001, 0.5, 2.0}) this->set_attribute("solimp", TO_VEC(solimp));
 
   if(margin != 0.0) this->set_attribute("margin", margin);
   if(gap != 0.0) this->set_attribute("gap", gap);
@@ -242,7 +242,7 @@ void Joint::set_xml_attrib() const {
   if(solreflimit != std::array<double, 2>{0.02, 1.0}) {
     this->set_attribute("solreflimit", std::vector<double>(solreflimit.begin(), solreflimit.end()));
   }
-  if(solimplimit != std::array<double, 3>{0.9, 0.95, 0.001}) {
+  if(solimplimit != Arr5{0.9, 0.95, 0.001, 0.5, 2.0}) {
     this->set_attribute("solimplimit", std::vector<double>(solimplimit.begin(), solimplimit.end()));
   }
   if(solreffriction != std::array<double, 2>{0.02, 1.0}) {

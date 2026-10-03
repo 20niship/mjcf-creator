@@ -425,7 +425,11 @@ std::tuple<Shr<mjcf::Body>, Shr<mjcf::Joint>> UrdfConverter::parse_urdf_to_mjcf(
               if(gp.contype >= 0) geom->contype = gp.contype;
               if(gp.conaffinity >= 0) geom->conaffinity = gp.conaffinity;
               if(gp.has_solref()) geom->solref = gp.solref;
-              if(gp.has_solimp()) geom->solimp = gp.solimp;
+              if(gp.has_solimp()) { // GazeboのsolimpはdmindmaxwidthのみでMuJoCoのmidpoint/powerは持たないため先頭3つだけ上書き
+                geom->solimp[0] = gp.solimp[0];
+                geom->solimp[1] = gp.solimp[1];
+                geom->solimp[2] = gp.solimp[2];
+              }
             }
             body->add_child(geom);
           }
