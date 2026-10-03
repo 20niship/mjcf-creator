@@ -100,14 +100,32 @@ void Compiler::set_xml_attrib() const {
   if(angle != AngleUnit::Degree) this->set_attribute("angle", to_string(angle));
   if(coordinate != CoordinateType::Local) this->set_attribute("coordinate", to_string(coordinate));
   if(inertiafromgeom) this->set_attribute("inertiafromgeom", inertiafromgeom);
-  if(autolimits) this->set_attribute("autolimits", autolimits);
+  if(!autolimits) this->set_attribute("autolimits", autolimits); // MuJoCo既定はtrueなのでfalse時のみ明示
+  if(!meshdir.empty()) this->set_attribute("meshdir", meshdir);
+  if(!texturedir.empty()) this->set_attribute("texturedir", texturedir);
+  if(!assetdir.empty()) this->set_attribute("assetdir", assetdir);
+  if(boundmass != 0.0) this->set_attribute("boundmass", boundmass);
+  if(boundinertia != 0.0) this->set_attribute("boundinertia", boundinertia);
+  if(settotalmass > 0.0) this->set_attribute("settotalmass", settotalmass);
+  if(balanceinertia) this->set_attribute("balanceinertia", balanceinertia);
+  if(strippath) this->set_attribute("strippath", strippath);
+  if(fitaabb) this->set_attribute("fitaabb", fitaabb);
+  if(eulerseq != "xyz") this->set_attribute("eulerseq", eulerseq);
+  if(discardvisual) this->set_attribute("discardvisual", discardvisual);
+  if(!usethread) this->set_attribute("usethread", usethread); // MuJoCo既定はtrueなのでfalse時のみ明示
+  if(fusestatic) this->set_attribute("fusestatic", fusestatic);
+  if(alignfree) this->set_attribute("alignfree", alignfree);
+  if(inertiagrouprange != std::array<int, 2>{0, 5}) {
+    this->set_attribute("inertiagrouprange", std::vector<int>(inertiagrouprange.begin(), inertiagrouprange.end()));
+  }
+  if(saveinertial) this->set_attribute("saveinertial", saveinertial);
 }
 
 bool Compiler::is_default_value(const std::string& name, const AttributeValue& value) const {
   if(name == "angle" && std::get<std::string>(value) == to_string(AngleUnit::Degree)) return true;
   if(name == "coordinate" && std::get<std::string>(value) == to_string(CoordinateType::Local)) return true;
   if(name == "inertiafromgeom" && !std::get<bool>(value)) return true;
-  if(name == "autolimits" && !std::get<bool>(value)) return true;
+  if(name == "autolimits" && std::get<bool>(value)) return true;
   return false;
 }
 
@@ -121,7 +139,11 @@ void Option::set_xml_attrib() const {
   if(integrator != IntegratorType::Euler) this->set_attribute("integrator", to_string(integrator));
   if(timestep != 0.002) this->set_attribute("timestep", timestep);
   this->set_attribute("gravity", std::vector<double>(gravity.begin(), gravity.end()));
+  if(wind != Arr3{0.0, 0.0, 0.0}) this->set_attribute("wind", std::vector<double>(wind.begin(), wind.end()));
+  if(magnetic != Arr3{0.0, -0.5, 0.0}) this->set_attribute("magnetic", std::vector<double>(magnetic.begin(), magnetic.end()));
+  if(density != 0.0) this->set_attribute("density", density);
   if(viscosity != 0.0) this->set_attribute("viscosity", viscosity);
+  if(jacobian != "auto") this->set_attribute("jacobian", jacobian);
   if(cone != "pyramidal") this->set_attribute("cone", cone);
   if(multi_ccd) {
     auto f = std::make_shared<Flag>();
@@ -131,10 +153,23 @@ void Option::set_xml_attrib() const {
   }
   if(solver != SolverType::Newton) this->set_attribute("solver", to_string(solver));
   if(iterations != 100) this->set_attribute("iterations", iterations);
+  if(ls_iterations != 50) this->set_attribute("ls_iterations", ls_iterations);
+  if(ls_tolerance != 0.01) this->set_attribute("ls_tolerance", ls_tolerance);
   if(noslip_iterations > 0) this->set_attribute("noslip_iterations", noslip_iterations);
   if(noslip_tolerance > 0) this->set_attribute("noslip_tolerance", noslip_tolerance);
-  if(impratio > 0.0) this->set_attribute("impratio", impratio); 
+  if(ccd_iterations > 0) this->set_attribute("ccd_iterations", ccd_iterations);
+  if(ccd_tolerance > 0) this->set_attribute("ccd_tolerance", ccd_tolerance);
+  if(sleep_tolerance > 0) this->set_attribute("sleep_tolerance", sleep_tolerance);
+  if(sdf_iterations > 0) this->set_attribute("sdf_iterations", sdf_iterations);
+  if(sdf_initpoints > 0) this->set_attribute("sdf_initpoints", sdf_initpoints);
+  if(impratio > 0.0) this->set_attribute("impratio", impratio);
   if(tolerance != 1e-8) this->set_attribute("tolerance", tolerance);
+  if(o_margin != 0.0) {
+    this->set_attribute("o_margin", o_margin);
+    this->set_attribute("o_solref", std::vector<double>(o_solref.begin(), o_solref.end()));
+    this->set_attribute("o_solimp", std::vector<double>(o_solimp.begin(), o_solimp.end()));
+    this->set_attribute("o_friction", std::vector<double>(o_friction.begin(), o_friction.end()));
+  }
 }
 
 bool Option::is_default_value(const std::string& name, const AttributeValue& value) const {
