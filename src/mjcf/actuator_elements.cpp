@@ -177,6 +177,12 @@ void General::set_xml_attrib() const {
   if(biasprm != std::array<double, 10>{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}) {
     this->set_attribute("biasprm", std::vector<double>(biasprm.begin(), biasprm.end()));
   }
+  if(actlimited) this->set_attribute("actlimited", actlimited);
+  if(actrange != std::array<double, 2>{0.0, 0.0}) {
+    this->set_attribute("actrange", std::vector<double>(actrange.begin(), actrange.end()));
+  }
+  if(actdim >= 0) this->set_attribute("actdim", actdim);
+  if(actearly) this->set_attribute("actearly", actearly);
 }
 
 bool General::is_default_value(const std::string& name, const AttributeValue& value) const {

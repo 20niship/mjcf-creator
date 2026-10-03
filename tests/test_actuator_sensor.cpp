@@ -126,6 +126,21 @@ TEST_CASE("muscle-actuator") {
   CHECK(xml.find("timeconst=\"0.01 0.04\"") != std::string::npos);
 }
 
+TEST_CASE("general-actuator-new-attributes") {
+  mjcf::General general;
+  general.joint     = "hinge_joint";
+  general.actlimited = true;
+  general.actrange  = {-0.5, 0.5};
+  general.actdim    = 2;
+  general.actearly  = true;
+
+  std::string xml = general.get_xml_text();
+  CHECK(xml.find("actlimited=\"true\"") != std::string::npos);
+  CHECK(xml.find("actrange=\"-0.5 0.5\"") != std::string::npos);
+  CHECK(xml.find("actdim=\"2\"") != std::string::npos);
+  CHECK(xml.find("actearly=\"true\"") != std::string::npos);
+}
+
 TEST_CASE("joint-position-sensor") {
   mjcf::JointPos joint_pos;
   joint_pos.name  = "joint_position_sensor";

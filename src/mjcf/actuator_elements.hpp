@@ -168,6 +168,10 @@ public:
   std::array<double, 10> dynprm  = {1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}; // Dynamics parameters
   std::array<double, 10> gainprm = {1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}; // Gain parameters
   std::array<double, 10> biasprm = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}; // Bias parameters
+  bool actlimited                 = false;             // MuJoCo default ([false,true,auto]のうちauto/falseのみ対応)
+  std::array<double, 2> actrange  = {0.0, 0.0};
+  int actdim                      = -1;    // MuJoCo default
+  bool actearly                   = false; // MuJoCo default
 
   General();
 
