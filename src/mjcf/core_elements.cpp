@@ -170,6 +170,7 @@ void Option::set_xml_attrib() const {
     this->set_attribute("o_solimp", std::vector<double>(o_solimp.begin(), o_solimp.end()));
     this->set_attribute("o_friction", std::vector<double>(o_friction.begin(), o_friction.end()));
   }
+  if(!actuatorgroupdisable.empty()) this->set_attribute("actuatorgroupdisable", actuatorgroupdisable);
 }
 
 bool Option::is_default_value(const std::string& name, const AttributeValue& value) const {

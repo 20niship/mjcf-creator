@@ -157,6 +157,7 @@ public:
   std::array<double, 2> o_solref      = {0.02, 1.0};
   std::array<double, 5> o_solimp      = {0.9, 0.95, 0.001, 0.5, 2.0};
   std::array<double, 5> o_friction    = {1.0, 1.0, 0.005, 0.0001, 0.0001};
+  std::vector<int> actuatorgroupdisable; // 無効化するactuator group番号(0-30)の列、空=全グループ有効
 
   Option() = default;
 

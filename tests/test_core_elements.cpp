@@ -90,6 +90,7 @@ TEST_SUITE("core-elements-tests") {
     option.sdf_iterations  = 5;
     option.sdf_initpoints  = 20;
     option.o_margin  = 0.01;
+    option.actuatorgroupdisable = {1, 3, 5};
     std::string xml  = option.get_xml_text();
     CHECK(xml.find("wind=\"1 0 0\"") != std::string::npos);
     CHECK(xml.find("magnetic=\"0 0 1\"") != std::string::npos);
@@ -106,6 +107,7 @@ TEST_SUITE("core-elements-tests") {
     CHECK(xml.find("o_solref=\"0.02 1\"") != std::string::npos);
     CHECK(xml.find("o_solimp=\"0.9 0.95 0.001 0.5 2\"") != std::string::npos);
     CHECK(xml.find("o_friction=\"1 1 0.005 0.0001 0.0001\"") != std::string::npos);
+    CHECK(xml.find("actuatorgroupdisable=\"1 3 5\"") != std::string::npos);
   }
   TEST_CASE("size-element") {
     mjcf::Size size;
