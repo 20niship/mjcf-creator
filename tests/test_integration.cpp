@@ -176,7 +176,7 @@ TEST_SUITE("Integration Tests") {
     link1_joint->type    = mjcf::JointType::Hinge;
     link1_joint->axis    = {1.0, 0.0, 0.0};
     link1_joint->range   = {-90.0, 90.0};
-    link1_joint->limited = true;
+    link1_joint->limited = mjcf::TriState::True;
 
     link1_body->add_children({link1_geom, link1_joint});
     base_body->add_child(link1_body);

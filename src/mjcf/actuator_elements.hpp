@@ -14,8 +14,8 @@ public:
   std::string name;
   std::string class_;
   int group                         = 0;
-  bool ctrllimited                  = false;
-  bool forcelimited                 = false;
+  TriState ctrllimited               = TriState::Auto; // MuJoCo default
+  TriState forcelimited              = TriState::Auto; // MuJoCo default
   std::array<double, 2> ctrlrange   = {0.0, 0.0};
   std::array<double, 2> forcerange  = {0.0, 0.0};
   std::array<double, 2> lengthrange = {0.0, 0.0};
@@ -168,7 +168,7 @@ public:
   std::array<double, 10> dynprm  = {1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}; // Dynamics parameters
   std::array<double, 10> gainprm = {1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}; // Gain parameters
   std::array<double, 10> biasprm = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}; // Bias parameters
-  bool actlimited                 = false;             // MuJoCo default ([false,true,auto]のうちauto/falseのみ対応)
+  TriState actlimited              = TriState::Auto;    // MuJoCo default
   std::array<double, 2> actrange  = {0.0, 0.0};
   int actdim                      = -1;    // MuJoCo default
   bool actearly                   = false; // MuJoCo default
@@ -230,7 +230,7 @@ public:
   std::string name;
   std::string class_;
   int group                        = 0;
-  bool forcelimited                = false;
+  TriState forcelimited             = TriState::Auto; // MuJoCo default
   std::array<double, 2> ctrlrange  = {0.0, 0.0};
   std::array<double, 2> forcerange = {0.0, 0.0};
   std::array<double, 3> user       = {0.0, 0.0, 0.0};

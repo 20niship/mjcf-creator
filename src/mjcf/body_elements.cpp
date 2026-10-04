@@ -61,7 +61,7 @@ void Geom::set_xml_attrib() const {
   }
   if(solmix != 1.0) this->set_attribute("solmix", solmix);
   if(solref != std::array<double, 2>{0.02, 1.0}) this->set_attribute("solref", TO_VEC(solref));
-  if(solimp != std::array<double, 3>{0.9, 0.95, 0.001}) this->set_attribute("solimp", TO_VEC(solimp));
+  if(solimp != Arr5{0.9, 0.95, 0.001, 0.5, 2.0}) this->set_attribute("solimp", TO_VEC(solimp));
 
   if(margin != 0.0) this->set_attribute("margin", margin);
   if(gap != 0.0) this->set_attribute("gap", gap);
@@ -224,8 +224,8 @@ void Joint::set_xml_attrib() const {
   if(springdamper != std::array<double, 2>{0.0, 0.0}) {
     this->set_attribute("springdamper", std::vector<double>(springdamper.begin(), springdamper.end()));
   }
-  if(limited) this->set_attribute("limited", limited);
-  if(actuatorforcelimited) this->set_attribute("actuatorforcelimited", actuatorforcelimited);
+  if(limited != TriState::Auto) this->set_attribute("limited", to_string(limited));
+  if(actuatorfrclimited != TriState::Auto) this->set_attribute("actuatorfrclimited", to_string(actuatorfrclimited));
   if(actuatorgravcomp) this->set_attribute("actuatorgravcomp", actuatorgravcomp);
   if(actuatorfrcrange != std::array<double, 2>{0.0, 0.0}) {
     this->set_attribute("actuatorfrcrange", std::vector<double>(actuatorfrcrange.begin(), actuatorfrcrange.end()));
@@ -242,7 +242,7 @@ void Joint::set_xml_attrib() const {
   if(solreflimit != std::array<double, 2>{0.02, 1.0}) {
     this->set_attribute("solreflimit", std::vector<double>(solreflimit.begin(), solreflimit.end()));
   }
-  if(solimplimit != std::array<double, 3>{0.9, 0.95, 0.001}) {
+  if(solimplimit != Arr5{0.9, 0.95, 0.001, 0.5, 2.0}) {
     this->set_attribute("solimplimit", std::vector<double>(solimplimit.begin(), solimplimit.end()));
   }
   if(solreffriction != std::array<double, 2>{0.02, 1.0}) {

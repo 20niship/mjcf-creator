@@ -1401,7 +1401,7 @@ TEST_SUITE("URDF Conversion Tests") {
     std::string xml = mujoco->get_xml_text();
     CHECK(xml.find("friction=\"1.5") != std::string::npos);
     CHECK(xml.find("solref=\"0.01 0.5\"") != std::string::npos);
-    CHECK(xml.find("solimp=\"0.123 0.456 0.789\"") != std::string::npos);
+    CHECK(xml.find("solimp=\"0.123 0.456 0.789 0.5 2\"") != std::string::npos);
     std::filesystem::remove(temp_urdf);
   }
 

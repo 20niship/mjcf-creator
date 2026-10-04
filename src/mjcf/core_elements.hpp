@@ -65,7 +65,7 @@ public:
   std::string body1;
   std::string body2;
   std::array<double, 2> solref = {0.02, 1.0};
-  std::array<double, 3> solimp = {0.9, 0.95, 0.001};
+  Arr5 solimp                  = {0.9, 0.95, 0.001, 0.5, 2.0};
   Weld()                       = default;
   [[nodiscard]] std::string element_name() const override { return "weld"; }
   void set_xml_attrib() const override;
@@ -81,7 +81,7 @@ public:
   // MuJoCo 既定 (solref 0.02 / solimp 0.9 0.95) では回転指の 4 節リンクで従関節が 3〜5% 遅れて止まるため、
   // mimic は機構的な剛結合として硬く取る (solref の時定数を短く、solimp の到達率を上げる)
   std::array<double, 2> solref   = {0.005, 1.0};
-  std::array<double, 3> solimp   = {0.99, 0.999, 0.001};
+  Arr5 solimp                    = {0.99, 0.999, 0.001, 0.5, 2.0};
   JointEquality()                = default;
   [[nodiscard]] std::string element_name() const override { return "joint"; }
   void set_xml_attrib() const override;
@@ -98,7 +98,7 @@ class Compiler : public Element {
 public:
   AngleUnit angle           = AngleUnit::Degree;     // MuJoCo default
   CoordinateType coordinate = CoordinateType::Local; // MuJoCo default (note: default value may vary based on usage)
-  bool inertiafromgeom      = false;                 // MuJoCo default
+  TriState inertiafromgeom  = TriState::Auto;        // MuJoCo default
   bool autolimits           = true;                  // MuJoCo default (実際のmujocoのdefaultはtrue)
   std::string meshdir;
   std::string texturedir;
@@ -157,6 +157,7 @@ public:
   std::array<double, 2> o_solref      = {0.02, 1.0};
   std::array<double, 5> o_solimp      = {0.9, 0.95, 0.001, 0.5, 2.0};
   std::array<double, 5> o_friction    = {1.0, 1.0, 0.005, 0.0001, 0.0001};
+  std::vector<int> actuatorgroupdisable; // 無効化するactuator group番号(0-30)の列、空=全グループ有効
 
   Option() = default;
 

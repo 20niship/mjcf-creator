@@ -57,7 +57,7 @@ public:
   Arr3 friction                   = {1.0, 0.005, 0.0001}; // MuJoCo default
   double solmix                   = 1.0;                  // MuJoCo default
   std::array<double, 2> solref    = {0.02, 1.0};          // MuJoCo default
-  Arr3 solimp                     = {0.9, 0.95, 0.001};
+  Arr5 solimp                     = {0.9, 0.95, 0.001, 0.5, 2.0};
   double margin                   = 0.0;
   double gap                      = 0.0;
   std::array<double, 6> fromto    = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
@@ -263,8 +263,8 @@ public:
   Arr3 pos                               = {0.0, 0.0, 0.0};
   Arr3 axis                              = {0.0, 0.0, 1.0}; // MuJoCo default
   std::array<double, 2> springdamper     = {0.0, 0.0};
-  bool limited                           = false;
-  bool actuatorforcelimited              = false;
+  TriState limited                       = TriState::Auto; // MuJoCo default
+  TriState actuatorfrclimited            = TriState::Auto; // MuJoCo default
   bool actuatorgravcomp                  = false; // MuJoCo default
   std::array<double, 2> actuatorfrcrange = {0.0, 0.0};
   std::array<double, 2> range            = {0.0, 0.0};
@@ -274,7 +274,7 @@ public:
   double armature                        = 0.0;
   double damping                         = 0.0;
   double frictionloss                    = 0.0;
-  Arr3 solimplimit                       = {0.9, 0.95, 0.001};           // MuJoCo default
+  Arr5 solimplimit                       = {0.9, 0.95, 0.001, 0.5, 2.0}; // MuJoCo default
   std::array<double, 2> solreflimit      = {0.02, 1.0};                  // MuJoCo default
   std::array<double, 2> solreffriction   = {0.02, 1.0};                  // MuJoCo default
   std::array<double, 5> solimpfriction   = {0.9, 0.95, 0.001, 0.5, 2.0}; // MuJoCo default
