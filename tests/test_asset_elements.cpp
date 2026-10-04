@@ -40,6 +40,7 @@ TEST_CASE("material-element") {
   mjcf::Material material;
   CHECK(material.element_name() == "material");
   material.name        = "MatPlane";
+  material.class_      = "visual";
   material.texture     = "texplane";
   material.texrepeat   = {60.0, 60.0};
   material.texuniform  = true;
@@ -51,6 +52,7 @@ TEST_CASE("material-element") {
 
   std::string xml = material.get_xml_text();
   CHECK(STR_CONTAINS(xml, "name=\"MatPlane\""));
+  CHECK(STR_CONTAINS(xml, "class=\"visual\""));
   CHECK(STR_CONTAINS(xml, "texture=\"texplane\""));
   CHECK(STR_CONTAINS(xml, "texrepeat=\"60 60\""));
   CHECK(STR_CONTAINS(xml, "texuniform=\"true\""));
@@ -78,7 +80,7 @@ TEST_CASE("mesh-element") {
   mesh.name         = "mymesh";
   mesh.file         = "model.obj";
   mesh.scale        = {1.0, 1.0, 1.0};
-  mesh.smoothnormal = false;
+  mesh.smoothnormal = true;
   mesh.vertex       = {0.0, 0.0, 0.0, 1.0, 0.0, 0.0};
   mesh.face         = {0, 1, 2};
 
@@ -86,9 +88,30 @@ TEST_CASE("mesh-element") {
   CHECK(STR_CONTAINS(xml, "name=\"mymesh\""));
   CHECK(STR_CONTAINS(xml, "file=\"model.obj\""));
   // CHECK(STR_CONTAINS(xml, "scale=\"1 1 1\""));
-  CHECK(STR_CONTAINS(xml, "smoothnormal=\"false\""));
+  CHECK(STR_CONTAINS(xml, "smoothnormal=\"true\""));
   CHECK(STR_CONTAINS(xml, "vertex=\"0 0 0 1 0 0\""));
   CHECK(STR_CONTAINS(xml, "face=\"0 1 2\""));
+}
+
+TEST_CASE("mesh-element-new-attributes") {
+  mjcf::Mesh mesh;
+  mesh.name         = "mymesh2";
+  mesh.class_       = "visual";
+  mesh.content_type = "model/obj";
+  mesh.inertia      = "convex";
+  mesh.maxhullvert  = 64;
+  mesh.refpos       = {1.0, 2.0, 3.0};
+  mesh.refquat      = {0.0, 1.0, 0.0, 0.0};
+  mesh.texcoord     = {0.0, 0.0, 1.0, 1.0};
+
+  std::string xml = mesh.get_xml_text();
+  CHECK(STR_CONTAINS(xml, "class=\"visual\""));
+  CHECK(STR_CONTAINS(xml, "content_type=\"model/obj\""));
+  CHECK(STR_CONTAINS(xml, "inertia=\"convex\""));
+  CHECK(STR_CONTAINS(xml, "maxhullvert=\"64\""));
+  CHECK(STR_CONTAINS(xml, "refpos=\"1 2 3\""));
+  CHECK(STR_CONTAINS(xml, "refquat=\"0 1 0 0\""));
+  CHECK(STR_CONTAINS(xml, "texcoord=\"0 0 1 1\""));
 }
 
 TEST_CASE("hfield-element") {

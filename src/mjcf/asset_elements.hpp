@@ -45,6 +45,7 @@ protected:
 class Material : public Element {
 public:
   std::string name;
+  std::string class_;
   std::string texture;
   std::array<double, 2> texrepeat = {0.0, 0.0};
   bool texuniform                 = false;
@@ -72,11 +73,18 @@ protected:
 class Mesh : public Element {
 public:
   std::string name;
+  std::string class_;
   std::string file;
-  Arr3 scale        = {1.0, 1.0, 1.0}; // MuJoCo default
-  bool smoothnormal = true;            // MuJoCo default
+  std::string content_type;
+  Arr3 scale               = {1.0, 1.0, 1.0}; // MuJoCo default
+  std::string inertia      = "legacy";        // MuJoCo default: [convex, exact, legacy, shell]
+  bool smoothnormal        = false;           // MuJoCo default
+  int maxhullvert          = -1;              // MuJoCo default (-1=無制限)
+  Arr3 refpos              = {0.0, 0.0, 0.0}; // MuJoCo default
+  std::array<double, 4> refquat = {1.0, 0.0, 0.0, 0.0}; // MuJoCo default
   std::vector<double> vertex;          // Keep as vector for variable length
   std::vector<double> normal;          // Keep as vector for variable length
+  std::vector<double> texcoord;        // Keep as vector for variable length
   std::vector<int> face;               // Keep as vector for variable length
 
   Mesh() = default;

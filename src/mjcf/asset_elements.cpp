@@ -56,6 +56,7 @@ void Material::set_xml_attrib() const {
   if(name == "") return;
 
   if(!name.empty()) this->set_attribute("name", name);
+  if(!class_.empty()) this->set_attribute("class", class_);
   if(!texture.empty()) this->set_attribute("texture", texture);
 
   if(texrepeat != std::array<double, 2>{0.0, 0.0}) {
@@ -88,18 +89,29 @@ void Mesh::set_xml_attrib() const {
 
   // Only set non-default values
   if(!name.empty()) this->set_attribute("name", name);
+  if(!class_.empty()) this->set_attribute("class", class_);
   if(!file.empty()) this->set_attribute("file", file);
+  if(!content_type.empty()) this->set_attribute("content_type", content_type);
   if(scale != std::array<double, 3>{1.0, 1.0, 1.0}) {
     this->set_attribute("scale", std::vector<double>(scale.begin(), scale.end()));
   }
-  if(!smoothnormal) this->set_attribute("smoothnormal", smoothnormal);
+  if(inertia != "legacy") this->set_attribute("inertia", inertia);
+  if(smoothnormal) this->set_attribute("smoothnormal", smoothnormal);
+  if(maxhullvert != -1) this->set_attribute("maxhullvert", maxhullvert);
+  if(refpos != Arr3{0.0, 0.0, 0.0}) this->set_attribute("refpos", std::vector<double>(refpos.begin(), refpos.end()));
+  if(refquat != std::array<double, 4>{1.0, 0.0, 0.0, 0.0}) {
+    this->set_attribute("refquat", std::vector<double>(refquat.begin(), refquat.end()));
+  }
   if(!vertex.empty()) this->set_attribute("vertex", vertex);
   if(!normal.empty()) this->set_attribute("normal", normal);
+  if(!texcoord.empty()) this->set_attribute("texcoord", texcoord);
   if(!face.empty()) this->set_attribute("face", face);
 }
 
 bool Mesh::is_default_value(const std::string& name, const AttributeValue& value) const {
-  if(name == "smoothnormal" && std::get<bool>(value)) return true;
+  if(name == "smoothnormal" && !std::get<bool>(value)) return true;
+  if(name == "inertia" && std::get<std::string>(value) == "legacy") return true;
+  if(name == "maxhullvert" && std::get<int>(value) == -1) return true;
   return false;
 }
 
