@@ -1,8 +1,10 @@
 #include "element.hpp"
+#include <array>
+#include <charconv>
 #include <filesystem>
 #include <fstream>
-#include <iomanip>
 #include <sstream>
+#include <stdexcept>
 
 #if __has_include(<tinyxml2/tinyxml2.h>)
 #include <tinyxml2/tinyxml2.h>
@@ -54,35 +56,20 @@ std::string Element::stringify_value(const AttributeValue& value) const {
       } else if constexpr(std::is_same_v<T, int>) {
         return std::to_string(v);
       } else if constexpr(std::is_same_v<T, double>) {
-        std::ostringstream oss;
-        oss << std::fixed << std::setprecision(6) << v;
-        std::string result = oss.str();
-        // Remove trailing zeros
-        result.erase(result.find_last_not_of('0') + 1, std::string::npos);
-        result.erase(result.find_last_not_of('.') + 1, std::string::npos);
-        return result;
+        std::array<char, 64> buffer;
+        const auto result = std::to_chars(buffer.data(), buffer.data() + buffer.size(), v, std::chars_format::general);
+        if(result.ec != std::errc{}) throw std::runtime_error("Element: 数値を XML に変換できません");
+        return std::string(buffer.data(), result.ptr);
       } else if constexpr(std::is_same_v<T, std::vector<double>>) {
-        std::ostringstream oss;
+        std::string text;
         for(size_t i = 0; i < v.size(); ++i) {
-          if(i > 0) oss << " ";
-          oss << std::fixed << std::setprecision(6) << v[i];
+          if(i > 0) text += " ";
+          std::array<char, 64> buffer;
+          const auto result = std::to_chars(buffer.data(), buffer.data() + buffer.size(), v[i], std::chars_format::general);
+          if(result.ec != std::errc{}) throw std::runtime_error("Element: 数値 vector を XML に変換できません");
+          text.append(buffer.data(), result.ptr);
         }
-        std::string result = oss.str();
-        // Remove trailing zeros from each number
-        std::istringstream iss(result);
-        std::ostringstream clean_oss;
-        std::string number;
-        bool first = true;
-        while(iss >> number) {
-          if(!first) clean_oss << " ";
-          first = false;
-          if(number.find('.') != std::string::npos) {
-            number.erase(number.find_last_not_of('0') + 1, std::string::npos);
-            number.erase(number.find_last_not_of('.') + 1, std::string::npos);
-          }
-          clean_oss << number;
-        }
-        return clean_oss.str();
+        return text;
       } else if constexpr(std::is_same_v<T, std::vector<int>>) {
         std::ostringstream oss;
         for(size_t i = 0; i < v.size(); ++i) {
