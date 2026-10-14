@@ -1027,6 +1027,9 @@ TEST_SUITE("URDF Conversion Tests") {
 
     // nameを設定せずにjointだけ指定したアクチュエータを渡す
     auto ac = mjcf::Position::Create("test_joint");
+    ac->dampratio    = 1.0;
+    ac->timeconst    = 0.05;
+    ac->inheritrange = 1.0;
     // ac->name は "" のまま
 
     auto mujoco        = std::make_shared<mjcf::Mujoco>();
@@ -1040,6 +1043,10 @@ TEST_SUITE("URDF Conversion Tests") {
     CHECK(xml_content.find("name=\"test_joint\"") != std::string::npos);
     CHECK(xml_content.find("joint=\"test_joint\"") != std::string::npos);
     CHECK(xml_content.find("<position") != std::string::npos);
+    CHECK(xml_content.find("dampratio=\"1\"") != std::string::npos);
+    CHECK(xml_content.find("timeconst=\"0.05\"") != std::string::npos);
+    CHECK(xml_content.find("inheritrange=\"1\"") != std::string::npos);
+    CHECK(xml_content.find("kv=\"") == std::string::npos);
   }
 
   TEST_CASE("URDF with use_collision_tag_only=true (default) skips geometry when no collision tag") {

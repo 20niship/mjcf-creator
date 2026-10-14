@@ -39,6 +39,7 @@ TEST_CASE("position-actuator-new-attributes") {
 
   std::string xml = position.get_xml_text();
   CHECK(xml.find("dampratio=\"1\"") != std::string::npos);
+  CHECK(xml.find("kv=\"") == std::string::npos);
   CHECK(xml.find("timeconst=\"0.05\"") != std::string::npos);
   CHECK(xml.find("inheritrange=\"1\"") != std::string::npos);
 }
