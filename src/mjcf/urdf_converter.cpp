@@ -667,6 +667,9 @@ std::tuple<Shr<mjcf::Body>, Shr<mjcf::Joint>> UrdfConverter::parse_urdf_to_mjcf(
           auto cloned = std::make_shared<Position>();
           cloned->kp  = p->kp;
           cloned->kv  = p->kv;
+          cloned->dampratio    = p->dampratio;
+          cloned->timeconst    = p->timeconst;
+          cloned->inheritrange = p->inheritrange;
           dst         = cloned;
         } else if(std::dynamic_pointer_cast<Motor>(src)) {
           dst = std::make_shared<Motor>();

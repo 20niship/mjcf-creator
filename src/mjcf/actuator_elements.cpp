@@ -54,8 +54,10 @@ void Motor::set_xml_attrib() const { BaseActuator::set_xml_attrib(); }
 void Position::set_xml_attrib() const {
   BaseActuator::set_xml_attrib();
   this->set_attribute("kp", kp);
-  this->set_attribute("kv", kv);
-  if(dampratio != 0.0) this->set_attribute("dampratio", dampratio);
+  if(dampratio != 0.0)
+    this->set_attribute("dampratio", dampratio);
+  else
+    this->set_attribute("kv", kv);
   if(timeconst != 0.0) this->set_attribute("timeconst", timeconst);
   if(inheritrange != 0.0) this->set_attribute("inheritrange", inheritrange);
 }
