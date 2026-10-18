@@ -106,6 +106,7 @@ std::string Element::xml() const {
   static tinyxml2::XMLDocument* doc = new tinyxml2::XMLDocument();
   doc->Clear();
   write_xml_element(doc, nullptr);
+#if 0
 
   namespace fs = std::filesystem;
 
@@ -116,6 +117,11 @@ std::string Element::xml() const {
   ifs.close();
   fs::remove(tmpfile);
   return content;
+#else
+  tinyxml2::XMLPrinter printer;
+  doc->Print(&printer);
+  return printer.CStr();
+#endif
 }
 
 void* Element::write_xml_element_base(void* doc_ptr, void* parent_ptr) const {
