@@ -1329,6 +1329,7 @@ TEST_SUITE("URDF Conversion Tests") {
     <mujoco>
       <solreflimit>0.02 1.0</solreflimit>
       <stiffness>2.0</stiffness>
+      <springref>-0.35</springref>
       <armature>0.01</armature>
     </mujoco>
   </joint>
@@ -1351,6 +1352,7 @@ TEST_SUITE("URDF Conversion Tests") {
 
     // <mujoco>ブロックのパラメータが反映されていること
     CHECK(xml.find("stiffness=\"2\"") != std::string::npos);
+    CHECK(xml.find("springref=\"-0.35\"") != std::string::npos);
     CHECK(xml.find("armature=\"0.01\"") != std::string::npos);
     // solreflimitはデフォルト値(0.02 1.0)と同じなので出力されない（デフォルト抑制）
     // stiffness/armatureが出力されていれば<mujoco>ブロックのパースは成功

@@ -480,6 +480,7 @@ std::tuple<Shr<mjcf::Body>, Shr<mjcf::Joint>> UrdfConverter::parse_urdf_to_mjcf(
   // <joint>内の<mujoco>ブロックからMuJoCo専用パラメータを事前収集
   struct MujocoJointParams {
     double stiffness                  = -1.0;
+    double springref                  = 0.0;
     double armature                   = -1.0;
     std::array<double, 2> solreflimit = {0.0, 0.0};
     bool has_solreflimit              = false;
@@ -494,6 +495,8 @@ std::tuple<Shr<mjcf::Body>, Shr<mjcf::Joint>> UrdfConverter::parse_urdf_to_mjcf(
 
     XMLElement* stiffness_elem = mujoco_block->FirstChildElement("stiffness");
     if(stiffness_elem && stiffness_elem->GetText()) mp.stiffness = std::stod(stiffness_elem->GetText());
+    XMLElement* springref_elem = mujoco_block->FirstChildElement("springref");
+    if(springref_elem && springref_elem->GetText()) mp.springref = std::stod(springref_elem->GetText());
 
     XMLElement* armature_elem = mujoco_block->FirstChildElement("armature");
     if(armature_elem && armature_elem->GetText()) mp.armature = std::stod(armature_elem->GetText());
@@ -625,6 +628,7 @@ std::tuple<Shr<mjcf::Body>, Shr<mjcf::Joint>> UrdfConverter::parse_urdf_to_mjcf(
       if(mj_it != mujoco_joint_map.end()) {
         const auto& mjp = mj_it->second;
         if(mjp.stiffness >= 0.0) mjcf_joint->stiffness = mjp.stiffness;
+        mjcf_joint->springref = mjp.springref;
         if(mjp.armature >= 0.0) mjcf_joint->armature = mjp.armature;
         if(mjp.has_solreflimit) mjcf_joint->solreflimit = mjp.solreflimit;
       }
